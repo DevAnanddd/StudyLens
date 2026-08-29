@@ -4,9 +4,14 @@ import time
 import urllib.request
 import urllib.error
 from typing import List, Dict, Any, Optional
-from utils.config import DEFAULT_GEMINI_MODEL, TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
+from utils.config import TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
 
-def call_gemini_rest(prompt: str, api_key: str, model: str = DEFAULT_GEMINI_MODEL, json_response: bool = True) -> Optional[str]:
+# The model name that used to live in utils.config (DEFAULT_GEMINI_MODEL) has been
+# retired by Google. Hardcoding a currently-supported model here instead.
+CURRENT_GEMINI_MODEL = "gemini-3.6-flash"
+
+
+def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODEL, json_response: bool = True) -> Optional[str]:
     if not api_key:
         return None
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
@@ -18,13 +23,13 @@ def call_gemini_rest(prompt: str, api_key: str, model: str = DEFAULT_GEMINI_MODE
     }
     if json_response:
         payload["generationConfig"]["responseMimeType"] = "application/json"
-        
+
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"}
     )
-    
+
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read().decode("utf-8"))
@@ -34,13 +39,14 @@ def call_gemini_rest(prompt: str, api_key: str, model: str = DEFAULT_GEMINI_MODE
         print(f"Gemini API Request Error: {e}")
         return None
 
+
 def detect_topics_batch(
     slides: List[Dict[str, Any]],
-    model_name: str = DEFAULT_GEMINI_MODEL,
+    model_name: str = CURRENT_GEMINI_MODEL,
     api_key: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     key = api_key or os.getenv("GEMINI_API_KEY", "")
-    
+
     if not key:
         for slide in slides:
             first_line = slide.get("text", "").split("\n")[0] if slide.get("text") else "General Slide"
@@ -78,6 +84,7 @@ def detect_topics_batch(
         time.sleep(0.5)
     return slides
 
+
 def group_slides_by_topic(slides: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     for slide in slides:
@@ -87,10 +94,11 @@ def group_slides_by_topic(slides: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
         grouped[topic].append(slide)
     return grouped
 
+
 def summarize_topic_group(
     topic: str,
     slides_in_topic: List[Dict[str, Any]],
-    model_name: str = DEFAULT_GEMINI_MODEL,
+    model_name: str = CURRENT_GEMINI_MODEL,
     api_key: Optional[str] = None
 ) -> Dict[str, Any]:
     key = api_key or os.getenv("GEMINI_API_KEY", "")
@@ -111,11 +119,12 @@ def summarize_topic_group(
             return json.loads(resp_text.strip())
         except Exception as e:
             print(f"Summary parse error: {e}")
-            
+
     combined = "\n\n".join([f"- **{s['source_file']} [Slide {s['slide_index']}]:** {s.get('text', '')}" for s in slides_in_topic])
     return {
         "topic": topic,
         "subheadings": [{"title": "Extracted Content", "content": combined, "key_points": [], "sources": []}],
         "definitions": [],
-        "summary_markdown": f"### {topic}\n\n{combined}"
+        "summary_markdown": f"### {topic}\n\n{combined}",
+        "ai_summary_failed": True
     }

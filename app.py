@@ -5,6 +5,7 @@ Turn messy lecture slide photos, screenshots, and PDF notes into organized, sear
 import streamlit as st
 import os
 import io
+import json
 import time
 from pathlib import Path
 from PIL import Image
@@ -12,9 +13,13 @@ import google.generativeai as genai
 
 # On Streamlit Cloud, the API key lives in st.secrets instead of a local .env file.
 # This bridges it into an environment variable so the rest of the app (and utils.config)
-# works the same way whether running locally or deployed.
-if "GEMINI_API_KEY" in st.secrets:
-    os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+# works the same way whether running locally or deployed. Wrapped in try/except because
+# st.secrets raises an error locally when no secrets.toml file exists at all.
+try:
+    if "GEMINI_API_KEY" in st.secrets:
+        os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    pass
 
 # Import core modules
 from utils.config import (
@@ -127,6 +132,193 @@ def new_subject_state():
     }
 
 
+def render_results_dashboard(sub):
+    """Renders the stats + tabs dashboard for a subject that already has generated notes."""
+    # 1. Stats Dashboard
+    total_raw = len(sub["raw_slides"])
+    total_unique = len(sub["unique_slides"])
+    total_dups_removed = total_raw - total_unique
+    total_words = sum(s.get("word_count", 0) for s in sub["unique_slides"])
+    total_topics = len(sub["topic_summaries"])
+
+    st.markdown("### 📊 Processing Statistics")
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("Uploaded", total_raw)
+    m2.metric("Duplicates Removed", total_dups_removed)
+    m3.metric("Unique Slides", total_unique)
+    m4.metric("Extracted Words", total_words)
+    m5.metric("Topics Created", total_topics)
+
+    st.markdown("---")
+
+    # 2. Main Navigation Tabs
+    tab_search, tab_notes, tab_slides, tab_chat = st.tabs([
+        "🔎 Smart Search & Breadcrumbs",
+        "📖 Revision Notes",
+        "🖼️ Unique Slides & OCR Text",
+        "💬 Chat with Notes"
+    ])
+
+    with tab_search:
+        st.subheader("🔎 AI-Powered Search Across Topics, Headings & Definitions")
+        st.caption("Search understands meaning, not just exact words — try describing a concept in your own way.")
+        search_query = st.text_input(
+            "Enter search keywords, concept, or term:",
+            placeholder="e.g. Backpropagation, Neural Network, Theorem 2...",
+            key=f"search_{st.session_state.current_subject}"
+        )
+
+        if search_query:
+            if not sub["master_notes_md"]:
+                st.info("Generate your revision notes first — search needs notes to look through.")
+            else:
+                with st.spinner("Searching your notes..."):
+                    results = None
+                    try:
+                        genai.configure(api_key=api_key_input)
+                        search_model = genai.GenerativeModel("gemini-3.6-flash")
+                        search_prompt = (
+                            "You are a search engine for a student's revision notes. Given the notes "
+                            "below and a search query, find the sections relevant to the query's MEANING "
+                            "-- even if the exact wording differs from the notes.\n\n"
+                            "Return ONLY a JSON array (no markdown fences), each item with:\n"
+                            '- "breadcrumb": short "Topic > Subheading" style label\n'
+                            '- "subheading": short heading for the match\n'
+                            '- "snippet": a short 1-3 sentence excerpt or paraphrase relevant to the query\n'
+                            '- "sources": array of source slide names if identifiable, else an empty array\n\n'
+                            "If nothing in the notes is relevant, return an empty JSON array [].\n\n"
+                            f"NOTES:\n{sub['master_notes_md']}\n\n"
+                            f"QUERY: {search_query}"
+                        )
+                        response = search_model.generate_content(
+                            search_prompt,
+                            generation_config={"response_mime_type": "application/json"}
+                        )
+                        results = json.loads(response.text)
+                    except Exception as e:
+                        st.error(f"Search couldn't run right now. ({e})")
+
+                if results:
+                    st.success(f"Found {len(results)} matching sections/concepts:")
+                    for r in results:
+                        sources = r.get("sources") or []
+                        st.markdown(f"""
+                        <div class="search-card">
+                        <span class="breadcrumb-tag">{r.get('breadcrumb', '')}</span>
+                        <h4 style="margin: 6px 0;">{r.get('subheading', '')}</h4>
+                        <p style="color: #B7C9BE; font-size: 0.95rem;">{r.get('snippet', '')}</p>
+                        <small style="color: #7C8F84;">Sources: {', '.join(sources) if sources else 'N/A'}</small>
+                        </div>
+                        """, unsafe_allow_html=True)
+                elif results == []:
+                    st.info("No matching topics or concepts found for this query.")
+        else:
+            st.caption("Type any term or concept above to search across your notes by meaning.")
+
+    with tab_notes:
+        st.subheader("📑 Structured Revision Notes")
+
+        # Download & Copy Row
+        col_d1, col_d2, _ = st.columns([1, 1, 2])
+        with col_d1:
+            st.download_button(
+                label="📥 Download Markdown (.md)",
+                data=sub["master_notes_md"],
+                file_name=f"StudyLens_{st.session_state.current_subject}_Revision_Notes.md",
+                mime="text/markdown",
+                use_container_width=True,
+                key=f"dl_md_{st.session_state.current_subject}"
+            )
+        with col_d2:
+            st.download_button(
+                label="📥 Download Plain Text (.txt)",
+                data=sub["master_notes_md"],
+                file_name=f"StudyLens_{st.session_state.current_subject}_Revision_Notes.txt",
+                mime="text/plain",
+                use_container_width=True,
+                key=f"dl_txt_{st.session_state.current_subject}"
+            )
+
+        st.markdown("---")
+
+        # Collapsible Topic Accordions
+        for idx, item in enumerate(sub["topic_summaries"], 1):
+            topic_title = item.get("topic", f"Topic {idx}")
+            with st.expander(f"📚 Topic {idx}: {topic_title}", expanded=(idx == 1)):
+                if item.get("ai_summary_failed"):
+                    st.warning("⚠️ AI summarization couldn't run for this topic (often a temporary rate limit or connection issue) — showing raw extracted text below instead of a proper summary. Try using the \"➕ Add More Slides\" panel to re-add these slides in a minute or two.")
+                if "summary_markdown" in item and item["summary_markdown"]:
+                    st.markdown(item["summary_markdown"])
+                elif "subheadings" in item:
+                    for sh in item["subheadings"]:
+                        st.markdown(f"### {sh.get('title', 'Section')}")
+                        st.write(sh.get("content", ""))
+                        if sh.get("key_points"):
+                            for kp in sh["key_points"]:
+                                st.markdown(f"- {kp}")
+
+                # Definitions
+                definitions = item.get("definitions", [])
+                if definitions:
+                    st.markdown("#### 💡 Key Definitions")
+                    for d in definitions:
+                        st.info(f"**{d.get('term', '')}**: {d.get('definition', '')}")
+
+    with tab_slides:
+        st.subheader("🖼️ Extracted Unique Slides & Raw OCR Output")
+        for idx, slide in enumerate(sub["unique_slides"], 1):
+            with st.expander(f"Slide {idx}: {slide['source_file']} (Slide #{slide['slide_index']}) - Confidence: {slide.get('confidence', 0):.1%}"):
+                c1, c2 = st.columns([1, 1])
+                with c1:
+                    st.image(slide["image"], use_container_width=True, caption="Original Slide")
+                with c2:
+                    st.markdown(f"**OCR Engine:** {slide.get('engine', 'N/A')} | **Word Count:** {slide.get('word_count', 0)}")
+                    st.text_area(
+                        "Extracted OCR Text",
+                        value=slide.get("text", ""),
+                        height=220,
+                        key=f"ocr_text_{st.session_state.current_subject}_{slide['id']}"
+                    )
+
+    with tab_chat:
+        st.subheader(f"💬 Chat with Your {st.session_state.current_subject} Notes")
+        st.caption("Ask a question and the AI will answer using only the content from your generated revision notes.")
+
+        if not sub["master_notes_md"]:
+            st.info("Generate your revision notes first — this tab needs notes to chat about.")
+        else:
+            for msg in sub["chat_history"]:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+
+            user_question = st.chat_input("Ask something about your notes...", key=f"chat_input_{st.session_state.current_subject}")
+            if user_question:
+                sub["chat_history"].append({"role": "user", "content": user_question})
+                with st.chat_message("user"):
+                    st.markdown(user_question)
+
+                with st.chat_message("assistant"):
+                    with st.spinner("Thinking..."):
+                        try:
+                            genai.configure(api_key=api_key_input)
+                            chat_model = genai.GenerativeModel("gemini-3.6-flash")
+                            prompt = (
+                                "You are a helpful study assistant. Answer the student's question "
+                                "using ONLY the information contained in the revision notes below. "
+                                "If the answer isn't covered in these notes, say so honestly instead "
+                                "of guessing.\n\n"
+                                f"REVISION NOTES:\n{sub['master_notes_md']}\n\n"
+                                f"STUDENT QUESTION: {user_question}"
+                            )
+                            response = chat_model.generate_content(prompt)
+                            answer = response.text
+                        except Exception as e:
+                            answer = f"Sorry, I couldn't get an answer right now. ({e})"
+                        st.markdown(answer)
+
+                sub["chat_history"].append({"role": "assistant", "content": answer})
+
+
 # Initialize Session State (now keyed by subject)
 if "subjects" not in st.session_state:
     st.session_state.subjects = {}
@@ -216,50 +408,83 @@ st.markdown(f'<div class="main-title">🔍 <span class="hl">StudyLens</span> —
 st.markdown('<div class="sub-title">Turn messy lecture slide photos, screenshots, and PDF notes into organized, searchable revision notes.</div>', unsafe_allow_html=True)
 
 # --- STAGE 1: UPLOAD & EXTRACTION ---
-if sub["pipeline_stage"] == "upload":
-    st.subheader("📤 Step 1: Upload Lecture Slides or PDFs")
-    uploaded_files = st.file_uploader(
-        "Choose image files (PNG, JPG, WEBP) or PDFs",
-        type=ALL_SUPPORTED_TYPES,
-        accept_multiple_files=True,
-        help="Upload individual photos, screenshots, or multi-page lecture PDFs."
-    )
+if sub["pipeline_stage"] in ("upload", "completed"):
+    has_existing_notes = bool(sub["master_notes_md"])
 
-    if uploaded_files:
-        st.info(f"📁 {len(uploaded_files)} file(s) selected.")
-        if st.button("🚀 Process & Detect Duplicates", type="primary", use_container_width=True):
-            with st.status("Processing uploads & analyzing slides...", expanded=True) as status:
-                # 1. File extraction
-                status.write("📄 Extracting pages and reading images...")
-                slides = process_uploaded_files(uploaded_files)
-                if not slides:
-                    st.error("No valid slide images could be extracted from the uploaded files.")
-                    st.stop()
+    if has_existing_notes:
+        with st.expander("➕ Add More Slides to This Subject", expanded=False):
+            st.caption("New uploads are added to your existing notes — nothing gets erased.")
+            uploaded_files = st.file_uploader(
+                "Choose image files (PNG, JPG, WEBP) or PDFs",
+                type=ALL_SUPPORTED_TYPES,
+                accept_multiple_files=True,
+                help="Upload individual photos, screenshots, or multi-page lecture PDFs.",
+                key="uploader_add_more"
+            )
+            if uploaded_files:
+                st.info(f"📁 {len(uploaded_files)} file(s) selected.")
+                start_processing = st.button("🚀 Process & Detect Duplicates", type="primary", use_container_width=True, key="process_add_more")
+            else:
+                start_processing = False
+    else:
+        st.subheader("📤 Step 1: Upload Lecture Slides or PDFs")
+        uploaded_files = st.file_uploader(
+            "Choose image files (PNG, JPG, WEBP) or PDFs",
+            type=ALL_SUPPORTED_TYPES,
+            accept_multiple_files=True,
+            help="Upload individual photos, screenshots, or multi-page lecture PDFs.",
+            key="uploader_first"
+        )
+        if uploaded_files:
+            st.info(f"📁 {len(uploaded_files)} file(s) selected.")
+            start_processing = st.button("🚀 Process & Detect Duplicates", type="primary", use_container_width=True, key="process_first")
+        else:
+            start_processing = False
 
-                status.write(f"✅ Extracted {len(slides)} total slide/page images.")
+    if uploaded_files and start_processing:
+        with st.status("Processing uploads & analyzing slides...", expanded=True) as status:
+            # 1. File extraction
+            status.write("📄 Extracting pages and reading images...")
+            slides = process_uploaded_files(uploaded_files)
+            if not slides:
+                st.error("No valid slide images could be extracted from the uploaded files.")
+                st.stop()
 
-                # 2. Image Preprocessing (OpenCV)
-                status.write("🎨 Preprocessing images with OpenCV (Grayscale, CLAHE, Denoising)...")
-                for s in slides:
-                    proc_img, _ = preprocess_slide_image(
-                        s["image"],
-                        apply_clahe=apply_enhancements,
-                        apply_denoise=apply_enhancements
-                    )
-                    s["preprocessed_image"] = proc_img
+            status.write(f"✅ Extracted {len(slides)} total slide/page images.")
 
-                # 3. Duplicate Detection
-                status.write("🔁 Calculating perceptual hashes (pHash) and detecting duplicates...")
-                unique_slides, duplicate_clusters = cluster_duplicates(slides, threshold=hash_threshold)
+            # Carry forward slides already finalized in a previous session for this
+            # subject, so new uploads ADD to existing notes instead of wiping them out.
+            if sub["unique_slides"]:
+                status.write(f"➕ Combining with {len(sub['unique_slides'])} previously processed slide(s)...")
+                slides = sub["unique_slides"] + slides
 
-                sub["raw_slides"] = slides
-                sub["duplicate_clusters"] = duplicate_clusters
-                sub["unique_slides"] = unique_slides
-                sub["pipeline_stage"] = "review_duplicates"
-                status.update(label="Initial processing complete! Ready for duplicate review.", state="complete")
+            # 2. Image Preprocessing (OpenCV)
+            status.write("🎨 Preprocessing images with OpenCV (Grayscale, CLAHE, Denoising)...")
+            for s in slides:
+                proc_img, _ = preprocess_slide_image(
+                    s["image"],
+                    apply_clahe=apply_enhancements,
+                    apply_denoise=apply_enhancements
+                )
+                s["preprocessed_image"] = proc_img
 
-            time.sleep(0.5)
-            st.rerun()
+            # 3. Duplicate Detection
+            status.write("🔁 Calculating perceptual hashes (pHash) and detecting duplicates...")
+            unique_slides, duplicate_clusters = cluster_duplicates(slides, threshold=hash_threshold)
+
+            sub["raw_slides"] = slides
+            sub["duplicate_clusters"] = duplicate_clusters
+            sub["unique_slides"] = unique_slides
+            sub["pipeline_stage"] = "review_duplicates"
+            status.update(label="Initial processing complete! Ready for duplicate review.", state="complete")
+
+        time.sleep(0.5)
+        st.rerun()
+
+    # Show the dashboard + tabs right here too, so notes stay visible while browsing
+    # or adding more slides -- nothing disappears until you actually process new uploads.
+    if sub["pipeline_stage"] == "completed" and sub["master_notes_md"]:
+        render_results_dashboard(sub)
 
 # --- STAGE 2: DUPLICATE REVIEW SCREEN ---
 elif sub["pipeline_stage"] == "review_duplicates":
@@ -366,156 +591,3 @@ elif sub["pipeline_stage"] == "review_duplicates":
             time.sleep(0.5)
             st.rerun()
 
-# --- STAGE 3: RESULTS, DASHBOARD, SEARCH, NOTES & CHAT ---
-elif sub["pipeline_stage"] == "completed":
-    # 1. Stats Dashboard
-    total_raw = len(sub["raw_slides"])
-    total_unique = len(sub["unique_slides"])
-    total_dups_removed = total_raw - total_unique
-    total_words = sum(s.get("word_count", 0) for s in sub["unique_slides"])
-    total_topics = len(sub["topic_summaries"])
-
-    st.markdown("### 📊 Processing Statistics")
-    m1, m2, m3, m4, m5 = st.columns(5)
-    m1.metric("Uploaded", total_raw)
-    m2.metric("Duplicates Removed", total_dups_removed)
-    m3.metric("Unique Slides", total_unique)
-    m4.metric("Extracted Words", total_words)
-    m5.metric("Topics Created", total_topics)
-
-    st.markdown("---")
-
-    # 2. Main Navigation Tabs
-    tab_search, tab_notes, tab_slides, tab_chat = st.tabs([
-        "🔎 Smart Search & Breadcrumbs",
-        "📖 Revision Notes",
-        "🖼️ Unique Slides & OCR Text",
-        "💬 Chat with Notes"
-    ])
-
-    with tab_search:
-        st.subheader("🔎 Search Across Topics, Headings & Definitions")
-        search_query = st.text_input("Enter search keywords, concept, or term:", placeholder="e.g. Backpropagation, Neural Network, Theorem 2...")
-
-        if search_query:
-            if sub["search_engine"]:
-                results = sub["search_engine"].search(search_query)
-                if results:
-                    st.success(f"Found {len(results)} matching sections/concepts:")
-                    for r in results:
-                        st.markdown(f"""
-                        <div class="search-card">
-                        <span class="breadcrumb-tag">{r['breadcrumb']}</span>
-                        <h4 style="margin: 6px 0;">{r['subheading']}</h4>
-                        <p style="color: #374151; font-size: 0.95rem;">{r['snippet']}</p>
-                        <small style="color: #6B7280;">Sources: {', '.join(r['sources']) if r['sources'] else 'N/A'}</small>
-                        </div>
-                        """, unsafe_allow_html=True)
-                else:
-                    st.info("No matching topics or concepts found for this query.")
-            else:
-                st.caption("Type any term above to view exact breadcrumb navigation links across your notes.")
-
-    with tab_notes:
-        st.subheader("📑 Structured Revision Notes")
-
-        # Download & Copy Row
-        col_d1, col_d2, _ = st.columns([1, 1, 2])
-        with col_d1:
-            st.download_button(
-                label="📥 Download Markdown (.md)",
-                data=sub["master_notes_md"],
-                file_name=f"StudyLens_{st.session_state.current_subject}_Revision_Notes.md",
-                mime="text/markdown",
-                use_container_width=True
-            )
-        with col_d2:
-            st.download_button(
-                label="📥 Download Plain Text (.txt)",
-                data=sub["master_notes_md"],
-                file_name=f"StudyLens_{st.session_state.current_subject}_Revision_Notes.txt",
-                mime="text/plain",
-                use_container_width=True
-            )
-
-        st.markdown("---")
-
-        # Collapsible Topic Accordions
-        for idx, item in enumerate(sub["topic_summaries"], 1):
-            topic_title = item.get("topic", f"Topic {idx}")
-            with st.expander(f"📚 Topic {idx}: {topic_title}", expanded=(idx == 1)):
-                if "summary_markdown" in item and item["summary_markdown"]:
-                    st.markdown(item["summary_markdown"])
-                elif "subheadings" in item:
-                    for sh in item["subheadings"]:
-                        st.markdown(f"### {sh.get('title', 'Section')}")
-                        st.write(sh.get("content", ""))
-                        if sh.get("key_points"):
-                            for kp in sh["key_points"]:
-                                st.markdown(f"- {kp}")
-
-                # Definitions
-                definitions = item.get("definitions", [])
-                if definitions:
-                    st.markdown("#### 💡 Key Definitions")
-                    for d in definitions:
-                        st.info(f"**{d.get('term', '')}**: {d.get('definition', '')}")
-
-    with tab_slides:
-        st.subheader("🖼️ Extracted Unique Slides & Raw OCR Output")
-        for idx, slide in enumerate(sub["unique_slides"], 1):
-            with st.expander(f"Slide {idx}: {slide['source_file']} (Slide #{slide['slide_index']}) - Confidence: {slide.get('confidence', 0):.1%}"):
-                c1, c2 = st.columns([1, 1])
-                with c1:
-                    st.image(slide["image"], use_container_width=True, caption="Original Slide")
-                with c2:
-                    st.markdown(f"**OCR Engine:** {slide.get('engine', 'N/A')} | **Word Count:** {slide.get('word_count', 0)}")
-                    st.text_area(
-                        "Extracted OCR Text",
-                        value=slide.get("text", ""),
-                        height=220,
-                        key=f"ocr_text_{st.session_state.current_subject}_{slide['id']}"
-                    )
-
-    with tab_chat:
-        st.subheader(f"💬 Chat with Your {st.session_state.current_subject} Notes")
-        st.caption("Ask a question and the AI will answer using only the content from your generated revision notes.")
-
-        if not sub["master_notes_md"]:
-            st.info("Generate your revision notes first — this tab needs notes to chat about.")
-        else:
-            for msg in sub["chat_history"]:
-                with st.chat_message(msg["role"]):
-                    st.markdown(msg["content"])
-
-            user_question = st.chat_input("Ask something about your notes...")
-            if user_question:
-                sub["chat_history"].append({"role": "user", "content": user_question})
-                with st.chat_message("user"):
-                    st.markdown(user_question)
-
-                with st.chat_message("assistant"):
-                    with st.spinner("Thinking..."):
-                        try:
-                            genai.configure(api_key=api_key_input)
-                            chat_model = genai.GenerativeModel("gemini-3.6-flash")
-                            prompt = (
-                                "You are a helpful study assistant. Answer the student's question "
-                                "using ONLY the information contained in the revision notes below. "
-                                "If the answer isn't covered in these notes, say so honestly instead "
-                                "of guessing.\n\n"
-                                f"REVISION NOTES:\n{sub['master_notes_md']}\n\n"
-                                f"STUDENT QUESTION: {user_question}"
-                            )
-                            response = chat_model.generate_content(prompt)
-                            answer = response.text
-                        except Exception as e:
-                            answer = f"Sorry, I couldn't get an answer right now. ({e})"
-                        st.markdown(answer)
-
-                sub["chat_history"].append({"role": "assistant", "content": answer})
-
-    st.markdown("---")
-    if st.button("⬅️ Start New Session", type="secondary"):
-        sub["pipeline_stage"] = "upload"
-        st.rerun()
