@@ -11,6 +11,18 @@ from utils.config import TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
 CURRENT_GEMINI_MODEL = "gemini-3.6-flash"
 
 
+import ssl
+
+def get_ssl_context():
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
 def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODEL, json_response: bool = True) -> Optional[str]:
     if not api_key:
         return None
@@ -31,7 +43,8 @@ def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODE
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        context = get_ssl_context()
+        with urllib.request.urlopen(req, timeout=30, context=context) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             text = data["candidates"][0]["content"]["parts"][0]["text"]
             return text
