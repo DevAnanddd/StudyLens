@@ -7,6 +7,7 @@ import os
 import io
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 from PIL import Image
 
@@ -289,7 +290,8 @@ def new_subject_state():
         "excluded_slide_ids": set(),
         "chat_history": [],
         "quiz_score": {"correct": 0, "total": 0},
-        "study_streak_days": 3
+        "study_streak_days": 3,
+        "last_updated": None
     }
 
 
@@ -474,8 +476,20 @@ with st.sidebar:
             st.session_state.current_view = "Overview"
             st.rerun()
         if st.button("🔄 Reset Active Subject", use_container_width=True):
-            st.session_state.subjects[st.session_state.current_subject] = new_subject_state()
-            st.rerun()
+            st.session_state["confirm_reset_subject"] = st.session_state.current_subject
+
+        if st.session_state.get("confirm_reset_subject") == st.session_state.current_subject:
+            st.warning(f"This will permanently delete all slides and notes for **{st.session_state.current_subject}**. This can't be undone.")
+            c_confirm, c_cancel = st.columns(2)
+            with c_confirm:
+                if st.button("Yes, reset it", use_container_width=True, type="primary", key="confirm_reset_yes"):
+                    st.session_state.subjects[st.session_state.current_subject] = new_subject_state()
+                    st.session_state["confirm_reset_subject"] = None
+                    st.rerun()
+            with c_cancel:
+                if st.button("Cancel", use_container_width=True, key="confirm_reset_cancel"):
+                    st.session_state["confirm_reset_subject"] = None
+                    st.rerun()
 
     api_key_input = GEMINI_API_KEY
 
@@ -616,6 +630,8 @@ if st.session_state.current_view == "Overview":
     streak_days = sub.get("study_streak_days", 3)
 
     st.markdown('<div class="nav-section-label">Your Study Overview</div>', unsafe_allow_html=True)
+    if sub.get("last_updated"):
+        st.caption(f"🕒 Notes last updated: {sub['last_updated']}")
     st.markdown(f"""
     <div class="dashboard-grid">
         <div class="stat-card">
@@ -774,6 +790,7 @@ elif st.session_state.current_view == "Materials":
                 total_words = sum(s.get("word_count", 0) for s in final_unique)
                 stats = {"unique_slides": len(final_unique), "total_words": total_words, "topics_count": len(summaries)}
                 sub["master_notes_md"] = generate_master_notes(summaries, stats)
+                sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
                 sub["search_engine"] = RevisionSearchEngine(summaries, final_unique)
                 sub["pipeline_stage"] = "completed"
                 status.update(label="Revision workspace ready!", state="complete")
@@ -828,7 +845,24 @@ elif st.session_state.current_view == "Revision Notes":
             topic_title = item.get("topic", f"Topic {idx}")
             with st.expander(f"📚 {idx}. {topic_title}", expanded=(idx == 1)):
                 if item.get("ai_summary_failed"):
-                    st.warning("⚠️ AI summarization couldn't run for this topic (often a temporary rate limit or connection issue) — showing raw extracted text below instead of a proper summary. Try re-adding these slides in a minute or two.")
+                    st.warning("⚠️ AI summarization couldn't run for this topic (often a temporary rate limit or connection issue) — showing raw extracted text below instead of a proper summary.")
+                    if st.button("🔄 Retry AI Summary for This Topic", key=f"retry_topic_{idx}_{st.session_state.current_subject}"):
+                        matching_slides = [s for s in sub["unique_slides"] if s.get("topic") == topic_title]
+                        if matching_slides:
+                            with st.spinner("Retrying AI summarization..."):
+                                new_summary = summarize_topic_group(topic_title, matching_slides, api_key=api_key_input)
+                            sub["topic_summaries"][idx - 1] = new_summary
+                            total_words = sum(s.get("word_count", 0) for s in sub["unique_slides"])
+                            stats = {
+                                "unique_slides": len(sub["unique_slides"]),
+                                "total_words": total_words,
+                                "topics_count": len(sub["topic_summaries"])
+                            }
+                            sub["master_notes_md"] = generate_master_notes(sub["topic_summaries"], stats)
+                            sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
+                            st.rerun()
+                        else:
+                            st.error("Couldn't find the original slides for this topic to retry — try re-uploading them instead.")
                 if "summary_markdown" in item and item["summary_markdown"]:
                     st.markdown(item["summary_markdown"])
                 elif "subheadings" in item:

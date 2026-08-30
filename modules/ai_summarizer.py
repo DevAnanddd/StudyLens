@@ -11,18 +11,6 @@ from utils.config import TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
 CURRENT_GEMINI_MODEL = "gemini-3.6-flash"
 
 
-import ssl
-
-def get_ssl_context():
-    try:
-        import certifi
-        return ssl.create_default_context(cafile=certifi.where())
-    except Exception:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        return ctx
-
 def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODEL, json_response: bool = True) -> Optional[str]:
     if not api_key:
         return None
@@ -43,8 +31,7 @@ def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODE
     )
 
     try:
-        context = get_ssl_context()
-        with urllib.request.urlopen(req, timeout=30, context=context) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             text = data["candidates"][0]["content"]["parts"][0]["text"]
             return text
@@ -73,7 +60,14 @@ def detect_topics_batch(
             {"slide_id": s["id"], "source": f"{s['source_file']} (Slide {s['slide_index']})", "content": s.get("text", "")[:1000]}
             for s in batch
         ]
-        prompt = f"""You are an academic organizer. Group slide items into topics. Return ONLY JSON array with 'slide_id', 'topic', 'concepts'. Data: {json.dumps(batch_prompt_items)}"""
+        prompt = f"""You are an academic organizer. Group slide items into meaningful academic topics.
+
+Rules for the 'topic' field:
+- Use a clear, descriptive subject name (e.g. "Shallow Copy vs Deep Copy", "Character Arrays vs Strings") that reflects the actual concept being taught.
+- NEVER use a table header, column label, row number, or short fragment (e.g. "S.No.", "SNo", "Sr No", "Table 1") as a topic name, even if it appears first in the slide text.
+- If a slide is a data table, name the topic after what the table is actually comparing or explaining, not its column headers.
+
+Return ONLY JSON array with 'slide_id', 'topic', 'concepts'. Data: {json.dumps(batch_prompt_items)}"""
         resp_text = call_gemini_rest(prompt, key, model=model_name, json_response=True)
         if resp_text:
             try:
@@ -125,7 +119,17 @@ def summarize_topic_group(
         }
 
     slides_payload = [{"source": f"{s['source_file']} (Slide {s['slide_index']})", "content": s.get("text", "")} for s in slides_in_topic]
-    prompt = f"""Synthesize slides under topic "{topic}". Return JSON with topic, subheadings (title, content, key_points, sources), definitions (term, definition, source), summary_markdown. Strict factual grounding. Data: {json.dumps(slides_payload)}"""
+    prompt = f"""Synthesize slides under topic "{topic}". Return JSON with topic, subheadings (title, content, key_points, sources), definitions (term, definition, source), summary_markdown. Strict factual grounding.
+
+Formatting rule for summary_markdown: if the source content compares two or more things side by side (e.g. "X vs Y", feature comparisons, pros/cons across options), render that comparison as an actual markdown table using pipe syntax, e.g.:
+
+| Feature | Option A | Option B |
+|---|---|---|
+| Example | Value | Value |
+
+Do NOT flatten a comparison into a run-on paragraph of dashes and semicolons. Only use a table when the content is genuinely comparative; otherwise use normal prose and bullet points.
+
+Data: {json.dumps(slides_payload)}"""
     resp_text = call_gemini_rest(prompt, key, model=model_name, json_response=True)
     if resp_text:
         try:
