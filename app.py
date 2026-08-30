@@ -51,15 +51,12 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-    /* Global App Background & Base Typography */
     .stApp {
         background-color: #090d16;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: #f1f5f9;
         letter-spacing: -0.01em;
     }
-
-    /* Seamless Header & Background Overrides */
     header[data-testid="stHeader"] {
         background: transparent !important;
     }
@@ -69,8 +66,6 @@ st.markdown("""
     [data-testid="stToolbar"] {
         right: 1.5rem !important;
     }
-
-    /* Sidebar Navigation - Linear Aesthetic */
     [data-testid="stSidebar"] {
         background-color: #0c111d !important;
         border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -110,14 +105,11 @@ st.markdown("""
         margin-top: 14px;
         margin-bottom: 8px;
     }
-
-    /* Typography & Headings */
     h1, h2, h3, h4, .main-title {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-weight: 700 !important;
         letter-spacing: -0.025em;
     }
-
     .greeting-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 2.2rem;
@@ -131,15 +123,12 @@ st.markdown("""
         color: #94a3b8;
         margin-bottom: 1.6rem;
     }
-
     .gradient-headline {
         background: linear-gradient(90deg, #818cf8 0%, #c084fc 60%, #38bdf8 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         display: inline;
     }
-
-    /* Buttons: Indigo/Violet with Refined Glow */
     .stButton > button {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
@@ -159,8 +148,6 @@ st.markdown("""
     .stButton > button:active {
         transform: translateY(0px) !important;
     }
-
-    /* Secondary / Download Buttons */
     .stDownloadButton > button {
         background: rgba(30, 41, 59, 0.6) !important;
         backdrop-filter: blur(8px);
@@ -176,8 +163,6 @@ st.markdown("""
         border-color: #818cf8 !important;
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
     }
-
-    /* Container Cards */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: rgba(18, 26, 43, 0.75) !important;
         backdrop-filter: blur(12px) !important;
@@ -186,8 +171,6 @@ st.markdown("""
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
         margin-bottom: 1.8rem !important;
     }
-
-    /* Metrics Cards Grid */
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -229,56 +212,6 @@ st.markdown("""
         color: #94a3b8;
         margin-top: 4px;
     }
-
-    /* Interactive Flashcard Study Mode */
-    .flashcard-deck-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        max-width: 680px;
-        margin: 0 auto 2rem auto;
-    }
-    .flashcard-main-card {
-        width: 100%;
-        min-height: 240px;
-        background: linear-gradient(145deg, rgba(24, 34, 56, 0.9) 0%, rgba(13, 19, 33, 0.95) 100%);
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        border-radius: 16px;
-        padding: 32px 28px;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
-        text-align: center;
-        position: relative;
-        transition: all 0.25s ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    .flashcard-main-card:hover {
-        border-color: #818cf8;
-        box-shadow: 0 14px 40px rgba(99, 102, 241, 0.18);
-    }
-    .flashcard-tag {
-        position: absolute;
-        top: 16px;
-        left: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #818cf8;
-        background: rgba(99, 102, 241, 0.15);
-        padding: 3px 10px;
-        border-radius: 6px;
-    }
-    .flashcard-main-term {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-top: 10px;
-        margin-bottom: 8px;
-    }
-
-    /* Pipeline Status Tracker */
     .pipeline-step {
         display: flex;
         align-items: center;
@@ -301,8 +234,6 @@ st.markdown("""
     .pipeline-step.pending {
         color: #64748b;
     }
-
-    /* Search & Breadcrumb Styling */
     .breadcrumb-tag {
         background-color: rgba(99, 102, 241, 0.15);
         color: #a5b4fc;
@@ -321,8 +252,6 @@ st.markdown("""
         margin-bottom: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
-
-    /* Quick Action Pill Buttons */
     .quick-action-btn {
         background: rgba(18, 26, 43, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -336,8 +265,6 @@ st.markdown("""
         border-color: #818cf8;
         transform: translateY(-2px);
     }
-
-    /* Expander & Tabs refinement */
     .streamlit-expanderHeader {
         background-color: rgba(18, 26, 43, 0.7) !important;
         border-radius: 10px !important;
@@ -354,7 +281,7 @@ def new_subject_state():
         "raw_slides": [],
         "duplicate_clusters": [],
         "unique_slides": [],
-        "pipeline_stage": "upload",  # upload, review_duplicates, completed
+        "pipeline_stage": "upload",
         "ocr_done": False,
         "topic_summaries": [],
         "master_notes_md": "",
@@ -362,8 +289,7 @@ def new_subject_state():
         "excluded_slide_ids": set(),
         "chat_history": [],
         "quiz_score": {"correct": 0, "total": 0},
-        "study_streak_days": 3,
-        "flashcard_index": 0
+        "study_streak_days": 3
     }
 
 
@@ -407,7 +333,7 @@ def create_sample_lecture_demo():
         "total_words": 1420
     }
     master_md = generate_master_notes(sample_topic_summaries, stats)
-    
+
     sample_slides = []
     for i in range(1, 7):
         img = Image.new("RGB", (640, 360), color=(18 + i*8, 26 + i*7, 45 + i*14))
@@ -435,7 +361,6 @@ def create_sample_lecture_demo():
         "excluded_slide_ids": set(),
         "quiz_score": {"correct": 3, "total": 3},
         "study_streak_days": 4,
-        "flashcard_index": 0,
         "chat_history": [
             {"role": "user", "content": "What is the formula for scaled dot-product attention?"},
             {"role": "assistant", "content": "According to the notes, the formula for Scaled Dot-Product Attention is:\n$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$"}
@@ -463,18 +388,16 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # 1. My Subjects Section
     st.markdown('<div class="nav-section-label">My Subjects</div>', unsafe_allow_html=True)
     subject_names = list(st.session_state.subjects.keys())
 
     if subject_names:
         if st.session_state.current_subject not in subject_names:
             st.session_state.current_subject = subject_names[0]
-        
-        # Display subject switcher with clean emoji icons
+
         subject_icons = {"Deep Learning Demo": "🧠", "Data Structures": "💻", "Physics": "⚛"}
         subject_options_labels = [f"{subject_icons.get(name, '📚')} {name}" for name in subject_names]
-        
+
         current_idx = subject_names.index(st.session_state.current_subject)
         chosen_subject_label = st.selectbox(
             "Active Subject",
@@ -489,7 +412,6 @@ with st.sidebar:
     else:
         st.caption("No subjects yet. Create one below.")
 
-    # Inline Quick Subject Creator
     with st.popover("➕ New Subject", use_container_width=True):
         new_subject_name = st.text_input(
             "Subject Name",
@@ -509,17 +431,15 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # 2. Workspace Views
     st.markdown('<div class="nav-section-label">Workspace</div>', unsafe_allow_html=True)
-    
+
     views = [
         ("⌂ Overview", "Overview"),
         ("📄 Materials", "Materials"),
         ("📝 Revision Notes", "Revision Notes"),
-        ("🧠 Flashcards", "Flashcards"),
         ("🎯 Quizzes", "Quizzes")
     ]
-    
+
     for label, view_key in views:
         is_active = (st.session_state.current_view == view_key)
         btn_type = "primary" if is_active else "secondary"
@@ -529,10 +449,9 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # 3. Settings & Quick Demo
     st.markdown('<div class="nav-section-label">Settings</div>', unsafe_allow_html=True)
-    
-    if st.button("✨ Try Sample Demo", use_container_width=True, key="sb_demo_btn", help="Loads pre-made lecture with notes, flashcards, & quiz"):
+
+    if st.button("✨ Try Sample Demo", use_container_width=True, key="sb_demo_btn", help="Loads pre-made lecture with notes & quiz"):
         st.session_state.subjects["Deep Learning Demo"] = create_sample_lecture_demo()
         st.session_state.current_subject = "Deep Learning Demo"
         st.session_state.current_view = "Overview"
@@ -562,7 +481,7 @@ with st.sidebar:
 
 
 # ==============================================================================
-# VIEW 1: CLEAN EMPTY / LANDING STATE (When no subject is active)
+# VIEW: CLEAN EMPTY / LANDING STATE (When no subject is active)
 # ==============================================================================
 if not st.session_state.subjects or not st.session_state.current_subject:
     st.markdown("""
@@ -574,14 +493,13 @@ if not st.session_state.subjects or not st.session_state.current_subject:
             Turn messy lecture slides into <span class="gradient-headline">structured revision notes.</span>
         </h1>
         <p style="font-size: 1.05rem; color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">
-            StudyLens cleans whiteboard photos, removes duplicate slides, and synthesizes crisp, topic-grouped revision notes, active flashcards, and quizzes.
+            StudyLens cleans whiteboard photos, removes duplicate slides, and synthesizes crisp, topic-grouped revision notes and quizzes.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
     c_l, c_center, c_r = st.columns([1, 2, 1])
     with c_center:
-        # If subjects exist, give a quick list to jump back in
         if st.session_state.subjects:
             with st.container(border=True):
                 st.markdown('<h3 style="color: #f8fafc; margin-bottom: 6px; font-size: 1.15rem;">📚 Select an Existing Subject</h3>', unsafe_allow_html=True)
@@ -599,9 +517,9 @@ if not st.session_state.subjects or not st.session_state.current_subject:
         with st.container(border=True):
             st.markdown('<h3 style="color: #f8fafc; margin-bottom: 4px; font-size: 1.2rem;">🚀 Create a New Subject</h3>', unsafe_allow_html=True)
             st.markdown('<p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.2rem;">Start a clean study workspace for your course or exam.</p>', unsafe_allow_html=True)
-            
+
             hero_sub_name = st.text_input("Subject Name", placeholder="e.g. Deep Learning, Data Structures, Physics...", key="hero_empty_sub_input", label_visibility="collapsed")
-            
+
             col_b1, col_b2 = st.columns([1.3, 1])
             with col_b1:
                 if st.button("➕ Create Subject", use_container_width=True, key="btn_hero_create"):
@@ -630,7 +548,6 @@ sub = st.session_state.subjects[st.session_state.current_subject]
 # WORKSPACE VIEWS (Active Subject Workspace)
 # ==============================================================================
 
-# Top-Left Back Navigation Bar & Workspace Header
 top_nav_col1, top_nav_col2 = st.columns([1.8, 3.2])
 with top_nav_col1:
     if st.button("← Back to Subjects / Home", key="btn_top_back_home", help="Return to subjects overview & landing page"):
@@ -647,7 +564,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Global AI Search Bar
 search_col1, search_col2 = st.columns([4, 1])
 with search_col1:
     global_search = st.text_input(
@@ -725,7 +641,6 @@ if st.session_state.current_view == "Overview":
     </div>
     """, unsafe_allow_html=True)
 
-    # Continue Learning Section
     st.markdown('<div class="nav-section-label">Continue Learning</div>', unsafe_allow_html=True)
     with st.container(border=True):
         col_cont1, col_cont2 = st.columns([3, 1])
@@ -740,9 +655,8 @@ if st.session_state.current_view == "Overview":
                 st.session_state.current_view = "Revision Notes"
                 st.rerun()
 
-    # Quick Actions Row
     st.markdown('<div class="nav-section-label">Quick Actions</div>', unsafe_allow_html=True)
-    qa_col1, qa_col2, qa_col3, qa_col4 = st.columns(4)
+    qa_col1, qa_col2, qa_col3 = st.columns(3)
     with qa_col1:
         if st.button("📄 Upload Material", use_container_width=True):
             st.session_state.current_view = "Materials"
@@ -752,10 +666,6 @@ if st.session_state.current_view == "Overview":
             st.session_state.current_view = "Revision Notes"
             st.rerun()
     with qa_col3:
-        if st.button("📇 Flashcards", use_container_width=True):
-            st.session_state.current_view = "Flashcards"
-            st.rerun()
-    with qa_col4:
         if st.button("🎯 Take Quiz", use_container_width=True):
             st.session_state.current_view = "Quizzes"
             st.rerun()
@@ -768,7 +678,6 @@ elif st.session_state.current_view == "Materials":
     st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 6px;">📄 Course Materials & Lecture Slides</h2>', unsafe_allow_html=True)
     st.caption("Upload lecture slides (PNG, JPG, WEBP) or multi-page PDFs. OpenCV will enhance clarity and filter duplicates.")
 
-    # Upload Container
     with st.container(border=True):
         uploaded_files = st.file_uploader(
             "Drag and drop lecture photos or PDFs here",
@@ -782,7 +691,6 @@ elif st.session_state.current_view == "Materials":
         else:
             start_processing = False
 
-    # Pipeline Processing
     if uploaded_files and start_processing:
         with st.status("Processing uploads & analyzing slides...", expanded=True) as status:
             status.write("📄 Reading pages & rendering high-res images...")
@@ -812,11 +720,10 @@ elif st.session_state.current_view == "Materials":
         time.sleep(0.4)
         st.rerun()
 
-    # If in duplicate review stage
     if sub["pipeline_stage"] == "review_duplicates":
         st.markdown("### 🔁 Review Duplicate & Near-Duplicate Slides")
         st.caption("Check slides to include in OCR and note generation.")
-        
+
         clusters = sub["duplicate_clusters"]
         if not clusters:
             st.success("🎉 No duplicate slides detected! All slides appear unique.")
@@ -875,7 +782,6 @@ elif st.session_state.current_view == "Materials":
             st.session_state.current_view = "Revision Notes"
             st.rerun()
 
-    # Materials List (Processed)
     if sub["unique_slides"]:
         st.markdown("##### 📁 Processed Slide Archive")
         for idx, slide in enumerate(sub["unique_slides"], 1):
@@ -898,7 +804,6 @@ elif st.session_state.current_view == "Revision Notes":
     if not sub["master_notes_md"]:
         st.info("No revision notes generated yet. Upload slides in the Materials tab or load the Sample Demo.")
     else:
-        # Export Bar
         col_ex1, col_ex2, col_ex3 = st.columns([1.2, 1.2, 2.6])
         with col_ex1:
             st.download_button(
@@ -922,6 +827,8 @@ elif st.session_state.current_view == "Revision Notes":
         for idx, item in enumerate(sub["topic_summaries"], 1):
             topic_title = item.get("topic", f"Topic {idx}")
             with st.expander(f"📚 {idx}. {topic_title}", expanded=(idx == 1)):
+                if item.get("ai_summary_failed"):
+                    st.warning("⚠️ AI summarization couldn't run for this topic (often a temporary rate limit or connection issue) — showing raw extracted text below instead of a proper summary. Try re-adding these slides in a minute or two.")
                 if "summary_markdown" in item and item["summary_markdown"]:
                     st.markdown(item["summary_markdown"])
                 elif "subheadings" in item:
@@ -939,90 +846,13 @@ elif st.session_state.current_view == "Revision Notes":
                         st.info(f"**{d.get('term', '')}**: {d.get('definition', '')}")
 
         st.markdown("---")
-        col_qa1, col_qa2 = st.columns(2)
-        with col_qa1:
-            if st.button("📇 Practice Flashcards for this Subject →", use_container_width=True):
-                st.session_state.current_view = "Flashcards"
-                st.rerun()
-        with col_qa2:
-            if st.button("🎯 Test Knowledge with Quiz →", use_container_width=True):
-                st.session_state.current_view = "Quizzes"
-                st.rerun()
+        if st.button("🎯 Test Knowledge with Quiz →", use_container_width=True):
+            st.session_state.current_view = "Quizzes"
+            st.rerun()
 
 
 # ------------------------------------------------------------------------------
-# 4. FLASHCARDS VIEW (Focused Study Mode with SRS Ratings)
-# ------------------------------------------------------------------------------
-elif st.session_state.current_view == "Flashcards":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">🧠 Interactive <span class="gradient-headline">Flashcard Study Mode</span></h2>', unsafe_allow_html=True)
-    st.caption("Active recall practice. Rate your confidence on each card to master key definitions.")
-
-    all_definitions = []
-    for t in sub["topic_summaries"]:
-        topic_name = t.get("topic", "General")
-        for d in t.get("definitions", []):
-            all_definitions.append({
-                "topic": topic_name,
-                "term": d.get("term", ""),
-                "definition": d.get("definition", ""),
-                "source": d.get("source", "")
-            })
-
-    if not all_definitions:
-        st.info("No flashcard terms available yet. Upload lecture slides or load the Sample Demo to generate flashcards.")
-    else:
-        fc_idx = sub.get("flashcard_index", 0) % len(all_definitions)
-        current_card = all_definitions[fc_idx]
-
-        st.progress((fc_idx + 1) / len(all_definitions), text=f"Card {fc_idx + 1} of {len(all_definitions)}")
-
-        # Centered Focused Flashcard
-        st.markdown(f"""
-        <div class="flashcard-deck-container">
-            <div class="flashcard-main-card">
-                <span class="flashcard-tag">{current_card['topic']}</span>
-                <div style="color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Concept / Question</div>
-                <div class="flashcard-main-term">{current_card['term']}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        show_ans = st.checkbox("Reveal Answer", key=f"fc_reveal_{fc_idx}", value=False)
-        if show_ans:
-            src_str = f" · Source: {current_card['source']}" if current_card['source'] else ""
-            st.markdown(f"""
-            <div style="max-width: 680px; margin: 0 auto 1.5rem auto; background: rgba(30, 41, 59, 0.7); border-left: 4px solid #818cf8; border-radius: 8px; padding: 18px 22px; color: #e2e8f0; font-size: 1.05rem; line-height: 1.6;">
-                <strong>Definition:</strong> {current_card['definition']}
-                <div style="font-size: 0.8rem; color: #818cf8; margin-top: 8px;">{src_str}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # SRS Buttons: [ Again ] [ Hard ] [ Easy ]
-        c_prev, c_again, c_hard, c_easy, c_next = st.columns([1, 1.2, 1.2, 1.2, 1])
-        with c_prev:
-            if st.button("← Prev", use_container_width=True):
-                sub["flashcard_index"] = max(0, fc_idx - 1)
-                st.rerun()
-        with c_again:
-            if st.button("🔴 Again", use_container_width=True, help="Repeat this card soon"):
-                sub["flashcard_index"] = (fc_idx + 1) % len(all_definitions)
-                st.rerun()
-        with c_hard:
-            if st.button("🟡 Hard", use_container_width=True):
-                sub["flashcard_index"] = (fc_idx + 1) % len(all_definitions)
-                st.rerun()
-        with c_easy:
-            if st.button("🟢 Easy", use_container_width=True):
-                sub["flashcard_index"] = (fc_idx + 1) % len(all_definitions)
-                st.rerun()
-        with c_next:
-            if st.button("Next →", use_container_width=True):
-                sub["flashcard_index"] = (fc_idx + 1) % len(all_definitions)
-                st.rerun()
-
-
-# ------------------------------------------------------------------------------
-# 5. QUIZZES VIEW (Interactive Knowledge Check)
+# 4. QUIZZES VIEW (Interactive Knowledge Check)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Quizzes":
     st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">🎯 AI Knowledge Check & Quizzes</h2>', unsafe_allow_html=True)
@@ -1087,7 +917,5 @@ elif st.session_state.current_view == "Quizzes":
                             correct_count += 1
                         else:
                             st.error(f"❌ Incorrect. Correct answer: **{q['correct_answer']}**\n\n_{q.get('explanation', '')}_")
-            
+
             sub["quiz_score"] = {"correct": correct_count or len(quiz_items), "total": len(quiz_items)}
-
-
