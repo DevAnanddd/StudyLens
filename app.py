@@ -439,6 +439,7 @@ with st.sidebar:
         ("⌂ Overview", "Overview"),
         ("📄 Materials", "Materials"),
         ("📝 Revision Notes", "Revision Notes"),
+        ("💬 Chat with Notes", "Chat"),
         ("🎯 Quizzes", "Quizzes")
     ]
 
@@ -880,13 +881,65 @@ elif st.session_state.current_view == "Revision Notes":
                         st.info(f"**{d.get('term', '')}**: {d.get('definition', '')}")
 
         st.markdown("---")
-        if st.button("🎯 Test Knowledge with Quiz →", use_container_width=True):
-            st.session_state.current_view = "Quizzes"
-            st.rerun()
+        col_footer1, col_footer2 = st.columns(2)
+        with col_footer1:
+            if st.button("💬 Chat with Your Notes →", use_container_width=True):
+                st.session_state.current_view = "Chat"
+                st.rerun()
+        with col_footer2:
+            if st.button("🎯 Test Knowledge with Quiz →", use_container_width=True):
+                st.session_state.current_view = "Quizzes"
+                st.rerun()
 
 
 # ------------------------------------------------------------------------------
-# 4. QUIZZES VIEW (Interactive Knowledge Check)
+# 4. CHAT VIEW (Ask AI Questions Grounded in Your Notes)
+# ------------------------------------------------------------------------------
+elif st.session_state.current_view == "Chat":
+    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">💬 Chat with Your <span class="gradient-headline">Revision Notes</span></h2>', unsafe_allow_html=True)
+    st.caption("Ask a question and the AI answers using only the content from your generated notes for this subject.")
+
+    if not sub["master_notes_md"]:
+        st.info("No revision notes generated yet. Upload slides in the Materials tab or load the Sample Demo before chatting.")
+    else:
+        for msg in sub["chat_history"]:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        user_question = st.chat_input("Ask something about your notes...", key=f"chat_input_{st.session_state.current_subject}")
+        if user_question:
+            sub["chat_history"].append({"role": "user", "content": user_question})
+            with st.chat_message("user"):
+                st.markdown(user_question)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking..."):
+                    try:
+                        chat_prompt = (
+                            "You are a helpful study assistant. Answer the student's question "
+                            "using ONLY the information contained in the revision notes below. "
+                            "If the answer isn't covered in these notes, say so honestly instead "
+                            "of guessing.\n\n"
+                            f"REVISION NOTES:\n{sub['master_notes_md']}\n\n"
+                            f"STUDENT QUESTION: {user_question}"
+                        )
+                        answer = call_gemini_rest(chat_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=False)
+                        if not answer:
+                            answer = "Sorry, I couldn't get an answer right now — this is often a temporary rate limit. Try again in a minute."
+                    except Exception as e:
+                        answer = f"Sorry, I couldn't get an answer right now. ({e})"
+                    st.markdown(answer)
+
+            sub["chat_history"].append({"role": "assistant", "content": answer})
+
+        if sub["chat_history"]:
+            if st.button("🗑️ Clear Chat History", key=f"clear_chat_{st.session_state.current_subject}"):
+                sub["chat_history"] = []
+                st.rerun()
+
+
+# ------------------------------------------------------------------------------
+# 5. QUIZZES VIEW (Interactive Knowledge Check)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Quizzes":
     st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">🎯 AI Knowledge Check & Quizzes</h2>', unsafe_allow_html=True)
