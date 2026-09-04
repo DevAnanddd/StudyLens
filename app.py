@@ -38,6 +38,7 @@ from modules.ocr_engine import extract_text_from_slide
 from modules.ai_summarizer import detect_topics_batch, group_slides_by_topic, summarize_topic_group, call_gemini_rest
 from modules.note_generator import generate_master_notes, generate_notes_pdf
 from modules.search_engine import RevisionSearchEngine
+from utils.data_store import save_subjects, load_subjects, save_notes_snapshot, load_notes_history
 
 # Page configuration
 st.set_page_config(
@@ -425,7 +426,7 @@ def create_sample_lecture_demo():
 
 # Initialize Session State
 if "subjects" not in st.session_state:
-    st.session_state.subjects = {}
+    st.session_state.subjects = load_subjects()
 if "current_subject" not in st.session_state:
     st.session_state.current_subject = None
 if "current_view" not in st.session_state:
@@ -482,7 +483,48 @@ with st.sidebar:
             else:
                 st.session_state.subjects[s_name] = new_subject_state()
                 st.session_state.current_subject = s_name
+                save_subjects(st.session_state.subjects)
                 st.rerun()
+
+    if subject_names:
+        with st.popover("⚙️ Manage Subject", use_container_width=True):
+            manage_target = st.selectbox(
+                "Select subject to manage",
+                options=subject_names,
+                key="manage_subject_select",
+                label_visibility="collapsed"
+            )
+            mgmt_action = st.radio(
+                "Action",
+                ["Rename", "Delete"],
+                key="mgmt_action",
+                horizontal=True,
+                label_visibility="collapsed"
+            )
+            if mgmt_action == "Rename":
+                new_name = st.text_input("New name", value=manage_target, key="rename_subject_input")
+                if st.button("✅ Rename", use_container_width=True, key="btn_rename_subject"):
+                    new_name = new_name.strip()
+                    if not new_name:
+                        st.warning("Enter a name.")
+                    elif new_name == manage_target:
+                        st.info("Name is the same.")
+                    elif new_name in st.session_state.subjects:
+                        st.warning("A subject with that name already exists.")
+                    else:
+                        st.session_state.subjects[new_name] = st.session_state.subjects.pop(manage_target)
+                        if st.session_state.current_subject == manage_target:
+                            st.session_state.current_subject = new_name
+                        save_subjects(st.session_state.subjects)
+                        st.rerun()
+            else:
+                st.warning(f"Delete **{manage_target}**? This cannot be undone.")
+                if st.button("🗑️ Confirm Delete", use_container_width=True, type="primary", key="btn_delete_subject"):
+                    del st.session_state.subjects[manage_target]
+                    remaining = list(st.session_state.subjects.keys())
+                    st.session_state.current_subject = remaining[0] if remaining else None
+                    save_subjects(st.session_state.subjects)
+                    st.rerun()
 
     st.markdown("---")
 
@@ -492,6 +534,7 @@ with st.sidebar:
         ("⌂ Overview", "Overview"),
         ("📄 Materials", "Materials"),
         ("📝 Revision Notes", "Revision Notes"),
+        ("📜 Notes History", "Notes History"),
         ("💬 Chat with Notes", "Chat"),
         ("🎯 Quizzes", "Quizzes")
     ]
@@ -511,6 +554,7 @@ with st.sidebar:
         st.session_state.subjects["Deep Learning Demo"] = create_sample_lecture_demo()
         st.session_state.current_subject = "Deep Learning Demo"
         st.session_state.current_view = "Overview"
+        save_subjects(st.session_state.subjects)
         st.rerun()
 
     with st.expander("⚙️ Advanced Pipeline Settings", expanded=False):
@@ -543,6 +587,7 @@ with st.sidebar:
             with c_confirm:
                 if st.button("Yes, reset it", use_container_width=True, type="primary", key="confirm_reset_yes"):
                     st.session_state.subjects[st.session_state.current_subject] = new_subject_state()
+                    save_subjects(st.session_state.subjects)
                     st.session_state["confirm_reset_subject"] = None
                     st.rerun()
             with c_cancel:
@@ -603,12 +648,14 @@ if not st.session_state.subjects or not st.session_state.current_subject:
                         st.session_state.subjects[name] = new_subject_state()
                         st.session_state.current_subject = name
                         st.session_state.current_view = "Overview"
+                        save_subjects(st.session_state.subjects)
                         st.rerun()
             with col_b2:
                 if st.button("✨ Try Sample Demo", use_container_width=True, key="btn_hero_demo"):
                     st.session_state.subjects["Deep Learning Demo"] = create_sample_lecture_demo()
                     st.session_state.current_subject = "Deep Learning Demo"
                     st.session_state.current_view = "Overview"
+                    save_subjects(st.session_state.subjects)
                     st.rerun()
     st.stop()
 
@@ -628,10 +675,18 @@ with top_nav_col1:
         st.session_state.current_view = "Overview"
         st.rerun()
 
+hour = datetime.now().hour
+if hour < 12:
+    greeting = "Good morning"
+elif hour < 17:
+    greeting = "Good afternoon"
+else:
+    greeting = "Good evening"
+
 st.markdown(f"""
 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0.4rem; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px;">
     <div>
-        <div class="greeting-title">Good evening 👋</div>
+        <div class="greeting-title">{greeting} 👋</div>
         <div class="greeting-subtitle">Ready to continue learning in <strong>{st.session_state.current_subject}</strong>?</div>
     </div>
 </div>
@@ -650,30 +705,61 @@ with search_col2:
         st.session_state.current_view = "Revision Notes"
 
 if global_search and sub["master_notes_md"]:
-    with st.spinner("Searching semantic notes..."):
+    # Build local search engine on-demand if not already built
+    if sub.get("search_engine") is None and sub.get("topic_summaries"):
         try:
-            search_prompt = (
-                "You are a search engine for a student's revision notes. Given the notes "
-                "below and a search query, find the sections relevant to the query's MEANING.\n\n"
-                "Return ONLY a JSON array with: breadcrumb, subheading, snippet, sources array.\n\n"
-                f"NOTES:\n{sub['master_notes_md']}\n\nQUERY: {global_search}"
-            )
-            raw_s = call_gemini_rest(search_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=True)
-            if raw_s:
-                s_results = json.loads(raw_s)
-                if s_results:
-                    st.markdown("##### 🔎 Relevant Sections Found:")
-                    for sr in s_results:
-                        st.markdown(f"""
-                        <div class="search-card">
-                            <span class="breadcrumb-tag">{sr.get('breadcrumb', '')}</span>
-                            <h4 style="margin: 6px 0; font-size: 1rem;">{sr.get('subheading', '')}</h4>
-                            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">{sr.get('snippet', '')}</p>
-                            <small style="color: #64748b;">Source: {', '.join(sr.get('sources', [])) or 'Notes'}</small>
-                        </div>
-                        """, unsafe_allow_html=True)
-        except Exception:
-            pass
+            sub["search_engine"] = RevisionSearchEngine(sub["topic_summaries"], sub["raw_slides"])
+        except Exception as e:
+            st.warning(f"⚠️ Could not build local search index: {e}")
+
+    local_engine = sub.get("search_engine")
+    local_results = local_engine.search(global_search, max_results=10) if local_engine else []
+
+    if local_results:
+        st.markdown("##### 🔎 Relevant Sections Found:")
+        for sr in local_results:
+            st.markdown(f"""
+            <div class="search-card">
+                <span class="breadcrumb-tag">{sr.get('breadcrumb', '')}</span>
+                <h4 style="margin: 6px 0; font-size: 1rem;">{sr.get('subheading', '')}</h4>
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">{sr.get('snippet', '')}</p>
+                <small style="color: #64748b;">Source: {', '.join(sr.get('sources', [])) or 'Notes'}</small>
+            </div>
+            """, unsafe_allow_html=True)
+    elif api_key_input:
+        # Fallback to Gemini AI search when local keyword search found nothing
+        with st.spinner("Local search found no matches — asking AI for semantic matches..."):
+            try:
+                search_prompt = (
+                    "You are a search engine for a student's revision notes. Given the notes "
+                    "below and a search query, find the sections relevant to the query's MEANING.\n\n"
+                    "Return ONLY a JSON array with: breadcrumb, subheading, snippet, sources array.\n\n"
+                    f"NOTES:\n{sub['master_notes_md']}\n\nQUERY: {global_search}"
+                )
+                raw_s = call_gemini_rest(search_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=True)
+                if raw_s:
+                    s_results = json.loads(raw_s)
+                    if s_results:
+                        st.markdown("##### 🔎 AI Found Relevant Sections:")
+                        for sr in s_results:
+                            st.markdown(f"""
+                            <div class="search-card">
+                                <span class="breadcrumb-tag">{sr.get('breadcrumb', '')}</span>
+                                <h4 style="margin: 6px 0; font-size: 1rem;">{sr.get('subheading', '')}</h4>
+                                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">{sr.get('snippet', '')}</p>
+                                <small style="color: #64748b;">Source: {', '.join(sr.get('sources', [])) or 'Notes'}</small>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.info("No relevant sections found for your query.")
+                else:
+                    st.warning("⚠️ AI search is temporarily unavailable. Try different keywords.")
+            except json.JSONDecodeError:
+                st.error("⚠️ Search returned unexpected data. Please try again.")
+            except Exception as e:
+                st.error(f"⚠️ Search error: {e}")
+    else:
+        st.info("💡 No matches found locally. Add a Gemini API key in Settings for AI-powered semantic search.")
 
 
 # ------------------------------------------------------------------------------
@@ -851,6 +937,9 @@ elif st.session_state.current_view == "Materials":
                 sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
                 sub["search_engine"] = RevisionSearchEngine(summaries, final_unique)
                 sub["pipeline_stage"] = "completed"
+                # Persist to disk and save a notes history snapshot
+                save_subjects(st.session_state.subjects)
+                save_notes_snapshot(st.session_state.current_subject, sub["master_notes_md"], summaries)
                 status.update(label="Revision workspace ready!", state="complete")
 
             time.sleep(0.4)
@@ -920,6 +1009,8 @@ elif st.session_state.current_view == "Revision Notes":
                             }
                             sub["master_notes_md"] = generate_master_notes(sub["topic_summaries"], stats)
                             sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
+                            sub["search_engine"] = None  # Rebuild on next search
+                            save_subjects(st.session_state.subjects)
                             st.rerun()
                         else:
                             st.error("Couldn't find the original slides for this topic to retry — try re-uploading them instead.")
@@ -949,6 +1040,30 @@ elif st.session_state.current_view == "Revision Notes":
             if st.button("🎯 Test Knowledge with Quiz →", use_container_width=True):
                 st.session_state.current_view = "Quizzes"
                 st.rerun()
+
+
+# ------------------------------------------------------------------------------
+# 3b. NOTES HISTORY VIEW (Browse Past Generated Notes)
+# ------------------------------------------------------------------------------
+elif st.session_state.current_view == "Notes History":
+    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">📜 Notes History for <span class="gradient-headline">{}</span></h2>'.format(st.session_state.current_subject), unsafe_allow_html=True)
+    st.caption("Browse past versions of your generated revision notes.")
+
+    history = load_notes_history(st.session_state.current_subject, max_items=20)
+    if not history:
+        st.info("No notes history yet. Generate revision notes in the Materials tab — each generation creates a snapshot saved here.")
+    else:
+        for snap in history:
+            display_time = snap.get("display_time", "Unknown date")
+            topics_count = snap.get("topics_count", "?")
+            topic_titles = snap.get("topic_titles", [])
+            with st.expander(f"📝 {display_time} — {topics_count} topics", expanded=False):
+                st.caption(f"Topics: {', '.join(topic_titles[:5])}{'...' if len(topic_titles) > 5 else ''}")
+                notes_md = snap.get("master_notes_md", "")
+                if notes_md:
+                    st.markdown(notes_md)
+                else:
+                    st.info("No notes content in this snapshot.")
 
 
 # ------------------------------------------------------------------------------
@@ -990,10 +1105,12 @@ elif st.session_state.current_view == "Chat":
                     st.markdown(answer)
 
             sub["chat_history"].append({"role": "assistant", "content": answer})
+            save_subjects(st.session_state.subjects)
 
         if sub["chat_history"]:
             if st.button("🗑️ Clear Chat History", key=f"clear_chat_{st.session_state.current_subject}"):
                 sub["chat_history"] = []
+                save_subjects(st.session_state.subjects)
                 st.rerun()
 
 
@@ -1031,19 +1148,34 @@ elif st.session_state.current_view == "Quizzes":
                 ]
 
         if st.button("🎲 Generate Fresh AI Quiz", key=f"btn_refresh_quiz_{st.session_state.current_subject}"):
-            with st.spinner("Generating targeted questions..."):
-                try:
-                    quiz_prompt = (
-                        "You are an exam tutor. Based on the revision notes below, create a 3-question "
-                        "multiple choice quiz. Return ONLY a JSON array with 3 objects: question, options (4 strings), "
-                        "correct_answer, explanation.\n\n"
-                        f"REVISION NOTES:\n{sub['master_notes_md']}"
-                    )
-                    raw_q = call_gemini_rest(quiz_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=True)
-                    if raw_q:
-                        st.session_state[quiz_key] = json.loads(raw_q)
-                except Exception as e:
-                    st.error(f"Quiz error: {e}")
+            if not api_key_input:
+                st.warning("⚠️ A Gemini API key is needed to generate quizzes. Add one in Settings.")
+            else:
+                with st.spinner("Generating targeted questions from your notes..."):
+                    try:
+                        quiz_prompt = (
+                            "You are an exam tutor creating a practice quiz. Based on the revision notes below, "
+                            "create a 3-question multiple choice quiz that tests understanding, not just recall. "
+                            "Mix question types: definitions, comparisons, and application questions.\n\n"
+                            "Return ONLY a JSON array with 3 objects, each having: question (string), "
+                            "options (array of 4 strings), correct_answer (string matching one option), "
+                            "explanation (string explaining why the answer is correct).\n\n"
+                            f"REVISION NOTES:\n{sub['master_notes_md']}"
+                        )
+                        raw_q = call_gemini_rest(quiz_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=True)
+                        if raw_q:
+                            parsed_quiz = json.loads(raw_q)
+                            if isinstance(parsed_quiz, list) and len(parsed_quiz) > 0:
+                                st.session_state[quiz_key] = parsed_quiz
+                                save_subjects(st.session_state.subjects)
+                            else:
+                                st.warning("⚠️ AI returned an unexpected quiz format. Please try again.")
+                        else:
+                            st.error("⚠️ Could not generate quiz — API may be temporarily rate-limited. Try again in a minute.")
+                    except json.JSONDecodeError:
+                        st.error("⚠️ AI returned invalid quiz data. Please try again.")
+                    except Exception as e:
+                        st.error(f"⚠️ Quiz generation error: {e}")
 
         quiz_items = st.session_state.get(quiz_key, [])
         if quiz_items:
@@ -1065,3 +1197,4 @@ elif st.session_state.current_view == "Quizzes":
                             st.error(f"❌ Incorrect. Correct answer: **{q['correct_answer']}**\n\n_{q.get('explanation', '')}_")
 
             sub["quiz_score"] = {"correct": correct_count or len(quiz_items), "total": len(quiz_items)}
+            save_subjects(st.session_state.subjects)

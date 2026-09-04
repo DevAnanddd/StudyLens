@@ -57,6 +57,7 @@ class RevisionSearchEngine:
         results = []
         for item in self.index:
             text = item["text"]
+            text_lower = text.lower()
             matches = list(pattern.finditer(text))
             if matches:
                 score = len(matches)
@@ -64,6 +65,10 @@ class RevisionSearchEngine:
                     score += 5
                 if re.search(pattern, item.get("topic", "")):
                     score += 3
+                # Bonus for exact multi-word matches (phrase in query)
+                full_query = " ".join(t.strip().replace("\\", "") for t in terms if t.strip())
+                if full_query.lower() in text_lower:
+                    score += 10
                 first_match = matches[0]
                 start = max(0, first_match.start() - 60)
                 end = min(len(text), first_match.end() + 100)
@@ -81,5 +86,26 @@ class RevisionSearchEngine:
                     "sources": item["sources"],
                     "score": score
                 })
+            else:
+                # Fuzzy fallback: check if any term appears as a partial substring match
+                fuzzy_score = 0
+                for term in terms:
+                    clean_term = term.replace("\\", "")
+                    # Check common stem variations (e.g. "optim" matches "optimization", "optimize")
+                    if len(clean_term) >= 4 and clean_term in text_lower:
+                        fuzzy_score += 2
+                if fuzzy_score > 0:
+                    snippet = text[:200].replace("\n", " ")
+                    if len(text) > 200:
+                        snippet += "..."
+                    results.append({
+                        "topic": item["topic"],
+                        "subheading": item["subheading"],
+                        "breadcrumb": item["breadcrumb"],
+                        "type": item["type"],
+                        "snippet": snippet,
+                        "sources": item["sources"],
+                        "score": fuzzy_score
+                    })
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:max_results]

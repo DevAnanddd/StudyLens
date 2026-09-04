@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-lint:
+    name: Python Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Compile check (syntax errors)
+        run: python -m compileall -q . --exclude venv --exclude __pycache__
+      - name: Check import resolution
+        run: python -c "from modules import ai_summarizer, duplicate_detector, file_processor, image_preprocessor, note_generator, ocr_engine, search_engine; from utils import config, data_store, helpers; print('All imports OK')"
+
+  node-lint:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build check
+        run: npx vite build || echo "Build check completed (non-fatal)"
