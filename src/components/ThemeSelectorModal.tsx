@@ -10,7 +10,7 @@ export const ThemeSelectorModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div
-        className={`w-full max-w-2xl rounded-2xl border ${theme.borderMain} ${theme.bgCard} ${theme.textPrimary} shadow-2xl overflow-hidden`}
+        className={`w-full max-w-2xl rounded-2xl border ${theme.borderMain} ${theme.bgCard} ${theme.textPrimary} shadow-2xl overflow-hidden animate-scaleIn`}
       >
         {/* Modal Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface}`}>
@@ -144,7 +144,7 @@ export const QuickThemeBar: React.FC = () => {
   const { themeKey, setThemeKey, setIsThemePickerOpen, theme } = useTheme();
 
   return (
-    <div className={`border-b ${theme.borderSubtle} ${theme.bgSurface} py-1.5 px-4 text-xs`}>
+    <div className={`border-b ${theme.borderSubtle} ${theme.bgSurface} py-1.5 px-4 text-xs glass-subtle`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto">
         <div className="flex items-center gap-2 shrink-0">
           <Palette className={`w-3.5 h-3.5 ${theme.accentText}`} />
@@ -162,10 +162,10 @@ export const QuickThemeBar: React.FC = () => {
               <button
                 key={key}
                 onClick={() => setThemeKey(key)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 shrink-0 cursor-pointer ${
                   isSelected
-                    ? `${theme.accentBg} font-bold shadow-xs`
-                    : `${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCard}`
+                    ? `${theme.accentBg} font-bold shadow-xs scale-105`
+                    : `${theme.textSecondary} hover:text-current hover:${theme.bgCard}`
                 }`}
               >
                 <span

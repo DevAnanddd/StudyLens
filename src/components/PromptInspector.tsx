@@ -30,15 +30,15 @@ export const PromptInspector: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated}`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} mb-3`}>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} gradient-border mb-3`}>
               <Cpu className="w-3.5 h-3.5" />
               <span>Production Prompt Engineering Layer</span>
             </div>
             <h2 className={`text-2xl sm:text-3xl font-bold tracking-tight ${theme.textPrimary} ${theme.headingFont}`}>
-              Gemini System & User Prompts
+              Gemini <span className="gradient-text-cool">System & User Prompts</span>
             </h2>
             <p className={`text-xs sm:text-sm ${theme.textMuted} mt-1 max-w-2xl font-mono leading-relaxed`}>
               Exact system instructions, user envelopes, structured JSON schemas, and anti-hallucination guardrails designed specifically for noisy OCR lecture slides.
@@ -48,7 +48,7 @@ export const PromptInspector: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => copyToClipboard(EXACT_SYSTEM_PROMPT, "all_summarizer")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold ${theme.accentBg} ${theme.accentShadow} transition-all cursor-pointer`}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold ${theme.accentBg} ${theme.accentShadow} transition-all duration-200 cursor-pointer hover:scale-[1.03] btn-ripple`}
             >
               {copiedKey === "all_summarizer" ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4 text-white" />}
               <span>Copy System Prompt</span>
@@ -58,13 +58,13 @@ export const PromptInspector: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className={`flex flex-wrap gap-2 border-b ${theme.borderMain} pb-3`}>
+      <div className={`flex flex-wrap gap-2 border-b ${theme.borderMain} pb-3 stagger-children`}>
         <button
           onClick={() => setActiveSubTab("summarizer_system")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
             activeSubTab === "summarizer_system"
-              ? `${theme.accentBg} ${theme.accentShadow}`
-              : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+              ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+              : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
@@ -73,10 +73,10 @@ export const PromptInspector: React.FC = () => {
 
         <button
           onClick={() => setActiveSubTab("tagger_system")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
             activeSubTab === "tagger_system"
-              ? `${theme.accentBg} ${theme.accentShadow}`
-              : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+              ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+              : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Cpu className="w-4 h-4 text-cyan-500" />
@@ -85,10 +85,10 @@ export const PromptInspector: React.FC = () => {
 
         <button
           onClick={() => setActiveSubTab("user_templates")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
             activeSubTab === "user_templates"
-              ? `${theme.accentBg} ${theme.accentShadow}`
-              : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+              ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+              : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Terminal className="w-4 h-4 text-purple-500" />
@@ -97,10 +97,10 @@ export const PromptInspector: React.FC = () => {
 
         <button
           onClick={() => setActiveSubTab("configs")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
             activeSubTab === "configs"
-              ? `${theme.accentBg} ${theme.accentShadow}`
-              : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+              ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+              : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Sliders className="w-4 h-4 text-emerald-500" />

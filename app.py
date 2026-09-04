@@ -52,6 +52,29 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
+    /* ── Animations ── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); }
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+
     .stApp {
         background-color: #090d16;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -80,10 +103,12 @@ st.markdown("""
         align-items: center;
         gap: 10px;
         padding: 6px 0 16px 0;
+        animation: fadeInDown 0.4s ease-out;
     }
     .sidebar-brand-icon {
         font-size: 1.4rem;
         color: #818cf8;
+        animation: float 3s ease-in-out infinite;
     }
     .sidebar-brand-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -118,36 +143,40 @@ st.markdown("""
         color: #ffffff;
         line-height: 1.2;
         margin-bottom: 4px;
+        animation: fadeInUp 0.5s ease-out;
     }
     .greeting-subtitle {
         font-size: 1rem;
         color: #94a3b8;
         margin-bottom: 1.6rem;
+        animation: fadeInUp 0.6s ease-out;
     }
     .gradient-headline {
         background: linear-gradient(90deg, #818cf8 0%, #c084fc 60%, #38bdf8 100%);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         display: inline;
+        animation: gradientShift 4s ease infinite;
     }
     .stButton > button {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
         border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        border-radius: 9px !important;
+        border-radius: 12px !important;
         font-weight: 600 !important;
         font-size: 0.9rem !important;
         padding: 0.5rem 1.15rem !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         box-shadow: 0 2px 10px rgba(79, 70, 229, 0.25) !important;
     }
     .stButton > button:hover {
-        transform: translateY(-1.5px) !important;
-        box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35) !important;
+        transform: translateY(-2px) scale(1.02) !important;
+        box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4) !important;
         border-color: rgba(255, 255, 255, 0.25) !important;
     }
     .stButton > button:active {
-        transform: translateY(0px) !important;
+        transform: translateY(0px) scale(0.98) !important;
     }
     .stDownloadButton > button {
         background: rgba(30, 41, 59, 0.6) !important;
@@ -180,23 +209,27 @@ st.markdown("""
     }
     .stat-card {
         background: rgba(18, 26, 43, 0.8);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 16px 14px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        animation: fadeInUp 0.5s ease-out;
     }
     .stat-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         border-color: rgba(129, 140, 248, 0.5);
+        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.15);
     }
     .stat-icon {
         font-size: 1.35rem;
         margin-bottom: 4px;
+        animation: float 3s ease-in-out infinite;
     }
     .stat-value {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -218,11 +251,17 @@ st.markdown("""
         align-items: center;
         gap: 10px;
         padding: 7px 12px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.88rem;
         margin-bottom: 6px;
         background: rgba(18, 26, 43, 0.6);
+        backdrop-filter: blur(6px);
         border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.25s ease;
+    }
+    .pipeline-step:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
     }
     .pipeline-step.done {
         color: #34d399;
@@ -246,31 +285,45 @@ st.markdown("""
     }
     .search-card {
         background: rgba(18, 26, 43, 0.75);
+        backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-left: 4px solid #6366f1;
-        border-radius: 8px;
+        border-radius: 10px;
         padding: 16px 20px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        transition: all 0.25s ease;
+    }
+    .search-card:hover {
+        border-left-color: #818cf8;
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.12);
+        transform: translateY(-1px);
     }
     .quick-action-btn {
         background: rgba(18, 26, 43, 0.8);
+        backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 12px 16px;
         text-align: center;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
     }
     .quick-action-btn:hover {
         border-color: #818cf8;
         transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
     }
     .streamlit-expanderHeader {
         background-color: rgba(18, 26, 43, 0.7) !important;
-        border-radius: 10px !important;
+        backdrop-filter: blur(8px);
+        border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.07) !important;
         color: #f8fafc !important;
+        transition: all 0.25s ease !important;
+    }
+    .streamlit-expanderHeader:hover {
+        border-color: rgba(129, 140, 248, 0.3) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -468,7 +521,12 @@ with st.sidebar:
             value=DEFAULT_HASH_THRESHOLD,
             help="Perceptual hash threshold. Lower distance = strict matching."
         )
-        ocr_choice = st.selectbox("OCR Engine", options=["EasyOCR", "Tesseract"], index=0)
+        ocr_choice = st.selectbox(
+            "OCR Engine",
+            options=["EasyOCR", "Tesseract", "Gemini Vision"],
+            index=0,
+            help="Gemini Vision reads handwriting and math notation far better than EasyOCR/Tesseract, but uses one extra API call per slide."
+        )
         apply_enhancements = st.checkbox("OpenCV CLAHE & Denoise", value=True)
 
     if subject_names and st.session_state.current_subject:
@@ -686,8 +744,7 @@ if st.session_state.current_view == "Overview":
         if st.button("🎯 Take Quiz", use_container_width=True):
             st.session_state.current_view = "Quizzes"
             st.rerun()
-
-
+                                
 # ------------------------------------------------------------------------------
 # 2. MATERIALS VIEW (Upload & Processing)
 # ------------------------------------------------------------------------------
@@ -774,7 +831,7 @@ elif st.session_state.current_view == "Materials":
                 status.write(f"🔤 Running OCR on {len(final_unique)} unique slides...")
                 p_bar = st.progress(0.0)
                 for idx, s in enumerate(final_unique):
-                    extract_text_from_slide(s, preferred_engine=ocr_choice)
+                    extract_text_from_slide(s, preferred_engine=ocr_choice, api_key=api_key_input)
                     p_bar.progress((idx + 1) / len(final_unique))
 
                 sub["ocr_done"] = True
@@ -809,6 +866,8 @@ elif st.session_state.current_view == "Materials":
                     st.image(slide["image"], use_container_width=True)
                 with c2:
                     st.caption(f"Engine: {slide.get('engine', 'OCR')} | Confidence: {slide.get('confidence', 0.9):.1%}")
+                    if slide.get("vision_fallback"):
+                        st.warning(f"⚠️ Gemini Vision couldn't run for this slide, so it fell back to {slide.get('engine', 'classic OCR')} instead — text may be less accurate, especially for handwriting. ({slide.get('vision_fallback_reason', 'unknown error')})")
                     st.text_area("Extracted Text", value=slide.get("text", ""), height=180, key=f"ocr_view_{idx}")
 
 

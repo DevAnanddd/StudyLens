@@ -22,25 +22,25 @@ export const WorkedExampleView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated}`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} mb-2`}>
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} gradient-border mb-3`}>
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>Full End-to-End Pipeline Walkthrough</span>
             </div>
             <h2 className={`text-2xl font-bold ${theme.textPrimary} ${theme.headingFont} tracking-tight`}>
-              Worked Example: Noisy OCR → Tagged JSON → Revision Notes
+              Worked Example: <span className="gradient-text-warm">Noisy OCR → Tagged JSON → Revision Notes</span>
             </h2>
             <p className={`text-xs sm:text-sm ${theme.textMuted} mt-1 max-w-2xl font-mono leading-relaxed`}>
-              Demonstrates how OCR character errors (e.g. <code className="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 font-mono">1imited</code>, <code className="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 font-mono">iso1ation</code>) are corrected, formulas preserved, and sources tracked through each stage.
+              Demonstrates how OCR character errors (e.g. <code className="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded-md border border-rose-500/20 font-mono">1imited</code>, <code className="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded-md border border-rose-500/20 font-mono">iso1ation</code>) are corrected, formulas preserved, and sources tracked through each stage.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={copyMarkdown}
-              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold ${theme.accentBg} ${theme.accentShadow} transition-all cursor-pointer`}
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold ${theme.accentBg} ${theme.accentShadow} transition-all duration-200 cursor-pointer hover:scale-[1.03] btn-ripple`}
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
               <span>Copy Final Markdown</span>
@@ -49,13 +49,13 @@ export const WorkedExampleView: React.FC = () => {
         </div>
 
         {/* Step Progress Pills */}
-        <div className={`grid grid-cols-3 gap-3 mt-6 pt-6 border-t ${theme.borderSubtle}`}>
+        <div className={`grid grid-cols-3 gap-3 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children`}>
           <button
             onClick={() => setActiveStep("input")}
-            className={`p-3 rounded-xl text-left border transition-all cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
               activeStep === "input"
-                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs`
-                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover}`
+                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
+                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
             <div className="flex items-center justify-between">
@@ -67,10 +67,10 @@ export const WorkedExampleView: React.FC = () => {
 
           <button
             onClick={() => setActiveStep("tagged")}
-            className={`p-3 rounded-xl text-left border transition-all cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
               activeStep === "tagged"
-                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs`
-                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover}`
+                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
+                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
             <div className="flex items-center justify-between">
@@ -82,10 +82,10 @@ export const WorkedExampleView: React.FC = () => {
 
           <button
             onClick={() => setActiveStep("final")}
-            className={`p-3 rounded-xl text-left border transition-all cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
               activeStep === "final"
-                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs`
-                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover}`
+                ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
+                : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
             <div className="flex items-center justify-between">

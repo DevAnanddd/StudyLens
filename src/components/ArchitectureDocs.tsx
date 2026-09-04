@@ -19,26 +19,26 @@ export const ArchitectureDocs: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated}`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
         <div className={`flex items-center gap-2 ${theme.accentText} text-xs font-mono font-bold uppercase tracking-wider mb-2`}>
           <Cpu className="w-4 h-4" />
           <span>System Architecture & Engineering Specification</span>
         </div>
         <h2 className={`text-2xl sm:text-3xl font-bold ${theme.textPrimary} ${theme.headingFont} tracking-tight`}>
-          StudyLens AI Engine Design
+          StudyLens <span className="gradient-text-cool">AI Engine Design</span>
         </h2>
         <p className={`text-sm ${theme.textMuted} mt-1 max-w-3xl leading-relaxed`}>
           Comprehensive specification covering multi-stage batching, token economy, deterministic clustering algorithms, exponential backoff with jitter, and end-to-end source attribution traceability.
         </p>
 
         {/* Section Navigation */}
-        <div className={`flex flex-wrap gap-2 mt-6 pt-6 border-t ${theme.borderSubtle}`}>
+        <div className={`flex flex-wrap gap-2 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children`}>
           <button
             onClick={() => setActiveSection("pipeline")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
               activeSection === "pipeline"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+                ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <Layers className="w-4 h-4" />
@@ -47,10 +47,10 @@ export const ArchitectureDocs: React.FC = () => {
 
           <button
             onClick={() => setActiveSection("grouping")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
               activeSection === "grouping"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+                ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <GitMerge className="w-4 h-4" />
@@ -59,10 +59,10 @@ export const ArchitectureDocs: React.FC = () => {
 
           <button
             onClick={() => setActiveSection("batching")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
               activeSection === "batching"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+                ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <Sliders className="w-4 h-4" />
@@ -71,10 +71,10 @@ export const ArchitectureDocs: React.FC = () => {
 
           <button
             onClick={() => setActiveSection("attribution")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
               activeSection === "attribution"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
+                ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <FileCheck2 className="w-4 h-4" />

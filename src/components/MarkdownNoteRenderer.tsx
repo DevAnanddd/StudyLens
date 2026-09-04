@@ -41,11 +41,11 @@ export const MarkdownNoteRenderer: React.FC<MarkdownNoteRendererProps> = ({
   };
 
   return (
-    <div className={`rounded-2xl border ${theme.borderMain} ${theme.bgCard} shadow-md overflow-hidden ${className}`}>
+    <div className={`rounded-2xl border ${theme.borderMain} ${theme.bgCard} shadow-md overflow-hidden card-hover ${className}`}>
       {/* Header bar */}
-      <div className={`flex items-center justify-between px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface}`}>
+      <div className={`flex items-center justify-between px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface} glass-subtle`}>
         <div className="flex items-center gap-3">
-          <div className={`w-7 h-7 rounded-lg border ${theme.accentBgSubtle} ${theme.accentBorder} flex items-center justify-center`}>
+          <div className={`w-7 h-7 rounded-lg border ${theme.accentBgSubtle} ${theme.accentBorder} flex items-center justify-center animate-pulseGlowGreen`}>
             <BookOpen className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -61,7 +61,7 @@ export const MarkdownNoteRenderer: React.FC<MarkdownNoteRendererProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border ${theme.borderMain} ${theme.bgCard} hover:${theme.bgSurface} ${theme.textSecondary} transition-colors cursor-pointer`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border ${theme.borderMain} ${theme.bgCard} hover:scale-105 ${theme.textSecondary} transition-all duration-200 cursor-pointer`}
           >
             {copied ? (
               <>
@@ -78,7 +78,7 @@ export const MarkdownNoteRenderer: React.FC<MarkdownNoteRendererProps> = ({
 
           <button
             onClick={handleDownload}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium ${theme.accentBg} ${theme.accentShadow} transition-colors cursor-pointer`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium ${theme.accentBg} ${theme.accentShadow} transition-all duration-200 cursor-pointer hover:scale-105`}
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export .md</span>

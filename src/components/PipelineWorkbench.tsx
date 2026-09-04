@@ -80,11 +80,11 @@ export const PipelineWorkbench: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Controller Panel */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} ${theme.bgElevated}`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
         <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b ${theme.borderSubtle}`}>
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder}`}>
+              <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} gradient-border`}>
                 Interactive Workbench
               </span>
               <span className={`text-xs ${theme.textMuted} font-mono`}>
@@ -92,7 +92,7 @@ export const PipelineWorkbench: React.FC = () => {
               </span>
             </div>
             <h2 className={`text-2xl font-bold ${theme.textPrimary} ${theme.headingFont} tracking-tight`}>
-              Test StudyLens AI Pipeline
+              Test StudyLens <span className="gradient-text">AI Pipeline</span>
             </h2>
             <p className={`text-xs sm:text-sm ${theme.textMuted} mt-0.5 font-mono`}>
               Multi-batch OCR ingestion, semantic clustering & exam revision synthesis.
@@ -101,11 +101,11 @@ export const PipelineWorkbench: React.FC = () => {
 
           {/* Action Buttons & Batch Stats */}
           <div className="flex items-center gap-3">
-            <div className={`hidden sm:flex items-center gap-3 ${theme.bgSurface} px-3.5 py-2 rounded-xl border ${theme.borderMain} text-[11px] font-mono`}>
+            <div className={`hidden sm:flex items-center gap-3 ${theme.bgSurface} px-3.5 py-2 rounded-xl border ${theme.borderMain} text-[11px] font-mono glass-subtle`}>
               <div className={theme.textMuted}>
                 BATCHES: <span className={`${theme.accentText} font-bold`}>{Math.ceil(customSlides.length / config.taggingBatchSize)}</span>
               </div>
-              <div className={theme.textMuted}>|</div>
+              <div className={`${theme.textMuted} opacity-30`}>|</div>
               <div className={theme.textMuted}>
                 CLUSTER RATE: <span className="text-emerald-600 dark:text-emerald-400 font-bold">98%</span>
               </div>
@@ -114,7 +114,7 @@ export const PipelineWorkbench: React.FC = () => {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold ${theme.bgSurface} hover:${theme.bgCardHover} ${theme.textSecondary} border ${theme.borderMain} transition-colors disabled:opacity-40 cursor-pointer`}
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold ${theme.bgSurface} hover:scale-105 ${theme.textSecondary} border ${theme.borderMain} transition-all duration-200 disabled:opacity-40 cursor-pointer`}
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
@@ -123,7 +123,7 @@ export const PipelineWorkbench: React.FC = () => {
             <button
               onClick={handleRunPipeline}
               disabled={isProcessing}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-bold ${theme.accentBg} ${theme.accentShadow} transition-all disabled:opacity-60 cursor-pointer`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-bold ${theme.accentBg} ${theme.accentShadow} transition-all duration-200 disabled:opacity-60 cursor-pointer hover:scale-[1.03] btn-ripple`}
             >
               {isProcessing ? (
                 <>
@@ -141,7 +141,7 @@ export const PipelineWorkbench: React.FC = () => {
         </div>
 
         {/* Deck Preset Selector & Batch Configuration */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 stagger-children">
           {/* Deck Preset Dropdown */}
           <div className="space-y-1.5">
             <label className={`text-[11px] font-mono uppercase tracking-wider ${theme.textMuted} font-semibold flex items-center gap-1.5`}>
@@ -217,23 +217,24 @@ export const PipelineWorkbench: React.FC = () => {
 
         {/* Live Progress Bar */}
         {progress && (
-          <div className={`mt-6 pt-5 border-t ${theme.borderSubtle} space-y-2`}>
+          <div className={`mt-6 pt-5 border-t ${theme.borderSubtle} space-y-3 animate-fadeInUp`}>
             <div className="flex items-center justify-between text-xs">
               <span className={`font-mono font-semibold ${theme.accentText} flex items-center gap-2`}>
                 <span
-                  className="w-2 h-2 rounded-full animate-pulse"
-                  style={{ backgroundColor: theme.accentColor }}
+                  className="w-2.5 h-2.5 rounded-full animate-pulse"
+                  style={{ backgroundColor: theme.accentColor, boxShadow: `0 0 8px ${theme.accentColor}60` }}
                 ></span>
                 <span>{progress.message}</span>
               </span>
-              <span className={`font-mono ${theme.textMuted}`}>{progress.percentage}%</span>
+              <span className={`font-mono font-bold ${theme.textPrimary}`}>{progress.percentage}%</span>
             </div>
-            <div className={`w-full h-1.5 ${theme.bgSurface} rounded-full overflow-hidden`}>
+            <div className={`w-full h-2 ${theme.bgSurface} rounded-full overflow-hidden`}>
               <div
-                className="h-full transition-all duration-300 rounded-full"
+                className="h-full rounded-full progress-bar-animated"
                 style={{
                   width: `${progress.percentage}%`,
-                  backgroundColor: theme.accentColor,
+                  background: `linear-gradient(90deg, ${theme.accentColor}, ${theme.accentColor}cc)`,
+                  boxShadow: `0 0 12px ${theme.accentColor}40`,
                 }}
               ></div>
             </div>
@@ -244,75 +245,44 @@ export const PipelineWorkbench: React.FC = () => {
       {/* Results View & Sub-Tabs */}
       <div className="space-y-4">
         {/* Navigation Tabs */}
-        <div className={`flex items-center gap-2 border-b ${theme.borderMain} pb-2 overflow-x-auto`}>
-          <button
-            onClick={() => setActiveTab("slides")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all shrink-0 cursor-pointer ${
-              activeTab === "slides"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
-            }`}
-          >
-            Raw Slide OCR ({customSlides.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab("tagged")}
-            disabled={!pipelineResults}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all shrink-0 cursor-pointer ${
-              activeTab === "tagged"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : pipelineResults
-                ? `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
-                : `opacity-40 cursor-not-allowed ${theme.bgSurface} ${theme.textMuted} border ${theme.borderMain}`
-            }`}
-          >
-            Stage 1: Tagged ({pipelineResults?.taggedSlides.length || 0})
-          </button>
-
-          <button
-            onClick={() => setActiveTab("clusters")}
-            disabled={!pipelineResults}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all shrink-0 cursor-pointer ${
-              activeTab === "clusters"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : pipelineResults
-                ? `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
-                : `opacity-40 cursor-not-allowed ${theme.bgSurface} ${theme.textMuted} border ${theme.borderMain}`
-            }`}
-          >
-            Stage 2: Clusters ({pipelineResults?.clusters.length || 0})
-          </button>
-
-          <button
-            onClick={() => setActiveTab("master_doc")}
-            disabled={!pipelineResults}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all shrink-0 cursor-pointer ${
-              activeTab === "master_doc"
-                ? `${theme.accentBg} ${theme.accentShadow}`
-                : pipelineResults
-                ? `${theme.bgSurface} ${theme.textSecondary} hover:${theme.textPrimary} hover:${theme.bgCardHover} border ${theme.borderMain}`
-                : `opacity-40 cursor-not-allowed ${theme.bgSurface} ${theme.textMuted} border ${theme.borderMain}`
-            }`}
-          >
-            Stage 4: Master Revision Booklet ✨
-          </button>
+        <div className={`flex items-center gap-2 border-b ${theme.borderMain} pb-3 overflow-x-auto`}>
+          {[
+            { key: "slides" as const, label: `Raw Slide OCR (${customSlides.length})`, disabled: false },
+            { key: "tagged" as const, label: `Stage 1: Tagged (${pipelineResults?.taggedSlides.length || 0})`, disabled: !pipelineResults },
+            { key: "clusters" as const, label: `Stage 2: Clusters (${pipelineResults?.clusters.length || 0})`, disabled: !pipelineResults },
+            { key: "master_doc" as const, label: `Stage 4: Master Revision Booklet ✨`, disabled: !pipelineResults },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => !tab.disabled && setActiveTab(tab.key)}
+              disabled={tab.disabled}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all duration-200 shrink-0 cursor-pointer ${
+                activeTab === tab.key
+                  ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                  : tab.disabled
+                  ? `opacity-40 cursor-not-allowed ${theme.bgSurface} ${theme.textMuted} border ${theme.borderMain}`
+                  : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* TAB 1: RAW SLIDES INSPECTOR */}
         {activeTab === "slides" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children">
             {customSlides.map((slide, idx) => (
               <div
                 key={slide.id}
-                className={`${theme.bgCard} rounded-xl border ${theme.borderMain} p-4 shadow-sm space-y-2.5 flex flex-col justify-between`}
+                className={`${theme.bgCard} rounded-xl border ${theme.borderMain} p-4 card-hover space-y-2.5 flex flex-col justify-between animate-fadeInUp`}
               >
                 <div>
                   <div className={`flex items-center justify-between pb-2 border-b ${theme.borderSubtle}`}>
                     <span className={`text-xs font-mono font-semibold ${theme.textPrimary}`}>
                       Slide #{idx + 1}
                     </span>
-                    <span className={`text-[10px] font-mono ${theme.textMuted} ${theme.bgSurface} px-2 py-0.5 rounded border ${theme.borderMain}`}>
+                    <span className={`text-[10px] font-mono ${theme.textMuted} ${theme.bgSurface} px-2 py-0.5 rounded-md border ${theme.borderMain}`}>
                       {slide.filename} : p{slide.pageNumber}
                     </span>
                   </div>

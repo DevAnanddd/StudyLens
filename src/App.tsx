@@ -26,49 +26,65 @@ function MainApp() {
   }, []);
 
   return (
-    <div className={`min-h-screen ${theme.bgApp} ${theme.textPrimary} flex flex-col font-sans antialiased transition-colors duration-200`}>
+    <div className={`min-h-screen ${theme.bgApp} ${theme.textPrimary} flex flex-col font-sans antialiased transition-colors duration-300 animate-fadeIn`}>
+      {/* Animated Mesh Background */}
+      <div className="mesh-bg" aria-hidden="true">
+        <div className="orb"></div>
+        <div className="orb"></div>
+        <div className="orb"></div>
+      </div>
+
       {/* Quick Theme Selector Bar */}
-      <QuickThemeBar />
+      <div className="animate-fadeInDown">
+        <QuickThemeBar />
+      </div>
 
       {/* Top Navigation */}
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        hasApiKey={hasApiKey}
-      />
+      <div className="animate-fadeInDown" style={{ animationDelay: '0.1s' }}>
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          hasApiKey={hasApiKey}
+        />
+      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === "specs" && <ArchitectureDocs />}
-        {activeTab === "workbench" && <PipelineWorkbench />}
-        {activeTab === "worked_example" && <WorkedExampleView />}
-        {activeTab === "prompts" && <PromptInspector />}
+        <div className="animate-fadeInUp" style={{ animationDelay: '0.15s' }}>
+          {activeTab === "specs" && <ArchitectureDocs />}
+          {activeTab === "workbench" && <PipelineWorkbench />}
+          {activeTab === "worked_example" && <WorkedExampleView />}
+          {activeTab === "prompts" && <PromptInspector />}
+        </div>
       </main>
 
       {/* Theme Picker Modal */}
       <ThemeSelectorModal />
 
-      {/* Telemetry Footer */}
-      <footer className={`border-t ${theme.borderMain} ${theme.bgSurface} py-4 text-xs font-mono ${theme.textMuted}`}>
+      {/* Enhanced Footer */}
+      <footer className={`border-t ${theme.borderMain} ${theme.bgSurface} py-5 text-xs font-mono ${theme.textMuted} animate-fadeIn`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-4">
-            <span className={`flex items-center gap-1.5 ${theme.textPrimary} font-semibold`}>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+            <span className={`flex items-center gap-2 ${theme.textPrimary} font-semibold`}>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+              </span>
               <span>STUDYLENS AI ENGINE</span>
             </span>
-            <span className="hidden md:inline opacity-30">|</span>
-            <span className={theme.textMuted}>LATENCY: ~480ms</span>
-            <span className="hidden md:inline opacity-30">|</span>
-            <span className={theme.textMuted}>CONCURRENCY: 3-4 WORKERS</span>
+            <span className="hidden md:inline opacity-20">|</span>
+            <span className={`${theme.textMuted} hidden md:inline`}>LATENCY: ~480ms</span>
+            <span className="hidden md:inline opacity-20">|</span>
+            <span className={`${theme.textMuted} hidden md:inline`}>CONCURRENCY: 3-4 WORKERS</span>
           </div>
 
           <div className="flex items-center gap-3 text-[11px]">
             <span
-              className={`font-semibold px-2.5 py-0.5 rounded border ${theme.accentBgSubtle} ${theme.accentBorder}`}
+              className={`font-semibold px-2.5 py-0.5 rounded border ${theme.accentBgSubtle} ${theme.accentBorder} animate-borderGlow`}
             >
               MODEL: gemini-3.7-flash
             </span>
-            <span className={theme.textMuted}>ACTIVE THEME: {theme.name}</span>
+            <span className={`${theme.textMuted} opacity-60 hidden sm:inline`}>ACTIVE THEME: {theme.name}</span>
           </div>
         </div>
       </footer>
