@@ -19,7 +19,7 @@ export const ArchitectureDocs: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
         <div className={`flex items-center gap-2 ${theme.accentText} text-xs font-mono font-bold uppercase tracking-wider mb-2`}>
           <Cpu className="w-4 h-4" />
           <span>System Architecture & Engineering Specification</span>

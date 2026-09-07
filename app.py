@@ -75,12 +75,70 @@ st.markdown("""
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-4px); }
     }
+    @keyframes shimmer {
+        0% { transform: translateX(-120%) skewX(-20deg); }
+        100% { transform: translateX(220%) skewX(-20deg); }
+    }
+    @keyframes spinSlow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    @keyframes orbPulse {
+        0%, 100% { opacity: 0.35; transform: scale(1) translateY(0); }
+        50% { opacity: 0.7; transform: scale(1.12) translateY(-14px); }
+    }
+    @keyframes nodePulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+    @keyframes dashFlow {
+        to { stroke-dashoffset: -1000; }
+    }
 
     .stApp {
-        background-color: #090d16;
+        background:
+            radial-gradient(60% 50% at 12% 8%, rgba(79, 70, 229, 0.28) 0%, transparent 60%),
+            radial-gradient(50% 42% at 88% 12%, rgba(192, 132, 252, 0.24) 0%, transparent 60%),
+            radial-gradient(55% 40% at 50% 96%, rgba(56, 189, 248, 0.18) 0%, transparent 60%),
+            linear-gradient(180deg, #0a0f1d 0%, #0b1222 45%, #0a0f1d 100%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: #f1f5f9;
         letter-spacing: -0.01em;
+    }
+    /* Animated neural-constellation backdrop overlay */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+            radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 25% 40%, rgba(192, 132, 252, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 40% 15%, rgba(56, 189, 248, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 65% 55%, rgba(129, 140, 248, 0.08) 0px, transparent 1.5px),
+            radial-gradient(circle at 80% 30%, rgba(192, 132, 252, 0.08) 0px, transparent 1.5px),
+            radial-gradient(circle at 90% 70%, rgba(56, 189, 248, 0.08) 0px, transparent 1.5px),
+            radial-gradient(circle at 15% 80%, rgba(129, 140, 248, 0.07) 0px, transparent 1.5px),
+            radial-gradient(circle at 55% 85%, rgba(192, 132, 252, 0.07) 0px, transparent 1.5px);
+        background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        background-repeat: no-repeat;
+        animation: nodePulse 4s ease-in-out infinite;
+    }
+    /* Floating glow orbs */
+    .stApp::after {
+        content: '';
+        position: fixed;
+        pointer-events: none;
+        z-index: 0;
+        inset: 0;
+        margin: auto;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.16) 0%, transparent 70%);
+        filter: blur(60px);
+        animation: orbPulse 9s ease-in-out infinite;
     }
     header[data-testid="stHeader"] {
         background: transparent !important;
@@ -102,25 +160,40 @@ st.markdown("""
     .sidebar-brand {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         padding: 6px 0 16px 0;
         animation: fadeInDown 0.4s ease-out;
+        position: relative;
     }
     .sidebar-brand-icon {
         font-size: 1.4rem;
         color: #818cf8;
         animation: float 3s ease-in-out infinite;
+        position: relative;
+    }
+    .sidebar-brand-icon::after {
+        content: '';
+        position: absolute;
+        inset: -7px;
+        border: 1.5px dashed rgba(129, 140, 248, 0.5);
+        border-radius: 50%;
+        animation: spinSlow 12s linear infinite;
     }
     .sidebar-brand-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #ffffff;
         letter-spacing: -0.02em;
+        background: linear-gradient(90deg, #ffffff 0%, #c7d2fe 45%, #f0abfc 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 5s ease infinite;
+        position: relative;
     }
     .sidebar-brand-sub {
         font-size: 0.75rem;
-        color: #64748b;
+        color: #94a3b8;
         font-weight: 500;
     }
     .nav-section-label {
@@ -153,12 +226,25 @@ st.markdown("""
         animation: fadeInUp 0.6s ease-out;
     }
     .gradient-headline {
-        background: linear-gradient(90deg, #818cf8 0%, #c084fc 60%, #38bdf8 100%);
-        background-size: 200% auto;
+        background: linear-gradient(90deg, #818cf8 0%, #c084fc 35%, #e879f9 55%, #38bdf8 80%, #818cf8 100%);
+        background-size: 300% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         display: inline;
         animation: gradientShift 4s ease infinite;
+        position: relative;
+    }
+    .gradient-headline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        width: 60%;
+        animation: shimmer 3s ease-in-out infinite;
+        pointer-events: none;
     }
     .stButton > button {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
@@ -169,7 +255,21 @@ st.markdown("""
         font-size: 0.9rem !important;
         padding: 0.5rem 1.15rem !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 2px 10px rgba(79, 70, 229, 0.25) !important;
+        box-shadow: 0 2px 10px rgba(79, 70, 229, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        position: relative;
+        overflow: hidden;
+    }
+    .stButton > button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -10%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transform: skewX(-20deg);
+        animation: shimmer 3.5s ease-in-out infinite;
+        pointer-events: none;
     }
     .stButton > button:hover {
         transform: translateY(-2px) scale(1.02) !important;
@@ -195,12 +295,27 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
     }
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background: rgba(18, 26, 43, 0.75) !important;
+        background: linear-gradient(150deg, rgba(22, 31, 54, 0.85), rgba(14, 20, 36, 0.9)) !important;
         backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
-        border-radius: 14px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
         margin-bottom: 1.8rem !important;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+        position: relative;
+        overflow: hidden;
+    }
+    [data-testid="stVerticalBlockBorderWrapper"]:hover {
+        border-color: rgba(129, 140, 248, 0.35) !important;
+        box-shadow: 0 14px 40px rgba(79, 70, 229, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    }
+    [data-testid="stVerticalBlockBorderWrapper"]::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 12%; right: 12%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.6), transparent);
+        pointer-events: none;
     }
     .dashboard-grid {
         display: grid;
@@ -209,24 +324,37 @@ st.markdown("""
         margin: 1rem 0 1.8rem 0;
     }
     .stat-card {
-        background: rgba(18, 26, 43, 0.8);
+        background: linear-gradient(160deg, rgba(24, 33, 58, 0.9), rgba(15, 22, 40, 0.92));
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
         padding: 16px 14px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         animation: fadeInUp 0.5s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        background: radial-gradient(120% 120% at 50% 0%, rgba(129, 140, 248, 0.18) 0%, transparent 55%);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
     }
     .stat-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(129, 140, 248, 0.5);
-        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.15);
+        transform: translateY(-4px);
+        border-color: rgba(129, 140, 248, 0.55);
+        box-shadow: 0 12px 34px rgba(99, 102, 241, 0.22);
     }
+    .stat-card:hover::before { opacity: 1; }
     .stat-icon {
         font-size: 1.35rem;
         margin-bottom: 4px;
@@ -285,20 +413,35 @@ st.markdown("""
         font-size: 0.85rem;
     }
     .search-card {
-        background: rgba(18, 26, 43, 0.75);
+        background: linear-gradient(145deg, rgba(20, 28, 48, 0.85), rgba(15, 22, 38, 0.9));
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-left: 4px solid #6366f1;
-        border-radius: 10px;
-        padding: 16px 20px;
+        border-radius: 12px;
+        padding: 18px 22px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
         transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .search-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -10%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+        transform: skewX(-20deg);
+        animation: shimmer 5s ease-in-out infinite;
+        pointer-events: none;
     }
     .search-card:hover {
-        border-left-color: #818cf8;
-        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.12);
-        transform: translateY(-1px);
+        border-left-color: #a5b4fc;
+        border-color: rgba(129, 140, 248, 0.35);
+        box-shadow: 0 10px 32px rgba(99, 102, 241, 0.22);
+        transform: translateY(-3px);
     }
     .quick-action-btn {
         background: rgba(18, 26, 43, 0.8);
@@ -324,8 +467,56 @@ st.markdown("""
         transition: all 0.25s ease !important;
     }
     .streamlit-expanderHeader:hover {
-        border-color: rgba(129, 140, 248, 0.3) !important;
+        border-color: rgba(129, 140, 248, 0.35) !important;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12) !important;
     }
+    ::selection {
+        background: rgba(129, 140, 248, 0.45);
+        color: #ffffff;
+    }
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(10, 15, 29, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #4f46e5, #7c3aed);
+        border-radius: 8px;
+        border: 2px solid #0a0f1d;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    }
+    .gradient-divider {
+        height: 1.5px;
+        border: none;
+        margin: 1.4rem 0;
+        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.7), rgba(192, 132, 252, 0.7), transparent);
+        position: relative;
+    }
+    .feature-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(145deg, rgba(30, 41, 66, 0.8), rgba(20, 28, 48, 0.9));
+        border: 1px solid rgba(129, 140, 248, 0.3);
+        border-radius: 9999px;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #c7d2fe;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        transition: all 0.25s ease;
+    }
+    .feature-chip:hover {
+        transform: translateY(-2px);
+        border-color: rgba(167, 139, 250, 0.6);
+        box-shadow: 0 8px 22px rgba(124, 58, 237, 0.28);
+    }
+    .stApp > div:first-child { position: relative; z-index: 1; }
+    [data-testid="stSidebar"] { z-index: 2; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -440,6 +631,7 @@ with st.sidebar:
         <div>
             <div class="sidebar-brand-title">StudyLens</div>
             <div class="sidebar-brand-sub">AI Study Workspace</div>
+            <div style="height: 2px; width: 100%; margin-top: 6px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.7), rgba(192, 132, 252, 0.7), transparent);"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -603,16 +795,23 @@ with st.sidebar:
 # ==============================================================================
 if not st.session_state.subjects or not st.session_state.current_subject:
     st.markdown("""
-    <div style="text-align: center; max-width: 680px; margin: 2.5rem auto 1.5rem auto;">
-        <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(99, 102, 241, 0.12); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.28); padding: 4px 12px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.2rem;">
+    <div style="text-align: center; max-width: 720px; margin: 2.5rem auto 1rem auto;">
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(192, 132, 252, 0.18)); color: #c7d2fe; border: 1px solid rgba(129, 140, 248, 0.35); padding: 5px 14px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.4rem; box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
             ⚡ Powered by Gemini AI & OpenCV
         </div>
-        <h1 style="font-size: 2.8rem; font-weight: 800; color: #ffffff; line-height: 1.18; margin-bottom: 1rem;">
+        <h1 style="font-size: 2.8rem; font-weight: 800; color: #ffffff; line-height: 1.18; margin-bottom: 1rem; text-shadow: 0 2px 24px rgba(79, 70, 229, 0.25);">
             Turn messy lecture slides into <span class="gradient-headline">structured revision notes.</span>
         </h1>
-        <p style="font-size: 1.05rem; color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">
+        <p style="font-size: 1.05rem; color: #a5b4fc; line-height: 1.6; margin-bottom: 2rem;">
             StudyLens cleans whiteboard photos, removes duplicate slides, and synthesizes crisp, topic-grouped revision notes and quizzes.
         </p>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem;">
+            <span class="feature-chip">🧠 AI Summarization</span>
+            <span class="feature-chip">🖼️ OCR Forensics</span>
+            <span class="feature-chip">🎯 Auto Quizzes</span>
+            <span class="feature-chip">💬 Chat with Notes</span>
+        </div>
+        <hr class="gradient-divider">
     </div>
     """, unsafe_allow_html=True)
 
@@ -657,6 +856,14 @@ if not st.session_state.subjects or not st.session_state.current_subject:
                     st.session_state.current_view = "Overview"
                     save_subjects(st.session_state.subjects)
                     st.rerun()
+
+    st.markdown("""
+    <hr class="gradient-divider" style="margin-top: 2.5rem;">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; padding: 0.4rem 0 1.2rem 0; font-size: 0.8rem; color: #64748b;">
+        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.9); animation: nodePulse 2s ease-in-out infinite;"></span>
+        StudyLens AI Study Workspace · Powered by Gemini AI · OpenCV · EasyOCR
+    </div>
+    """, unsafe_allow_html=True)
     st.stop()
 
 
@@ -684,12 +891,13 @@ else:
     greeting = "Good evening"
 
 st.markdown(f"""
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0.4rem; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 10px;">
     <div>
         <div class="greeting-title">{greeting} 👋</div>
         <div class="greeting-subtitle">Ready to continue learning in <strong>{st.session_state.current_subject}</strong>?</div>
     </div>
 </div>
+<hr class="gradient-divider">
 """, unsafe_allow_html=True)
 
 search_col1, search_col2 = st.columns([4, 1])
@@ -1198,3 +1406,20 @@ elif st.session_state.current_view == "Quizzes":
 
             sub["quiz_score"] = {"correct": correct_count or len(quiz_items), "total": len(quiz_items)}
             save_subjects(st.session_state.subjects)
+
+
+# ==============================================================================
+# FOOTER (Workspace views)
+# ==============================================================================
+st.markdown("""
+<hr class="gradient-divider" style="margin-top: 2.5rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 0.4rem 0 1.2rem 0;">
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #94a3b8;">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.9); animation: nodePulse 2s ease-in-out infinite;"></span>
+        <span>StudyLens <span class="gradient-headline">AI Study Workspace</span></span>
+    </div>
+    <div style="font-size: 0.78rem; color: #64748b;">
+        Powered by Gemini AI · OpenCV · EasyOCR
+    </div>
+</div>
+""", unsafe_allow_html=True)

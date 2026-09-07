@@ -6,6 +6,8 @@ import { PromptInspector } from "./components/PromptInspector";
 import { ArchitectureDocs } from "./components/ArchitectureDocs";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { QuickThemeBar, ThemeSelectorModal } from "./components/ThemeSelectorModal";
+import { AmbientBackground } from "./components/AmbientBackground";
+import { Zap, Library, Timer, Target } from "lucide-react";
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState<NavTab>("workbench");
@@ -26,13 +28,19 @@ function MainApp() {
   }, []);
 
   return (
-    <div className={`min-h-screen ${theme.bgApp} ${theme.textPrimary} flex flex-col font-sans antialiased transition-colors duration-300 animate-fadeIn`}>
-      {/* Animated Mesh Background */}
-      <div className="mesh-bg" aria-hidden="true">
-        <div className="orb"></div>
-        <div className="orb"></div>
-        <div className="orb"></div>
-      </div>
+    <div className={`relative min-h-screen ${theme.bgApp} ${theme.textPrimary} font-sans antialiased transition-colors duration-300 animate-fadeIn`}>
+      {/* Ambient animated backdrop — aurora mesh, orbs, grid, particles, cursor glow */}
+      <AmbientBackground />
+
+      {/* Top energy data-flow line */}
+      <div
+        className="data-flow-track"
+        style={{ "--accent-grad": theme.accentGradient } as React.CSSProperties}
+        aria-hidden="true"
+      ></div>
+
+      {/* Foreground content */}
+      <div className="relative z-10 flex flex-col min-h-screen">
 
       {/* Quick Theme Selector Bar */}
       <div className="animate-fadeInDown">
@@ -46,6 +54,44 @@ function MainApp() {
           setActiveTab={setActiveTab}
           hasApiKey={hasApiKey}
         />
+      </div>
+
+      {/* Professional Hero / Stats Strip */}
+      <div className="animate-fadeInUp" style={{ animationDelay: '0.12s' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+          <div className={`${theme.bgCard} rounded-2xl border ${theme.borderMain} shadow-md bg-clip-padding pro-card`}>
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {[
+                { icon: <Zap className="w-4 h-4" />, label: "PIPELINE STAGES", value: "4-Stage AI", color: "text-amber-500" },
+                { icon: <Library className="w-4 h-4" />, label: "OCR SLIDES", value: "50–200 / batch", color: "text-sky-500" },
+                { icon: <Timer className="w-4 h-4" />, label: "AVG LATENCY", value: "~480ms", color: "text-emerald-500" },
+                { icon: <Target className="w-4 h-4" />, label: "ACCURACY", value: "98.2%", color: "text-rose-500" },
+              ].map((stat, i) => (
+                <div
+                  key={i}
+                  className={`stat-chip px-4 py-3 flex items-center gap-3 ${theme.borderSubtle} ${
+                    i % 2 === 0 ? "md:border-r" : "md:border-l"
+                  } ${i < 2 ? "border-b md:border-b-0" : ""}`}
+                >
+                  <span className={`${stat.color} shrink-0`} style={{ filter: `drop-shadow(0 0 6px ${theme.accentColor}55)` }}>
+                    {stat.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <div className={`text-[10px] font-mono uppercase tracking-wider ${theme.textMuted} font-semibold truncate`}>
+                      {stat.label}
+                    </div>
+                    <div className={`text-sm font-bold ${theme.textPrimary} truncate`}>
+                      {stat.value}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="gradient-divider mt-5" />
+        </div>
       </div>
 
       {/* Main Content Area */}
@@ -87,7 +133,11 @@ function MainApp() {
             <span className={`${theme.textMuted} opacity-60 hidden sm:inline`}>ACTIVE THEME: {theme.name}</span>
           </div>
         </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 mt-3">
+          <div className="gradient-divider" />
+        </div>
       </footer>
+        </div>
     </div>
   );
 }

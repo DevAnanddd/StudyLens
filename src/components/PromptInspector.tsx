@@ -30,7 +30,7 @@ export const PromptInspector: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} card-hover animate-fadeInUp`}>
+      <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-8 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentBgSubtle} border ${theme.accentBorder} gradient-border mb-3`}>
@@ -48,7 +48,11 @@ export const PromptInspector: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => copyToClipboard(EXACT_SYSTEM_PROMPT, "all_summarizer")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold ${theme.accentBg} ${theme.accentShadow} transition-all duration-200 cursor-pointer hover:scale-[1.03] btn-ripple`}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-white transition-all duration-200 cursor-pointer hover:scale-[1.03] btn-ripple`}
+              style={{
+                background: theme.accentGradient,
+                boxShadow: `0 4px 22px ${theme.accentColor}55`,
+              }}
             >
               {copiedKey === "all_summarizer" ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4 text-white" />}
               <span>Copy System Prompt</span>

@@ -4,9 +4,12 @@ export type ThemeKey =
   | "clean_light"
   | "oxford"
   | "dark_studio"
+  | "royal_platinum"
   | "forest_sage"
   | "sepia_book"
-  | "midnight_navy";
+  | "midnight_navy"
+  | "neon_aurora"
+  | "rose_studio";
 
 export interface ThemeConfig {
   id: ThemeKey;
@@ -38,6 +41,12 @@ export interface ThemeConfig {
   codeText: string;
   headingFont: string;
   isDark: boolean;
+  // Ambient backdrop colors (driven into CSS variables)
+  orbA: string;
+  orbB: string;
+  orbC: string;
+  gridColor: string;
+  accentGradient: string;
 }
 
 export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
@@ -70,6 +79,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-slate-100",
     headingFont: "font-sans",
     isDark: false,
+    orbA: "rgba(79, 70, 229, 0.14)",
+    orbB: "rgba(168, 85, 247, 0.10)",
+    orbC: "rgba(14, 165, 233, 0.10)",
+    gridColor: "rgba(100, 116, 139, 0.05)",
+    accentGradient: "linear-gradient(135deg, #4F46E5, #8B5CF6, #EC4899)",
   },
   oxford: {
     id: "oxford",
@@ -100,6 +114,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-[#F5F2EB]",
     headingFont: "font-serif",
     isDark: false,
+    orbA: "rgba(140, 45, 25, 0.12)",
+    orbB: "rgba(180, 130, 60, 0.10)",
+    orbC: "rgba(90, 110, 70, 0.08)",
+    gridColor: "rgba(90, 80, 70, 0.05)",
+    accentGradient: "linear-gradient(135deg, #8C2D19, #B45309, #A16207)",
   },
   dark_studio: {
     id: "dark_studio",
@@ -130,6 +149,46 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-emerald-400",
     headingFont: "font-sans",
     isDark: true,
+    orbA: "rgba(99, 102, 241, 0.24)",
+    orbB: "rgba(168, 85, 247, 0.20)",
+    orbC: "rgba(34, 211, 238, 0.16)",
+    gridColor: "rgba(148, 163, 184, 0.07)",
+    accentGradient: "linear-gradient(135deg, #6366F1, #A855F7, #F59E0B)",
+  },
+  royal_platinum: {
+    id: "royal_platinum",
+    name: "Royal Platinum (Premium)",
+    category: "dark",
+    accentColor: "#C9A86A",
+    bgPreview: "#08090F",
+    cardPreview: "#12141E",
+    textColor: "#F5F4F0",
+    description: "Luxury graphite canvas, champagne-gold accents, refined premium editorial styling",
+    badge: "Premium Editorial",
+    bgApp: "bg-[#08090F]",
+    bgCard: "bg-[#12141E]",
+    bgCardHover: "hover:bg-[#191C2A]",
+    bgSurface: "bg-[#0C0E16]",
+    bgElevated: "bg-[#12141E] shadow-2xl",
+    borderMain: "border-[#26293A]",
+    borderSubtle: "border-[#1D202F]",
+    textPrimary: "text-[#F5F4F0]",
+    textSecondary: "text-[#D6D3CB]",
+    textMuted: "text-[#9A978C]",
+    accentBg: "bg-[#C9A86A] hover:bg-[#B8955A] text-[#0A0B10]",
+    accentBgSubtle: "bg-amber-400/10 text-amber-300",
+    accentText: "text-amber-300",
+    accentBorder: "border-amber-400/25",
+    accentShadow: "shadow-[0_0_18px_rgba(201,168,106,0.25)]",
+    codeBg: "bg-[#05060B]",
+    codeText: "text-amber-200",
+    headingFont: "font-sans",
+    isDark: true,
+    orbA: "rgba(201, 168, 106, 0.16)",
+    orbB: "rgba(139, 92, 246, 0.14)",
+    orbC: "rgba(56, 189, 248, 0.12)",
+    gridColor: "rgba(201, 175, 120, 0.05)",
+    accentGradient: "linear-gradient(135deg, #C9A86A, #E8C890, #A78BFA)",
   },
   forest_sage: {
     id: "forest_sage",
@@ -160,6 +219,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-emerald-300",
     headingFont: "font-sans",
     isDark: false,
+    orbA: "rgba(21, 128, 61, 0.14)",
+    orbB: "rgba(132, 204, 22, 0.10)",
+    orbC: "rgba(14, 116, 144, 0.08)",
+    gridColor: "rgba(50, 90, 65, 0.05)",
+    accentGradient: "linear-gradient(135deg, #15803D, #65A30D, #0D9488)",
   },
   sepia_book: {
     id: "sepia_book",
@@ -190,6 +254,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-[#FBE8D6]",
     headingFont: "font-serif",
     isDark: false,
+    orbA: "rgba(154, 52, 18, 0.14)",
+    orbB: "rgba(217, 119, 6, 0.10)",
+    orbC: "rgba(120, 53, 15, 0.08)",
+    gridColor: "rgba(110, 90, 70, 0.05)",
+    accentGradient: "linear-gradient(135deg, #9A3412, #D97706, #92400E)",
   },
   midnight_navy: {
     id: "midnight_navy",
@@ -220,6 +289,81 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeConfig> = {
     codeText: "text-sky-300",
     headingFont: "font-sans",
     isDark: true,
+    orbA: "rgba(56, 189, 248, 0.20)",
+    orbB: "rgba(59, 130, 246, 0.16)",
+    orbC: "rgba(168, 85, 247, 0.14)",
+    gridColor: "rgba(148, 197, 255, 0.06)",
+    accentGradient: "linear-gradient(135deg, #38BDF8, #3B82F6, #8B5CF6)",
+  },
+  neon_aurora: {
+    id: "neon_aurora",
+    name: "Neon Aurora (Ultraviolet)",
+    category: "dark",
+    accentColor: "#22D3EE",
+    bgPreview: "#060714",
+    cardPreview: "#0D1024",
+    textColor: "#F4F6FF",
+    description: "Deep-space ultraviolet canvas with pulsing neon cyan-magenta auroras",
+    badge: "Neon Future",
+    bgApp: "bg-[#060714]",
+    bgCard: "bg-[#0D1024]",
+    bgCardHover: "hover:bg-[#141837]",
+    bgSurface: "bg-[#090B1B]",
+    bgElevated: "bg-[#0D1024] shadow-xl",
+    borderMain: "border-[#232A54]",
+    borderSubtle: "border-[#1A1F44]",
+    textPrimary: "text-[#F4F6FF]",
+    textSecondary: "text-[#C7D2FE]",
+    textMuted: "text-[#7C86B8]",
+    accentBg: "bg-cyan-500 hover:bg-cyan-400 text-white",
+    accentBgSubtle: "bg-cyan-500/10 text-cyan-300",
+    accentText: "text-cyan-300",
+    accentBorder: "border-cyan-500/30",
+    accentShadow: "shadow-[0_0_18px_rgba(34,211,238,0.35)]",
+    codeBg: "bg-[#070818]",
+    codeText: "text-fuchsia-300",
+    headingFont: "font-sans",
+    isDark: true,
+    orbA: "rgba(34, 211, 238, 0.24)",
+    orbB: "rgba(217, 70, 239, 0.20)",
+    orbC: "rgba(139, 92, 246, 0.18)",
+    gridColor: "rgba(129, 140, 248, 0.07)",
+    accentGradient: "linear-gradient(135deg, #22D3EE, #A855F7, #EC4899)",
+  },
+  rose_studio: {
+    id: "rose_studio",
+    name: "Rose Studio (Blush Editorial)",
+    category: "light",
+    accentColor: "#E11D48",
+    bgPreview: "#FBF7F8",
+    cardPreview: "#FFFFFF",
+    textColor: "#1C1417",
+    description: "Soft blush porcelain, warm rosewood accents, refined modern editorial clarity",
+    badge: "Rose Editorial",
+    bgApp: "bg-[#FBF7F8]",
+    bgCard: "bg-white",
+    bgCardHover: "hover:bg-[#FBF0F2]",
+    bgSurface: "bg-[#F5ECEE]",
+    bgElevated: "bg-white shadow-sm",
+    borderMain: "border-[#EADCE0]",
+    borderSubtle: "border-[#F3E7EA]",
+    textPrimary: "text-[#1C1417]",
+    textSecondary: "text-[#4A3B40]",
+    textMuted: "text-[#8F7A82]",
+    accentBg: "bg-[#E11D48] hover:bg-[#BE123C] text-white",
+    accentBgSubtle: "bg-rose-50 text-rose-700",
+    accentText: "text-rose-600",
+    accentBorder: "border-rose-200",
+    accentShadow: "shadow-[0_2px_10px_rgba(225,29,72,0.15)]",
+    codeBg: "bg-[#2D1A24]",
+    codeText: "text-rose-100",
+    headingFont: "font-sans",
+    isDark: false,
+    orbA: "rgba(225, 29, 72, 0.10)",
+    orbB: "rgba(217, 119, 6, 0.08)",
+    orbC: "rgba(79, 70, 229, 0.06)",
+    gridColor: "rgba(130, 100, 110, 0.04)",
+    accentGradient: "linear-gradient(135deg, #E11D48, #F59E0B, #8B5CF6)",
   },
 };
 
@@ -239,7 +383,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved && saved in THEME_PRESETS) {
       return saved as ThemeKey;
     }
-    return "clean_light"; // Default clean modern
+    return "dark_studio"; // Default: cool cyber obsidian look
   });
 
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
@@ -252,11 +396,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const theme = THEME_PRESETS[themeKey] || THEME_PRESETS.clean_light;
 
   useEffect(() => {
+    const root = document.documentElement;
     if (theme.isDark) {
-      document.documentElement.classList.add("dark");
+      root.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
     }
+    // Drive the ambient backdrop CSS variables from the active theme.
+    root.style.setProperty("--orb-a", theme.orbA);
+    root.style.setProperty("--orb-b", theme.orbB);
+    root.style.setProperty("--orb-c", theme.orbC);
+    root.style.setProperty("--grid-color", theme.gridColor);
+    root.style.setProperty("--accent-grad", theme.accentGradient);
+    root.style.setProperty("--accent-color", theme.accentColor);
   }, [theme]);
 
   return (

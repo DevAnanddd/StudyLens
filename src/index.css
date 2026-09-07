@@ -78,3 +78,411 @@
 
 /* ── Selection ── */
 ::selection { background-color: rgba(99, 102, 241, 0.25); color: inherit; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ✨ COOL UPGRADE — Ambient Backdrop, Graphics & Effects
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Backdrop CSS Variables (driven by the active theme) ── */
+:root {
+  --orb-a: rgba(99, 102, 241, 0.18);
+  --orb-b: rgba(168, 85, 247, 0.15);
+  --orb-c: rgba(6, 182, 212, 0.14);
+  --grid-color: rgba(100, 116, 139, 0.06);
+  --accent-grad: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+}
+
+/* ── Aurora Mesh Background Layer ── */
+.mesh-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mesh-bg::before {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(55% 42% at 12% 8%, var(--orb-a), transparent 62%),
+    radial-gradient(48% 38% at 88% 16%, var(--orb-b), transparent 64%),
+    radial-gradient(58% 52% at 52% 108%, var(--orb-c), transparent 62%);
+  filter: saturate(135%);
+  animation: aurora 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* ── Floating Gradient Orbs ── */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  background: radial-gradient(circle at 35% 35%, currentColor, transparent 72%);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: orbFloat 14s ease-in-out infinite;
+}
+
+/* ── Perspective Grid Floor ── */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 100% 72% at 50% 18%, black 18%, transparent 74%);
+  mask-image: radial-gradient(ellipse 100% 72% at 50% 18%, black 18%, transparent 74%);
+  animation: gridScroll 70s linear infinite;
+}
+
+/* ── Film-Grain Noise ── */
+.bg-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Scanlines for the cyber feel ── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 255, 255, 0.016) 2px,
+    rgba(255, 255, 255, 0.016) 4px
+  );
+}
+
+/* ── Floating Particles ── */
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0;
+  animation: twinkle var(--tw-dur, 5s) ease-in-out infinite;
+}
+
+/* ── Mouse Cursor Glow ── */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 520px;
+  height: 520px;
+  z-index: -5;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--orb-a), transparent 62%);
+  opacity: 0.55;
+  filter: blur(70px);
+  transform: translate3d(-50%, -50%, 0);
+  transition: opacity 0.4s ease;
+}
+
+/* ── Top Data-Flow Energy Line ── */
+.data-flow-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 70;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+.data-flow-track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: var(--accent-grad);
+  animation: dataFlow 2.8s linear infinite;
+}
+
+/* ── Button Ripple Effect ── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-ripple::after {
+  content: "";
+  position: absolute;
+  left: var(--rx, 50%);
+  top: var(--ry, 50%);
+  width: 14px;
+  height: 14px;
+  margin: -7px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.btn-ripple:active::after {
+  animation: ripple 0.65s ease-out forwards;
+}
+
+/* ── Card Spotlight Hover ── */
+.card-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.card-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.07),
+    transparent 45%
+  );
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ── Animated Gradient Border ── */
+.gradient-border-animated {
+  position: relative;
+}
+.gradient-border-animated::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(120deg, var(--orb-a), var(--orb-b), var(--orb-c), var(--orb-a));
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: gradientShift 6s ease infinite;
+  pointer-events: none;
+}
+
+/* ── Glowing Text ── */
+.text-glow {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--orb-a) 60%, transparent);
+}
+
+/* ── Pipeline Stage Connector ── */
+.stage-connector {
+  height: 2px;
+  flex: 1;
+  margin-top: 22px;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+  background: var(--grid-color);
+}
+.stage-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 60%;
+  background: var(--accent-grad);
+  animation: dataFlow 2.2s linear infinite;
+}
+
+/* ── NEW Keyframes ── */
+@keyframes aurora {
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50%  { transform: translate3d(1.5%, 2%, 0) scale(1.08); }
+  100% { transform: translate3d(-1%, 2.5%, 0) scale(0.97); }
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(30px, -40px, 0) scale(1.12); }
+  66%      { transform: translate3d(-25px, 25px, 0) scale(0.94); }
+}
+@keyframes gridScroll {
+  0%   { background-position: 0 0; }
+  100% { background-position: 44px 44px; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50%      { opacity: 1; transform: scale(1.25); }
+}
+@keyframes dataFlow {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(350%); }
+}
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.9; }
+  100% { transform: scale(45); opacity: 0; }
+}
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+  70%  { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+/* ── NEW Utility Animation Classes ── */
+.animate-aurora { animation: aurora 20s ease-in-out infinite alternate; }
+.animate-orbFloat { animation: orbFloat 14s ease-in-out infinite; }
+.animate-gridScroll { animation: gridScroll 70s linear infinite; }
+.animate-twinkle { animation: twinkle 5s ease-in-out infinite; }
+.animate-dataFlow { animation: dataFlow 2.8s linear infinite; }
+.animate-pulseRing { animation: pulseRing 2.6s ease-out infinite; }
+.animate-spinSlow { animation: spinSlow 16s linear infinite; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ✦ PROFESSIONAL UPGRADE — Richer Graphics & Polish
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Refined Selection & Scrollbar ── */
+::selection { background: color-mix(in srgb, var(--accent-color, #6366F1) 28%, transparent); color: inherit; }
+
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--orb-a), var(--orb-b), var(--orb-c));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent-grad); }
+
+/* ── Neural Network / Constellation Backdrop ── */
+.neural-network {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 0;
+}
+.neural-network svg {
+  width: 100%;
+  height: 100%;
+}
+.neural-network .nn-node {
+  animation: nnPulse 4s ease-in-out infinite;
+}
+.neural-network .nn-line {
+  stroke-dasharray: 4 4;
+  animation: dashFlow 14s linear infinite;
+}
+
+@keyframes nnPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+@keyframes dashFlow {
+  to { stroke-dashoffset: -120; }
+}
+
+/* ── Hero / Title shimmer overlay ── */
+.title-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.title-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, white 18%, transparent) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  animation: shimmerSweep 3.2s ease-in-out infinite;
+}
+@keyframes shimmerSweep {
+  0% { transform: translateX(-120%); }
+  55% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+
+/* ── Refined Card: elegant hover lift + border highlight ── */
+.pro-card {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.pro-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--orb-a) 55%, transparent);
+  box-shadow: 0 14px 44px -12px color-mix(in srgb, var(--orb-a) 45%, transparent);
+}
+
+/* ── Subtle wireframe icon ring for logo / chips ── */
+.glyph-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.glyph-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px dashed color-mix(in srgb, var(--orb-a) 55%, transparent);
+  animation: spinSlow 20s linear infinite;
+}
+
+/* ── Decorative gradient divider ── */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  opacity: 0.5;
+}
+
+/* ── Soft inner glow for code blocks ── */
+.code-glow {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent), 0 1px 10px color-mix(in srgb, var(--orb-a) 25%, transparent);
+}
+
+/* ── Stats card hover pulse ── */
+.stat-chip {
+  position: relative;
+  overflow: hidden;
+}
+.stat-chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(140px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--orb-a) 30%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.stat-chip:hover::before { opacity: 1; }
+
+/* ── Pipeline flow panel connector dots ── */
+.flow-node-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-color);
+  animation: dotPulse 2.4s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.35); opacity: 1; }
+}

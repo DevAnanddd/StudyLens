@@ -20,15 +20,41 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, hasApiK
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white text-base animate-pulseGlow transition-transform duration-300 hover:scale-110 cursor-pointer`}
-              style={{ backgroundColor: theme.accentColor }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform duration-300 hover:scale-110 hover:rotate-6 cursor-pointer relative overflow-hidden shadow-lg glyph-ring"
+              style={{
+                background: theme.accentGradient,
+                boxShadow: `0 6px 26px ${theme.accentColor}50`,
+              }}
             >
-              ⚡
+              <span
+                className="absolute inset-0 opacity-25 animate-spinSlow"
+                style={{
+                  background:
+                    "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.7) 50%, transparent 60%)",
+                }}
+              />
+              <Zap className="w-5 h-5 relative z-10 drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+              <span
+                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-white animate-pulse"
+                style={{ boxShadow: `0 0 10px ${theme.accentColor}` }}
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className={`font-bold text-lg tracking-tight ${theme.textPrimary} ${theme.headingFont}`}>
-                  StudyLens <span className="gradient-text">AI</span>
+                <h1 className={`font-bold text-lg tracking-tight ${theme.textPrimary} ${theme.headingFont} title-shimmer`}>
+                  StudyLens{" "}
+                  <span
+                    className="font-extrabold"
+                    style={{
+                      background: theme.accentGradient,
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent",
+                      textShadow: `0 0 22px ${theme.accentColor}40`,
+                    }}
+                  >
+                    AI
+                  </span>
                 </h1>
                 <span
                   className={`text-[10px] font-mono px-2 py-0.5 font-semibold rounded-md border ${theme.accentBgSubtle} ${theme.accentBorder} uppercase tracking-wider animate-float`}
