@@ -53,6 +53,23 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
+    :root {
+        --sl-bg0: #060a16;
+        --sl-bg1: #0b1222;
+        --sl-card: rgba(17, 25, 46, 0.88);
+        --sl-indigo: #6366f1;
+        --sl-violet: #8b5cf6;
+        --sl-fuchsia: #d946ef;
+        --sl-cyan: #22d3ee;
+        --sl-gold: #f59e0b;
+        --sl-emerald: #10b981;
+        --sl-rose: #f43f5e;
+        --sl-text: #f1f5f9;
+        --sl-text-soft: #94a3b8;
+        --sl-primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #d946ef 100%);
+        --sl-border: rgba(255, 255, 255, 0.08);
+    }
+
     /* ── Animations ── */
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(16px); }
@@ -97,12 +114,13 @@ st.markdown("""
 
     .stApp {
         background:
-            radial-gradient(60% 50% at 12% 8%, rgba(79, 70, 229, 0.28) 0%, transparent 60%),
-            radial-gradient(50% 42% at 88% 12%, rgba(192, 132, 252, 0.24) 0%, transparent 60%),
-            radial-gradient(55% 40% at 50% 96%, rgba(56, 189, 248, 0.18) 0%, transparent 60%),
-            linear-gradient(180deg, #0a0f1d 0%, #0b1222 45%, #0a0f1d 100%);
+            radial-gradient(65% 55% at 12% 6%, rgba(99, 102, 241, 0.30) 0%, transparent 60%),
+            radial-gradient(55% 48% at 90% 10%, rgba(217, 70, 239, 0.20) 0%, transparent 60%),
+            radial-gradient(60% 45% at 50% 97%, rgba(34, 211, 238, 0.16) 0%, transparent 60%),
+            radial-gradient(40% 30% at 78% 78%, rgba(245, 158, 11, 0.10) 0%, transparent 55%),
+            linear-gradient(180deg, #05070f 0%, var(--sl-bg1) 45%, #05070f 100%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        color: #f1f5f9;
+        color: var(--sl-text);
         letter-spacing: -0.01em;
     }
     /* Animated neural-constellation backdrop overlay */
@@ -113,14 +131,14 @@ st.markdown("""
         pointer-events: none;
         z-index: 0;
         background-image:
-            radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.10) 0px, transparent 1.5px),
-            radial-gradient(circle at 25% 40%, rgba(192, 132, 252, 0.10) 0px, transparent 1.5px),
-            radial-gradient(circle at 40% 15%, rgba(56, 189, 248, 0.10) 0px, transparent 1.5px),
-            radial-gradient(circle at 65% 55%, rgba(129, 140, 248, 0.08) 0px, transparent 1.5px),
-            radial-gradient(circle at 80% 30%, rgba(192, 132, 252, 0.08) 0px, transparent 1.5px),
-            radial-gradient(circle at 90% 70%, rgba(56, 189, 248, 0.08) 0px, transparent 1.5px),
-            radial-gradient(circle at 15% 80%, rgba(129, 140, 248, 0.07) 0px, transparent 1.5px),
-            radial-gradient(circle at 55% 85%, rgba(192, 132, 252, 0.07) 0px, transparent 1.5px);
+            radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.12) 0px, transparent 1.5px),
+            radial-gradient(circle at 25% 40%, rgba(217, 70, 239, 0.12) 0px, transparent 1.5px),
+            radial-gradient(circle at 40% 15%, rgba(34, 211, 238, 0.12) 0px, transparent 1.5px),
+            radial-gradient(circle at 65% 55%, rgba(129, 140, 248, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 80% 30%, rgba(217, 70, 239, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 90% 70%, rgba(245, 158, 11, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 15% 80%, rgba(129, 140, 248, 0.08) 0px, transparent 1.5px),
+            radial-gradient(circle at 55% 85%, rgba(34, 211, 238, 0.08) 0px, transparent 1.5px);
         background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
         background-repeat: no-repeat;
         animation: nodePulse 4s ease-in-out infinite;
@@ -150,8 +168,9 @@ st.markdown("""
         right: 1.5rem !important;
     }
     [data-testid="stSidebar"] {
-        background-color: #0c111d !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        background-color: #071020 !important;
+        background-image: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(7, 16, 32, 0) 42%), linear-gradient(0deg, rgba(217, 70, 239, 0.05), rgba(7, 16, 32, 0) 32%) !important;
+        border-right: 1px solid rgba(129, 140, 248, 0.14) !important;
     }
     [data-testid="stSidebar"] hr {
         border-color: rgba(255, 255, 255, 0.06) !important;
@@ -167,7 +186,7 @@ st.markdown("""
     }
     .sidebar-brand-icon {
         font-size: 1.4rem;
-        color: #818cf8;
+        color: #a5b4fc;
         animation: float 3s ease-in-out infinite;
         position: relative;
     }
@@ -201,7 +220,7 @@ st.markdown("""
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #475569;
+        color: #8b9cc0;
         margin-top: 14px;
         margin-bottom: 8px;
     }
@@ -225,6 +244,18 @@ st.markdown("""
         margin-bottom: 1.6rem;
         animation: fadeInUp 0.6s ease-out;
     }
+    .subject-chip {
+        display: inline-block;
+        padding: 2px 11px;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #f0abfc;
+        background: rgba(217, 70, 239, 0.10);
+        border: 1px solid rgba(217, 70, 239, 0.32);
+        box-shadow: 0 2px 12px rgba(217, 70, 239, 0.18);
+        vertical-align: middle;
+    }
     .gradient-headline {
         background: linear-gradient(90deg, #818cf8 0%, #c084fc 35%, #e879f9 55%, #38bdf8 80%, #818cf8 100%);
         background-size: 300% auto;
@@ -247,17 +278,38 @@ st.markdown("""
         pointer-events: none;
     }
     .stButton > button {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        background: var(--sl-primary-grad) !important;
+        background-size: 180% auto !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
         border-radius: 12px !important;
         font-weight: 600 !important;
         font-size: 0.9rem !important;
         padding: 0.5rem 1.15rem !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 2px 10px rgba(79, 70, 229, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 2px 14px rgba(99, 102, 241, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
         position: relative;
         overflow: hidden;
+    }
+    .stButton > button[kind="secondary"], .stButton > button[pkind="secondary"], .stFormSubmitButton > button[kind="secondary"] {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(217, 70, 239, 0.10)) !important;
+        backdrop-filter: blur(10px);
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(129, 140, 248, 0.30) !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        padding: 0.5rem 1.15rem !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        position: relative;
+        overflow: hidden;
+    }
+    .stButton > button[kind="secondary"]:hover, .stButton > button[pkind="secondary"]:hover {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.26), rgba(217, 70, 239, 0.18)) !important;
+        border-color: rgba(192, 132, 252, 0.55) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.28) !important;
     }
     .stButton > button::after {
         content: '';
@@ -273,26 +325,28 @@ st.markdown("""
     }
     .stButton > button:hover {
         transform: translateY(-2px) scale(1.02) !important;
-        box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4) !important;
-        border-color: rgba(255, 255, 255, 0.25) !important;
+        background-position: right center !important;
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45) !important;
+        border-color: rgba(255, 255, 255, 0.32) !important;
     }
     .stButton > button:active {
         transform: translateY(0px) scale(0.98) !important;
     }
-    .stDownloadButton > button {
-        background: rgba(30, 41, 59, 0.6) !important;
+    .stDownloadButton > button, .stFormSubmitButton > button {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(217, 70, 239, 0.08)) !important;
         backdrop-filter: blur(8px);
         color: #f8fafc !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 9px !important;
+        border: 1px solid rgba(129, 140, 248, 0.28) !important;
+        border-radius: 10px !important;
         font-weight: 600 !important;
         font-size: 0.88rem !important;
         transition: all 0.2s ease !important;
     }
-    .stDownloadButton > button:hover {
-        background: rgba(51, 65, 85, 0.8) !important;
-        border-color: #818cf8 !important;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+    .stDownloadButton > button:hover, .stFormSubmitButton > button:hover {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.24), rgba(217, 70, 239, 0.16)) !important;
+        border-color: #a78bfa !important;
+        box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(150deg, rgba(22, 31, 54, 0.85), rgba(14, 20, 36, 0.9)) !important;
@@ -515,6 +569,239 @@ st.markdown("""
         border-color: rgba(167, 139, 250, 0.6);
         box-shadow: 0 8px 22px rgba(124, 58, 237, 0.28);
     }
+    /* ── Landing feature grid & pipeline strip ── */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin: 1.6rem auto 0.4rem auto;
+        max-width: 720px;
+    }
+    .feature-card {
+        background: linear-gradient(150deg, rgba(24, 33, 58, 0.8), rgba(13, 19, 36, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 14px 12px;
+        text-align: left;
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 20%; right: 20%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.6), transparent);
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(167, 139, 250, 0.5);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.22);
+    }
+    .feature-card-icon { font-size: 1.3rem; margin-bottom: 6px; }
+    .feature-card-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin-bottom: 3px;
+    }
+    .feature-card-desc {
+        font-size: 0.74rem;
+        color: #94a3b8;
+        line-height: 1.4;
+    }
+    .pipeline-strip {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 1rem auto 0 auto;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #a5b4fc;
+    }
+    .pipeline-strip span {
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(129, 140, 248, 0.25);
+        padding: 5px 12px;
+        border-radius: 9999px;
+        color: #c7d2fe;
+        transition: all 0.2s ease;
+    }
+    .pipeline-strip span:hover {
+        background: rgba(99, 102, 241, 0.24);
+        transform: translateY(-2px);
+    }
+    .pipeline-strip i { color: #f0abfc; font-size: 0.85rem; }
+    /* ── View title (gradient) ── */
+    .view-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        background: linear-gradient(92deg, #e0e7ff 0%, #a5b4fc 30%, #c084fc 55%, #f0abfc 80%, #67e8f9 100%);
+        background-size: 250% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+        margin-bottom: 4px;
+        animation: gradientShift 6s ease infinite;
+    }
+    .view-subtitle {
+        font-size: 0.88rem;
+        color: #94a3b8;
+        margin-bottom: 1.4rem;
+    }
+    /* ── Stat card premium accents ── */
+    .stat-card { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .stat-card:nth-child(1) .stat-icon { text-shadow: 0 0 18px rgba(99, 102, 241, 0.8); }
+    .stat-card:nth-child(2) .stat-icon { text-shadow: 0 0 18px rgba(217, 70, 239, 0.8); }
+    .stat-card:nth-child(3) .stat-icon { text-shadow: 0 0 18px rgba(245, 158, 11, 0.8); }
+    .stat-card:nth-child(4) .stat-icon { text-shadow: 0 0 18px rgba(16, 185, 129, 0.8); }
+    .stat-card:nth-child(1)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 55%); }
+    .stat-card:nth-child(2)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(217, 70, 239, 0.20) 0%, transparent 55%); }
+    .stat-card:nth-child(3)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(245, 158, 11, 0.18) 0%, transparent 55%); }
+    .stat-card:nth-child(4)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(16, 185, 129, 0.18) 0%, transparent 55%); }
+    .stat-card:nth-child(1) { border-color: rgba(99, 102, 241, 0.35); }
+    .stat-card:nth-child(2) { border-color: rgba(217, 70, 239, 0.30); }
+    .stat-card:nth-child(3) { border-color: rgba(245, 158, 11, 0.30); }
+    .stat-card:nth-child(4) { border-color: rgba(16, 185, 129, 0.30); }
+    .stat-card:nth-child(1):hover { box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25); }
+    .stat-card:nth-child(2):hover { box-shadow: 0 12px 34px rgba(217, 70, 239, 0.22); }
+    .stat-card:nth-child(3):hover { box-shadow: 0 12px 34px rgba(245, 158, 11, 0.20); }
+    .stat-card:nth-child(4):hover { box-shadow: 0 12px 34px rgba(16, 185, 129, 0.20); }
+    /* ── Subject avatar chip (sidebar) ── */
+    .subject-avatar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(217, 70, 239, 0.10));
+        border: 1px solid rgba(129, 140, 248, 0.35);
+        margin: 4px 0 10px 0;
+        animation: fadeInDown 0.4s ease-out;
+    }
+    .subject-avatar .avatar-letter {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #ffffff;
+        background: var(--sl-primary-grad);
+        box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+    }
+    .subject-avatar .avatar-text {
+        line-height: 1.25;
+        min-width: 0;
+    }
+    .subject-avatar .avatar-name {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .subject-avatar .avatar-status {
+        font-size: 0.68rem;
+        color: #fbbf24;
+        font-weight: 600;
+    }
+    /* ── Chat polish ── */
+    [data-testid="stChatMessageAvatarUser"] {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+        box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+    }
+    [data-testid="stChatMessageAvatarAssistant"] {
+        background: linear-gradient(135deg, #0ea5e9, #10b981) !important;
+        box-shadow: 0 2px 10px rgba(34, 211, 238, 0.35);
+    }
+    [data-testid="stChatMessage"] {
+        background: rgba(17, 25, 46, 0.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 0.6rem 1rem;
+        margin-bottom: 0.6rem;
+    }
+    [data-testid="stChatInput"] textarea {
+        background: rgba(17, 25, 46, 0.85) !important;
+        border: 1px solid rgba(129, 140, 248, 0.3) !important;
+        border-radius: 12px !important;
+        color: #f1f5f9 !important;
+    }
+    [data-testid="stChatInput"] textarea:focus {
+        border-color: rgba(167, 139, 250, 0.6) !important;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18) !important;
+    }
+    [data-testid="stChatInput"] button {
+        background: var(--sl-primary-grad) !important;
+    }
+    /* ── Uploader ── */
+    [data-testid="stFileUploaderDropzone"] {
+        background: linear-gradient(145deg, rgba(22, 31, 54, 0.85), rgba(13, 19, 36, 0.9)) !important;
+        border: 1.5px dashed rgba(129, 140, 248, 0.4) !important;
+        border-radius: 14px !important;
+        transition: all 0.25s ease !important;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: rgba(167, 139, 250, 0.7) !important;
+        box-shadow: 0 8px 26px rgba(99, 102, 241, 0.22) !important;
+    }
+    /* ── Captions & dividers ── */
+    [data-testid="stCaptionContainer"] p { color: #8896ab; }
+    .streamlit-expanderHeader {
+        border: 1px solid rgba(129, 140, 248, 0.18) !important;
+    }
+    /* ── Native widgets (text input, select, radio, checkbox, slider, progress) ── */
+    [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea, [data-testid="stNumberInput"] input {
+        background: rgba(13, 19, 36, 0.85) !important;
+        border: 1px solid rgba(129, 140, 248, 0.25) !important;
+        border-radius: 10px !important;
+        color: #f1f5f9 !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    [data-testid="stTextInput"] input:focus, [data-testid="stTextArea"] textarea:focus {
+        border-color: rgba(167, 139, 250, 0.7) !important;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16) !important;
+    }
+    [data-testid="stSelectbox"] > div > div, [data-testid="stPopover"] button {
+        background: rgba(13, 19, 36, 0.85) !important;
+        border: 1px solid rgba(129, 140, 248, 0.25) !important;
+        border-radius: 10px !important;
+        color: #f1f5f9 !important;
+    }
+    [data-testid="stCheckbox"] label span {
+        color: #e2e8f0 !important;
+    }
+    [data-testid="stCheckbox"] svg { color: #8b5cf6 !important; }
+    [data-testid="stSlider"] [data-testid="stThumbValue"], [data-testid="stSlider"] [data-baseweb="slider"] div[role="slider"] {
+        background: #8b5cf6 !important;
+        border-color: #a78bfa !important;
+    }
+    [data-testid="stSliderTickBar"] div { color: #64748b !important; }
+    [data-baseweb="progress"] [role="progressbar"] {
+        background: var(--sl-primary-grad) !important;
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.45) !important;
+    }
+    [data-testid="stProgress"] > div > div > div > div {
+        background: var(--sl-primary-grad) !important;
+    }
+    [data-testid="stRadio"] label { color: #e2e8f0 !important; }
+    [data-testid="stRadio"] input:checked + div svg { color: #a78bfa !important; }
+    [data-testid="stPopover"] button:hover {
+        border-color: rgba(167, 139, 250, 0.6) !important;
+    }
     .stApp > div:first-child { position: relative; z-index: 1; }
     [data-testid="stSidebar"] { z-index: 2; }
 </style>
@@ -657,6 +944,18 @@ with st.sidebar:
         if chosen_subject != st.session_state.current_subject:
             st.session_state.current_subject = chosen_subject
             st.rerun()
+
+        _active_sub = st.session_state.subjects.get(st.session_state.current_subject, {})
+        _has_notes = bool(_active_sub.get("master_notes_md"))
+        st.markdown(f"""
+        <div class="subject-avatar">
+            <div class="avatar-letter">{st.session_state.current_subject[:1].upper()}</div>
+            <div class="avatar-text">
+                <div class="avatar-name">{st.session_state.current_subject}</div>
+                <div class="avatar-status">{"✅ Notes ready" if _has_notes else "⏳ Pending setup"}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
         st.caption("No subjects yet. Create one below.")
 
@@ -811,6 +1110,31 @@ if not st.session_state.subjects or not st.session_state.current_subject:
             <span class="feature-chip">🎯 Auto Quizzes</span>
             <span class="feature-chip">💬 Chat with Notes</span>
         </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-card-icon">🧠</div>
+                <div class="feature-card-title">AI Summarization</div>
+                <div class="feature-card-desc">Topic-grouped, exam-ready notes synthesized from every slide.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">🖼️</div>
+                <div class="feature-card-title">Smart Image Cleanup</div>
+                <div class="feature-card-desc">OpenCV enhances dark whiteboard photos & auto-drops duplicates.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">🎯</div>
+                <div class="feature-card-title">Auto Quizzes</div>
+                <div class="feature-card-desc">Instant self-test questions grounded strictly in your material.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card-icon">💬</div>
+                <div class="feature-card-title">Chat with Notes</div>
+                <div class="feature-card-desc">Ask anything — answers come only from your own revision notes.</div>
+            </div>
+        </div>
+        <div class="pipeline-strip">
+            <span>1 · Upload Slides</span><i>→</i><span>2 · Clean & Dedupe</span><i>→</i><span>3 · Summarize</span><i>→</i><span>4 · Quiz & Chat</span>
+        </div>
         <hr class="gradient-divider">
     </div>
     """, unsafe_allow_html=True)
@@ -875,11 +1199,15 @@ sub = st.session_state.subjects[st.session_state.current_subject]
 # WORKSPACE VIEWS (Active Subject Workspace)
 # ==============================================================================
 
-top_nav_col1, top_nav_col2 = st.columns([1.8, 3.2])
+top_nav_col1, top_nav_col2 = st.columns([1.5, 3.5])
 with top_nav_col1:
-    if st.button("← Back to Subjects / Home", key="btn_top_back_home", help="Return to subjects overview & landing page"):
+    if st.button("← Home", key="btn_top_back_home", use_container_width=True, help="Return to subjects overview & landing page"):
         st.session_state.current_subject = None
         st.session_state.current_view = "Overview"
+        st.rerun()
+with top_nav_col2:
+    if st.button("📤 Upload New Material", key="btn_top_upload", use_container_width=True, type="primary", help="Jump to the Materials uploader"):
+        st.session_state.current_view = "Materials"
         st.rerun()
 
 hour = datetime.now().hour
@@ -894,7 +1222,7 @@ st.markdown(f"""
 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 10px;">
     <div>
         <div class="greeting-title">{greeting} 👋</div>
-        <div class="greeting-subtitle">Ready to continue learning in <strong>{st.session_state.current_subject}</strong>?</div>
+        <div class="greeting-subtitle">Ready to continue learning in <span class="subject-chip">{st.session_state.current_subject}</span>?</div>
     </div>
 </div>
 <hr class="gradient-divider">
@@ -1025,26 +1353,30 @@ if st.session_state.current_view == "Overview":
                 st.rerun()
 
     st.markdown('<div class="nav-section-label">Quick Actions</div>', unsafe_allow_html=True)
-    qa_col1, qa_col2, qa_col3 = st.columns(3)
+    qa_col1, qa_col2, qa_col3, qa_col4 = st.columns(4)
     with qa_col1:
-        if st.button("📄 Upload Material", use_container_width=True):
+        if st.button("📄 Upload", use_container_width=True, help="Upload lecture slides & PDFs"):
             st.session_state.current_view = "Materials"
             st.rerun()
     with qa_col2:
-        if st.button("📝 Study Notes", use_container_width=True):
+        if st.button("📝 Notes", use_container_width=True, help="View your revision notes"):
             st.session_state.current_view = "Revision Notes"
             st.rerun()
     with qa_col3:
-        if st.button("🎯 Take Quiz", use_container_width=True):
+        if st.button("🎯 Quiz", use_container_width=True, help="Test your knowledge"):
             st.session_state.current_view = "Quizzes"
+            st.rerun()
+    with qa_col4:
+        if st.button("💬 Chat", use_container_width=True, type="primary", help="Ask AI about your notes"):
+            st.session_state.current_view = "Chat"
             st.rerun()
                                 
 # ------------------------------------------------------------------------------
 # 2. MATERIALS VIEW (Upload & Processing)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Materials":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 6px;">📄 Course Materials & Lecture Slides</h2>', unsafe_allow_html=True)
-    st.caption("Upload lecture slides (PNG, JPG, WEBP) or multi-page PDFs. OpenCV will enhance clarity and filter duplicates.")
+    st.markdown('<span class="view-title">📄 Course Materials &amp; Lecture Slides</span>', unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">Upload lecture slides (PNG, JPG, WEBP) or multi-page PDFs. OpenCV will enhance clarity and filter duplicates.</div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         uploaded_files = st.file_uploader(
@@ -1172,8 +1504,8 @@ elif st.session_state.current_view == "Materials":
 # 3. REVISION NOTES VIEW
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Revision Notes":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">📝 Structured <span class="gradient-headline">Revision Notes</span></h2>', unsafe_allow_html=True)
-    st.caption("AI-synthesized, factually grounded notes extracted from your lecture materials.")
+    st.markdown('<span class="view-title">📝 Structured Revision Notes</span>', unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">AI-synthesized, factually grounded notes extracted from your lecture materials.</div>', unsafe_allow_html=True)
 
     if not sub["master_notes_md"]:
         st.info("No revision notes generated yet. Upload slides in the Materials tab or load the Sample Demo.")
@@ -1254,8 +1586,8 @@ elif st.session_state.current_view == "Revision Notes":
 # 3b. NOTES HISTORY VIEW (Browse Past Generated Notes)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Notes History":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">📜 Notes History for <span class="gradient-headline">{}</span></h2>'.format(st.session_state.current_subject), unsafe_allow_html=True)
-    st.caption("Browse past versions of your generated revision notes.")
+    st.markdown('<span class="view-title">📜 Notes History — <span style="color:#ffffff;-webkit-text-fill-color:#ffffff;">{}</span></span>'.format(st.session_state.current_subject), unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">Browse past versions of your generated revision notes.</div>', unsafe_allow_html=True)
 
     history = load_notes_history(st.session_state.current_subject, max_items=20)
     if not history:
@@ -1278,8 +1610,8 @@ elif st.session_state.current_view == "Notes History":
 # 4. CHAT VIEW (Ask AI Questions Grounded in Your Notes)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Chat":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">💬 Chat with Your <span class="gradient-headline">Revision Notes</span></h2>', unsafe_allow_html=True)
-    st.caption("Ask a question and the AI answers using only the content from your generated notes for this subject.")
+    st.markdown('<span class="view-title">💬 Chat with Your Revision Notes</span>', unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">Ask a question and the AI answers using only the content from your generated notes for this subject.</div>', unsafe_allow_html=True)
 
     if not sub["master_notes_md"]:
         st.info("No revision notes generated yet. Upload slides in the Materials tab or load the Sample Demo before chatting.")
@@ -1326,8 +1658,8 @@ elif st.session_state.current_view == "Chat":
 # 5. QUIZZES VIEW (Interactive Knowledge Check)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Quizzes":
-    st.markdown('<h2 style="font-size: 1.5rem; margin-bottom: 4px;">🎯 AI Knowledge Check & Quizzes</h2>', unsafe_allow_html=True)
-    st.caption("3-question targeted multiple choice assessment based on your generated notes.")
+    st.markdown('<span class="view-title">🎯 AI Knowledge Check &amp; Quizzes</span>', unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">3-question targeted multiple choice assessment based on your generated notes.</div>', unsafe_allow_html=True)
 
     if not sub["master_notes_md"]:
         st.info("No revision notes available to create quizzes. Upload lecture slides or load the Sample Demo.")
