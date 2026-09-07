@@ -220,6 +220,36 @@ npm start
 ```
 
 Opens at **http://localhost:3000**.
+---
+
+## ☁️ Deploy to Streamlit Cloud (share with anyone)
+
+Deploying gives you a **free public URL** so friends, classmates, or professors can use StudyLens from any device — no Python setup, no installs, no API key configuration on their side.
+
+### Prerequisites
+- The repo is pushed to GitHub (this repo already is: [`DevAnanddd/StudyLens`](https://github.com/DevAnanddd/StudyLens))
+- A Google Gemini API key (already in your local `.env`)
+
+### Steps
+1. **Push** this repo to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. Go to https://share.streamlit.io and sign in with **GitHub**.
+3. Click **Create app** → **Deploy a public app from GitHub**.
+4. Select repo `DevAnanddd/StudyLens`, branch `main`, main file `app.py` → **Deploy**.
+5. When the build finishes, open **⚙️ Settings → Secrets** and paste:
+   ```toml
+   GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+   ```
+   The app reads the key automatically on the cloud through `st.secrets`.
+6. Done — your app is live at `https://<your-app>.streamlit.app`.
+
+### Important notes
+- **Never commit** `.env` or `.streamlit/secrets.toml` — both are in `.gitignore`. The cloud key lives only in **Settings → Secrets**.
+- **Storage is ephemeral on the free tier** — saved subjects are per-session and may reset when the cloud app restarts. Perfect for demos; add a database (Supabase/Firebase) for permanent storage.
+- **The first deploy takes a few minutes** — EasyOCR installs PyTorch (~2 GB). Later deploys are incremental.
+- **Auto-deploys on every `git push` to `main`** — the URL always stays up to date.
 
 ---
 
