@@ -54,19 +54,18 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
     :root {
-        --sl-bg0: #060a16;
-        --sl-bg1: #0b1222;
-        --sl-card: rgba(17, 25, 46, 0.88);
-        --sl-indigo: #6366f1;
-        --sl-violet: #8b5cf6;
-        --sl-fuchsia: #d946ef;
+        --sl-bg0: #07070d;
+        --sl-bg1: #0b0b16;
+        --sl-card: rgba(15, 15, 29, 0.88);
+        --sl-pink: #ec4899;
+        --sl-blue: #3b82f6;
+        --sl-purple: #a855f7;
+        --sl-magenta: #d946ef;
         --sl-cyan: #22d3ee;
-        --sl-gold: #f59e0b;
         --sl-emerald: #10b981;
-        --sl-rose: #f43f5e;
         --sl-text: #f1f5f9;
         --sl-text-soft: #94a3b8;
-        --sl-primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #d946ef 100%);
+        --sl-primary-grad: linear-gradient(135deg, #ec4899 0%, #a855f7 55%, #d946ef 100%);
         --sl-border: rgba(255, 255, 255, 0.08);
     }
 
@@ -80,8 +79,8 @@ st.markdown("""
         to { opacity: 1; transform: translateY(0); }
     }
     @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.3); }
-        50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); }
+        0%, 100% { box-shadow: 0 0 8px rgba(236, 72, 153, 0.3); }
+        50% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.6); }
     }
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
@@ -114,11 +113,11 @@ st.markdown("""
 
     .stApp {
         background:
-            radial-gradient(65% 55% at 12% 6%, rgba(99, 102, 241, 0.30) 0%, transparent 60%),
+            radial-gradient(65% 55% at 12% 6%, rgba(236, 72, 153, 0.30) 0%, transparent 60%),
             radial-gradient(55% 48% at 90% 10%, rgba(217, 70, 239, 0.20) 0%, transparent 60%),
-            radial-gradient(60% 45% at 50% 97%, rgba(34, 211, 238, 0.16) 0%, transparent 60%),
-            radial-gradient(40% 30% at 78% 78%, rgba(245, 158, 11, 0.10) 0%, transparent 55%),
-            linear-gradient(180deg, #05070f 0%, var(--sl-bg1) 45%, #05070f 100%);
+            radial-gradient(60% 45% at 50% 97%, rgba(59, 130, 246, 0.16) 0%, transparent 60%),
+            radial-gradient(40% 30% at 78% 78%, rgba(236, 72, 153, 0.10) 0%, transparent 55%),
+            linear-gradient(180deg, #050508 0%, var(--sl-bg1) 45%, #050508 100%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: var(--sl-text);
         letter-spacing: -0.01em;
@@ -131,14 +130,14 @@ st.markdown("""
         pointer-events: none;
         z-index: 0;
         background-image:
-            radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.12) 0px, transparent 1.5px),
+            radial-gradient(circle at 10% 20%, rgba(34, 211, 238, 0.12) 0px, transparent 1.5px),
             radial-gradient(circle at 25% 40%, rgba(217, 70, 239, 0.12) 0px, transparent 1.5px),
-            radial-gradient(circle at 40% 15%, rgba(34, 211, 238, 0.12) 0px, transparent 1.5px),
-            radial-gradient(circle at 65% 55%, rgba(129, 140, 248, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 40% 15%, rgba(59, 130, 246, 0.12) 0px, transparent 1.5px),
+            radial-gradient(circle at 65% 55%, rgba(34, 211, 238, 0.10) 0px, transparent 1.5px),
             radial-gradient(circle at 80% 30%, rgba(217, 70, 239, 0.10) 0px, transparent 1.5px),
-            radial-gradient(circle at 90% 70%, rgba(245, 158, 11, 0.10) 0px, transparent 1.5px),
-            radial-gradient(circle at 15% 80%, rgba(129, 140, 248, 0.08) 0px, transparent 1.5px),
-            radial-gradient(circle at 55% 85%, rgba(34, 211, 238, 0.08) 0px, transparent 1.5px);
+            radial-gradient(circle at 90% 70%, rgba(236, 72, 153, 0.10) 0px, transparent 1.5px),
+            radial-gradient(circle at 15% 80%, rgba(34, 211, 238, 0.08) 0px, transparent 1.5px),
+            radial-gradient(circle at 55% 85%, rgba(59, 130, 246, 0.08) 0px, transparent 1.5px);
         background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
         background-repeat: no-repeat;
         animation: nodePulse 4s ease-in-out infinite;
@@ -154,7 +153,7 @@ st.markdown("""
         width: 520px;
         height: 520px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(124, 58, 237, 0.16) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(217, 70, 239, 0.16) 0%, transparent 70%);
         filter: blur(60px);
         animation: orbPulse 9s ease-in-out infinite;
     }
@@ -168,9 +167,9 @@ st.markdown("""
         right: 1.5rem !important;
     }
     [data-testid="stSidebar"] {
-        background-color: #071020 !important;
-        background-image: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(7, 16, 32, 0) 42%), linear-gradient(0deg, rgba(217, 70, 239, 0.05), rgba(7, 16, 32, 0) 32%) !important;
-        border-right: 1px solid rgba(129, 140, 248, 0.14) !important;
+        background-color: #0a0a14 !important;
+        background-image: linear-gradient(180deg, rgba(236, 72, 153, 0.08), rgba(7, 7, 14, 0) 42%), linear-gradient(0deg, rgba(217, 70, 239, 0.05), rgba(7, 7, 14, 0) 32%) !important;
+        border-right: 1px solid rgba(34, 211, 238, 0.14) !important;
     }
     [data-testid="stSidebar"] hr {
         border-color: rgba(255, 255, 255, 0.06) !important;
@@ -186,7 +185,7 @@ st.markdown("""
     }
     .sidebar-brand-icon {
         font-size: 1.4rem;
-        color: #a5b4fc;
+        color: #e879f9;
         animation: float 3s ease-in-out infinite;
         position: relative;
     }
@@ -194,7 +193,7 @@ st.markdown("""
         content: '';
         position: absolute;
         inset: -7px;
-        border: 1.5px dashed rgba(129, 140, 248, 0.5);
+        border: 1.5px dashed rgba(34, 211, 238, 0.5);
         border-radius: 50%;
         animation: spinSlow 12s linear infinite;
     }
@@ -203,7 +202,7 @@ st.markdown("""
         font-size: 1.15rem;
         font-weight: 700;
         letter-spacing: -0.02em;
-        background: linear-gradient(90deg, #ffffff 0%, #c7d2fe 45%, #f0abfc 100%);
+        background: linear-gradient(90deg, #ffffff 0%, #a5f3fc 45%, #f0abfc 100%);
         background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -257,7 +256,7 @@ st.markdown("""
         vertical-align: middle;
     }
     .gradient-headline {
-        background: linear-gradient(90deg, #818cf8 0%, #c084fc 35%, #e879f9 55%, #38bdf8 80%, #818cf8 100%);
+        background: linear-gradient(90deg, #22d3ee 0%, #a855f7 35%, #3b82f6 55%, #d946ef 80%, #22d3ee 100%);
         background-size: 300% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -287,15 +286,15 @@ st.markdown("""
         font-size: 0.9rem !important;
         padding: 0.5rem 1.15rem !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 2px 14px rgba(99, 102, 241, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        box-shadow: 0 2px 14px rgba(236, 72, 153, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
         position: relative;
         overflow: hidden;
     }
     .stButton > button[kind="secondary"], .stButton > button[pkind="secondary"], .stFormSubmitButton > button[kind="secondary"] {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(217, 70, 239, 0.10)) !important;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.14), rgba(217, 70, 239, 0.10)) !important;
         backdrop-filter: blur(10px);
         color: #e2e8f0 !important;
-        border: 1px solid rgba(129, 140, 248, 0.30) !important;
+        border: 1px solid rgba(34, 211, 238, 0.30) !important;
         border-radius: 12px !important;
         font-weight: 600 !important;
         font-size: 0.9rem !important;
@@ -306,10 +305,10 @@ st.markdown("""
         overflow: hidden;
     }
     .stButton > button[kind="secondary"]:hover, .stButton > button[pkind="secondary"]:hover {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.26), rgba(217, 70, 239, 0.18)) !important;
-        border-color: rgba(192, 132, 252, 0.55) !important;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.26), rgba(217, 70, 239, 0.18)) !important;
+        border-color: rgba(236, 72, 153, 0.55) !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.28) !important;
+        box-shadow: 0 8px 24px rgba(236, 72, 153, 0.28) !important;
     }
     .stButton > button::after {
         content: '';
@@ -326,30 +325,30 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-2px) scale(1.02) !important;
         background-position: right center !important;
-        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45) !important;
+        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.45) !important;
         border-color: rgba(255, 255, 255, 0.32) !important;
     }
     .stButton > button:active {
         transform: translateY(0px) scale(0.98) !important;
     }
     .stDownloadButton > button, .stFormSubmitButton > button {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(217, 70, 239, 0.08)) !important;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(217, 70, 239, 0.08)) !important;
         backdrop-filter: blur(8px);
         color: #f8fafc !important;
-        border: 1px solid rgba(129, 140, 248, 0.28) !important;
+        border: 1px solid rgba(34, 211, 238, 0.28) !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
         font-size: 0.88rem !important;
         transition: all 0.2s ease !important;
     }
     .stDownloadButton > button:hover, .stFormSubmitButton > button:hover {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.24), rgba(217, 70, 239, 0.16)) !important;
-        border-color: #a78bfa !important;
-        box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3) !important;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.24), rgba(217, 70, 239, 0.16)) !important;
+        border-color: #a855f7 !important;
+        box-shadow: 0 4px 14px rgba(168, 85, 247, 0.3) !important;
         transform: translateY(-1px) !important;
     }
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background: linear-gradient(150deg, rgba(22, 31, 54, 0.85), rgba(14, 20, 36, 0.9)) !important;
+        background: linear-gradient(150deg, rgba(20, 18, 38, 0.85), rgba(13, 12, 25, 0.9)) !important;
         backdrop-filter: blur(12px) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 16px !important;
@@ -360,15 +359,15 @@ st.markdown("""
         overflow: hidden;
     }
     [data-testid="stVerticalBlockBorderWrapper"]:hover {
-        border-color: rgba(129, 140, 248, 0.35) !important;
-        box-shadow: 0 14px 40px rgba(79, 70, 229, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        border-color: rgba(34, 211, 238, 0.35) !important;
+        box-shadow: 0 14px 40px rgba(37, 99, 235, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
     }
     [data-testid="stVerticalBlockBorderWrapper"]::after {
         content: '';
         position: absolute;
         top: 0; left: 12%; right: 12%;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.6), transparent);
+        background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.6), transparent);
         pointer-events: none;
     }
     .dashboard-grid {
@@ -378,7 +377,7 @@ st.markdown("""
         margin: 1rem 0 1.8rem 0;
     }
     .stat-card {
-        background: linear-gradient(160deg, rgba(24, 33, 58, 0.9), rgba(15, 22, 40, 0.92));
+        background: linear-gradient(160deg, rgba(21, 19, 40, 0.9), rgba(14, 13, 27, 0.92));
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
@@ -398,15 +397,15 @@ st.markdown("""
         position: absolute;
         inset: 0;
         border-radius: 16px;
-        background: radial-gradient(120% 120% at 50% 0%, rgba(129, 140, 248, 0.18) 0%, transparent 55%);
+        background: radial-gradient(120% 120% at 50% 0%, rgba(34, 211, 238, 0.18) 0%, transparent 55%);
         opacity: 0;
         transition: opacity 0.25s ease;
         pointer-events: none;
     }
     .stat-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(129, 140, 248, 0.55);
-        box-shadow: 0 12px 34px rgba(99, 102, 241, 0.22);
+        border-color: rgba(34, 211, 238, 0.55);
+        box-shadow: 0 12px 34px rgba(236, 72, 153, 0.22);
     }
     .stat-card:hover::before { opacity: 1; }
     .stat-icon {
@@ -437,7 +436,7 @@ st.markdown("""
         border-radius: 10px;
         font-size: 0.88rem;
         margin-bottom: 6px;
-        background: rgba(18, 26, 43, 0.6);
+        background: rgba(17, 16, 32, 0.6);
         backdrop-filter: blur(6px);
         border: 1px solid rgba(255, 255, 255, 0.05);
         transition: all 0.25s ease;
@@ -450,27 +449,27 @@ st.markdown("""
         color: #34d399;
     }
     .pipeline-step.active {
-        color: #818cf8;
-        border-color: rgba(99, 102, 241, 0.4);
+        color: #22d3ee;
+        border-color: rgba(236, 72, 153, 0.4);
         font-weight: 600;
     }
     .pipeline-step.pending {
         color: #64748b;
     }
     .breadcrumb-tag {
-        background-color: rgba(99, 102, 241, 0.15);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.35);
+        background-color: rgba(236, 72, 153, 0.15);
+        color: #e879f9;
+        border: 1px solid rgba(236, 72, 153, 0.35);
         padding: 4px 10px;
         border-radius: 6px;
         font-weight: 600;
         font-size: 0.85rem;
     }
     .search-card {
-        background: linear-gradient(145deg, rgba(20, 28, 48, 0.85), rgba(15, 22, 38, 0.9));
+        background: linear-gradient(145deg, rgba(19, 17, 36, 0.85), rgba(14, 13, 27, 0.9));
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-left: 4px solid #6366f1;
+        border-left: 4px solid #ec4899;
         border-radius: 12px;
         padding: 18px 22px;
         margin-bottom: 12px;
@@ -492,13 +491,13 @@ st.markdown("""
         pointer-events: none;
     }
     .search-card:hover {
-        border-left-color: #a5b4fc;
-        border-color: rgba(129, 140, 248, 0.35);
-        box-shadow: 0 10px 32px rgba(99, 102, 241, 0.22);
+        border-left-color: #e879f9;
+        border-color: rgba(34, 211, 238, 0.35);
+        box-shadow: 0 10px 32px rgba(236, 72, 153, 0.22);
         transform: translateY(-3px);
     }
     .quick-action-btn {
-        background: rgba(18, 26, 43, 0.8);
+        background: rgba(17, 16, 32, 0.8);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
@@ -508,12 +507,12 @@ st.markdown("""
         transition: all 0.25s ease;
     }
     .quick-action-btn:hover {
-        border-color: #818cf8;
+        border-color: #22d3ee;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+        box-shadow: 0 6px 20px rgba(236, 72, 153, 0.15);
     }
     .streamlit-expanderHeader {
-        background-color: rgba(18, 26, 43, 0.7) !important;
+        background-color: rgba(17, 16, 32, 0.7) !important;
         backdrop-filter: blur(8px);
         border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.07) !important;
@@ -521,11 +520,11 @@ st.markdown("""
         transition: all 0.25s ease !important;
     }
     .streamlit-expanderHeader:hover {
-        border-color: rgba(129, 140, 248, 0.35) !important;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12) !important;
+        border-color: rgba(34, 211, 238, 0.35) !important;
+        box-shadow: 0 4px 14px rgba(236, 72, 153, 0.12) !important;
     }
     ::selection {
-        background: rgba(129, 140, 248, 0.45);
+        background: rgba(34, 211, 238, 0.45);
         color: #ffffff;
     }
     ::-webkit-scrollbar {
@@ -533,41 +532,41 @@ st.markdown("""
         height: 10px;
     }
     ::-webkit-scrollbar-track {
-        background: rgba(10, 15, 29, 0.6);
+        background: rgba(10, 9, 20, 0.6);
     }
     ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #4f46e5, #7c3aed);
+        background: linear-gradient(180deg, #ec4899, #d946ef);
         border-radius: 8px;
-        border: 2px solid #0a0f1d;
+        border: 2px solid #05050a;
     }
     ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #6366f1, #8b5cf6);
+        background: linear-gradient(180deg, #ec4899, #a855f7);
     }
     .gradient-divider {
         height: 1.5px;
         border: none;
         margin: 1.4rem 0;
-        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.7), rgba(192, 132, 252, 0.7), transparent);
+        background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.7), rgba(236, 72, 153, 0.7), transparent);
         position: relative;
     }
     .feature-chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: linear-gradient(145deg, rgba(30, 41, 66, 0.8), rgba(20, 28, 48, 0.9));
-        border: 1px solid rgba(129, 140, 248, 0.3);
+        background: linear-gradient(145deg, rgba(24, 20, 44, 0.8), rgba(19, 17, 36, 0.9));
+        border: 1px solid rgba(34, 211, 238, 0.3);
         border-radius: 9999px;
         padding: 8px 16px;
         font-size: 0.82rem;
         font-weight: 600;
-        color: #c7d2fe;
-        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        color: #a5f3fc;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
         transition: all 0.25s ease;
     }
     .feature-chip:hover {
         transform: translateY(-2px);
-        border-color: rgba(167, 139, 250, 0.6);
-        box-shadow: 0 8px 22px rgba(124, 58, 237, 0.28);
+        border-color: rgba(168, 85, 247, 0.6);
+        box-shadow: 0 8px 22px rgba(217, 70, 239, 0.28);
     }
     /* ── Landing feature grid & pipeline strip ── */
     .feature-grid {
@@ -578,7 +577,7 @@ st.markdown("""
         max-width: 720px;
     }
     .feature-card {
-        background: linear-gradient(150deg, rgba(24, 33, 58, 0.8), rgba(13, 19, 36, 0.9));
+        background: linear-gradient(150deg, rgba(21, 19, 40, 0.8), rgba(12, 11, 24, 0.9));
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 14px;
         padding: 14px 12px;
@@ -592,12 +591,12 @@ st.markdown("""
         position: absolute;
         top: 0; left: 20%; right: 20%;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.6), transparent);
+        background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.6), transparent);
     }
     .feature-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(167, 139, 250, 0.5);
-        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.22);
+        border-color: rgba(168, 85, 247, 0.5);
+        box-shadow: 0 12px 30px rgba(236, 72, 153, 0.22);
     }
     .feature-card-icon { font-size: 1.3rem; margin-bottom: 6px; }
     .feature-card-title {
@@ -621,18 +620,18 @@ st.markdown("""
         margin: 1rem auto 0 auto;
         font-size: 0.76rem;
         font-weight: 600;
-        color: #a5b4fc;
+        color: #e879f9;
     }
     .pipeline-strip span {
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(129, 140, 248, 0.25);
+        background: rgba(236, 72, 153, 0.12);
+        border: 1px solid rgba(34, 211, 238, 0.25);
         padding: 5px 12px;
         border-radius: 9999px;
-        color: #c7d2fe;
+        color: #a5f3fc;
         transition: all 0.2s ease;
     }
     .pipeline-strip span:hover {
-        background: rgba(99, 102, 241, 0.24);
+        background: rgba(236, 72, 153, 0.24);
         transform: translateY(-2px);
     }
     .pipeline-strip i { color: #f0abfc; font-size: 0.85rem; }
@@ -642,7 +641,7 @@ st.markdown("""
         font-size: 1.45rem;
         font-weight: 700;
         letter-spacing: -0.025em;
-        background: linear-gradient(92deg, #e0e7ff 0%, #a5b4fc 30%, #c084fc 55%, #f0abfc 80%, #67e8f9 100%);
+        background: linear-gradient(92deg, #a5f3fc 0%, #e879f9 30%, #a855f7 55%, #f0abfc 80%, #3b82f6 100%);
         background-size: 250% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -657,22 +656,22 @@ st.markdown("""
     }
     /* ── Stat card premium accents ── */
     .stat-card { border-top: 1px solid rgba(255, 255, 255, 0.08); }
-    .stat-card:nth-child(1) .stat-icon { text-shadow: 0 0 18px rgba(99, 102, 241, 0.8); }
+    .stat-card:nth-child(1) .stat-icon { text-shadow: 0 0 18px rgba(236, 72, 153, 0.8); }
     .stat-card:nth-child(2) .stat-icon { text-shadow: 0 0 18px rgba(217, 70, 239, 0.8); }
-    .stat-card:nth-child(3) .stat-icon { text-shadow: 0 0 18px rgba(245, 158, 11, 0.8); }
-    .stat-card:nth-child(4) .stat-icon { text-shadow: 0 0 18px rgba(16, 185, 129, 0.8); }
-    .stat-card:nth-child(1)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 55%); }
+    .stat-card:nth-child(3) .stat-icon { text-shadow: 0 0 18px rgba(59, 130, 246, 0.8); }
+    .stat-card:nth-child(4) .stat-icon { text-shadow: 0 0 18px rgba(34, 211, 238, 0.8); }
+    .stat-card:nth-child(1)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(236, 72, 153, 0.22) 0%, transparent 55%); }
     .stat-card:nth-child(2)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(217, 70, 239, 0.20) 0%, transparent 55%); }
-    .stat-card:nth-child(3)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(245, 158, 11, 0.18) 0%, transparent 55%); }
-    .stat-card:nth-child(4)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(16, 185, 129, 0.18) 0%, transparent 55%); }
-    .stat-card:nth-child(1) { border-color: rgba(99, 102, 241, 0.35); }
+    .stat-card:nth-child(3)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(59, 130, 246, 0.18) 0%, transparent 55%); }
+    .stat-card:nth-child(4)::before { background: radial-gradient(120% 120% at 50% 0%, rgba(34, 211, 238, 0.18) 0%, transparent 55%); }
+    .stat-card:nth-child(1) { border-color: rgba(236, 72, 153, 0.35); }
     .stat-card:nth-child(2) { border-color: rgba(217, 70, 239, 0.30); }
-    .stat-card:nth-child(3) { border-color: rgba(245, 158, 11, 0.30); }
-    .stat-card:nth-child(4) { border-color: rgba(16, 185, 129, 0.30); }
-    .stat-card:nth-child(1):hover { box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25); }
+    .stat-card:nth-child(3) { border-color: rgba(59, 130, 246, 0.30); }
+    .stat-card:nth-child(4) { border-color: rgba(34, 211, 238, 0.30); }
+    .stat-card:nth-child(1):hover { box-shadow: 0 12px 34px rgba(236, 72, 153, 0.25); }
     .stat-card:nth-child(2):hover { box-shadow: 0 12px 34px rgba(217, 70, 239, 0.22); }
-    .stat-card:nth-child(3):hover { box-shadow: 0 12px 34px rgba(245, 158, 11, 0.20); }
-    .stat-card:nth-child(4):hover { box-shadow: 0 12px 34px rgba(16, 185, 129, 0.20); }
+    .stat-card:nth-child(3):hover { box-shadow: 0 12px 34px rgba(59, 130, 246, 0.20); }
+    .stat-card:nth-child(4):hover { box-shadow: 0 12px 34px rgba(34, 211, 238, 0.20); }
     /* ── Subject avatar chip (sidebar) ── */
     .subject-avatar {
         display: flex;
@@ -680,8 +679,8 @@ st.markdown("""
         gap: 10px;
         padding: 9px 12px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(217, 70, 239, 0.10));
-        border: 1px solid rgba(129, 140, 248, 0.35);
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(217, 70, 239, 0.10));
+        border: 1px solid rgba(34, 211, 238, 0.35);
         margin: 4px 0 10px 0;
         animation: fadeInDown 0.4s ease-out;
     }
@@ -698,7 +697,7 @@ st.markdown("""
         font-size: 0.95rem;
         color: #ffffff;
         background: var(--sl-primary-grad);
-        box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 3px 10px rgba(168, 85, 247, 0.4);
     }
     .subject-avatar .avatar-text {
         line-height: 1.25;
@@ -714,20 +713,20 @@ st.markdown("""
     }
     .subject-avatar .avatar-status {
         font-size: 0.68rem;
-        color: #fbbf24;
+        color: #22d3ee;
         font-weight: 600;
     }
     /* ── Chat polish ── */
     [data-testid="stChatMessageAvatarUser"] {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
-        box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+        background: linear-gradient(135deg, #ec4899, #a855f7) !important;
+        box-shadow: 0 2px 10px rgba(236, 72, 153, 0.4);
     }
     [data-testid="stChatMessageAvatarAssistant"] {
-        background: linear-gradient(135deg, #0ea5e9, #10b981) !important;
-        box-shadow: 0 2px 10px rgba(34, 211, 238, 0.35);
+        background: linear-gradient(135deg, #a855f7, #22d3ee) !important;
+        box-shadow: 0 2px 10px rgba(168, 85, 247, 0.35);
     }
     [data-testid="stChatMessage"] {
-        background: rgba(17, 25, 46, 0.75);
+        background: rgba(15, 15, 29, 0.75);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 14px;
@@ -735,75 +734,134 @@ st.markdown("""
         margin-bottom: 0.6rem;
     }
     [data-testid="stChatInput"] textarea {
-        background: rgba(17, 25, 46, 0.85) !important;
-        border: 1px solid rgba(129, 140, 248, 0.3) !important;
+        background: rgba(15, 15, 29, 0.85) !important;
+        border: 1px solid rgba(34, 211, 238, 0.3) !important;
         border-radius: 12px !important;
         color: #f1f5f9 !important;
     }
     [data-testid="stChatInput"] textarea:focus {
-        border-color: rgba(167, 139, 250, 0.6) !important;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18) !important;
+        border-color: rgba(168, 85, 247, 0.6) !important;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18) !important;
     }
     [data-testid="stChatInput"] button {
         background: var(--sl-primary-grad) !important;
     }
     /* ── Uploader ── */
     [data-testid="stFileUploaderDropzone"] {
-        background: linear-gradient(145deg, rgba(22, 31, 54, 0.85), rgba(13, 19, 36, 0.9)) !important;
-        border: 1.5px dashed rgba(129, 140, 248, 0.4) !important;
+        background: linear-gradient(145deg, rgba(20, 18, 38, 0.85), rgba(12, 11, 24, 0.9)) !important;
+        border: 1.5px dashed rgba(34, 211, 238, 0.4) !important;
         border-radius: 14px !important;
         transition: all 0.25s ease !important;
     }
     [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: rgba(167, 139, 250, 0.7) !important;
-        box-shadow: 0 8px 26px rgba(99, 102, 241, 0.22) !important;
+        border-color: rgba(168, 85, 247, 0.7) !important;
+        box-shadow: 0 8px 26px rgba(236, 72, 153, 0.22) !important;
     }
     /* ── Captions & dividers ── */
     [data-testid="stCaptionContainer"] p { color: #8896ab; }
     .streamlit-expanderHeader {
-        border: 1px solid rgba(129, 140, 248, 0.18) !important;
+        border: 1px solid rgba(34, 211, 238, 0.18) !important;
     }
     /* ── Native widgets (text input, select, radio, checkbox, slider, progress) ── */
     [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea, [data-testid="stNumberInput"] input {
-        background: rgba(13, 19, 36, 0.85) !important;
-        border: 1px solid rgba(129, 140, 248, 0.25) !important;
+        background: rgba(12, 11, 24, 0.85) !important;
+        border: 1px solid rgba(34, 211, 238, 0.25) !important;
         border-radius: 10px !important;
         color: #f1f5f9 !important;
         transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
     }
     [data-testid="stTextInput"] input:focus, [data-testid="stTextArea"] textarea:focus {
-        border-color: rgba(167, 139, 250, 0.7) !important;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16) !important;
+        border-color: rgba(168, 85, 247, 0.7) !important;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16) !important;
     }
     [data-testid="stSelectbox"] > div > div, [data-testid="stPopover"] button {
-        background: rgba(13, 19, 36, 0.85) !important;
-        border: 1px solid rgba(129, 140, 248, 0.25) !important;
+        background: rgba(12, 11, 24, 0.85) !important;
+        border: 1px solid rgba(34, 211, 238, 0.25) !important;
         border-radius: 10px !important;
         color: #f1f5f9 !important;
     }
     [data-testid="stCheckbox"] label span {
         color: #e2e8f0 !important;
     }
-    [data-testid="stCheckbox"] svg { color: #8b5cf6 !important; }
+    [data-testid="stCheckbox"] svg { color: #a855f7 !important; }
     [data-testid="stSlider"] [data-testid="stThumbValue"], [data-testid="stSlider"] [data-baseweb="slider"] div[role="slider"] {
-        background: #8b5cf6 !important;
-        border-color: #a78bfa !important;
+        background: #a855f7 !important;
+        border-color: #a855f7 !important;
     }
     [data-testid="stSliderTickBar"] div { color: #64748b !important; }
     [data-baseweb="progress"] [role="progressbar"] {
         background: var(--sl-primary-grad) !important;
-        box-shadow: 0 0 10px rgba(139, 92, 246, 0.45) !important;
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.45) !important;
     }
     [data-testid="stProgress"] > div > div > div > div {
         background: var(--sl-primary-grad) !important;
     }
     [data-testid="stRadio"] label { color: #e2e8f0 !important; }
-    [data-testid="stRadio"] input:checked + div svg { color: #a78bfa !important; }
+    [data-testid="stRadio"] input:checked + div svg { color: #a855f7 !important; }
     [data-testid="stPopover"] button:hover {
-        border-color: rgba(167, 139, 250, 0.6) !important;
+        border-color: rgba(168, 85, 247, 0.6) !important;
     }
     .stApp > div:first-child { position: relative; z-index: 1; }
     [data-testid="stSidebar"] { z-index: 2; }
+    /* ── Onboarding / First-run ── */
+    .onboard-card {
+        background: linear-gradient(150deg, rgba(236, 72, 153, 0.14), rgba(168, 85, 247, 0.10) 45%, rgba(34, 211, 238, 0.10));
+        border: 1px solid rgba(168, 85, 247, 0.30);
+        border-radius: 18px;
+        padding: 1.4rem 1.6rem;
+        margin-bottom: 1.6rem;
+        animation: fadeInUp 0.5s ease-out;
+    }
+    .onboard-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        color: #f0abfc;
+        background: rgba(236, 72, 153, 0.16);
+        border: 1px solid rgba(236, 72, 153, 0.35);
+        padding: 4px 12px; border-radius: 9999px; margin-bottom: 0.9rem;
+    }
+    .onboard-steps { display: flex; gap: 0; margin: 1rem 0 0.4rem 0; }
+    .onboard-step {
+        flex: 1; position: relative; padding: 0 0.9rem; text-align: left;
+    }
+    .onboard-step:not(:last-child)::after {
+        content: ''; position: absolute; top: 15px; left: calc(100% - 6px); width: 12px; height: 2px;
+        background: linear-gradient(90deg, rgba(168, 85, 247, 0.6), rgba(34, 211, 238, 0.6));
+    }
+    .onboard-step-num {
+        width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 0.85rem; color: #ffffff;
+        background: var(--sl-primary-grad); box-shadow: 0 3px 12px rgba(168, 85, 247, 0.45);
+        margin-bottom: 0.5rem;
+    }
+    .onboard-step-title { font-size: 0.78rem; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
+    .onboard-step-desc { font-size: 0.72rem; color: #94a3b8; line-height: 1.5; }
+    .onboard-demo-flow {
+        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+        margin: 1rem 0 0.2rem 0; font-size: 0.82rem;
+    }
+    .onboard-milestone {
+        display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 10px;
+        background: rgba(12, 11, 24, 0.85); border: 1px solid rgba(34, 211, 238, 0.28);
+        color: #a5f3fc; font-weight: 600;
+    }
+    .onboard-milestone.done { border-color: rgba(52, 211, 153, 0.4); color: #34d399; }
+    .onboard-arrow { color: #d946ef; font-weight: 800; }
+    /* Onboarding tour callout (inside workspace) */
+    .tour-callout {
+        background: linear-gradient(120deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        border-left: 3px solid #22d3ee;
+        border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        animation: fadeInDown 0.4s ease-out;
+    }
+    .tour-callout h4 { color: #ffffff; margin: 0 0 6px 0; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .tour-callout p { color: #a5f3fc; font-size: 0.85rem; margin: 0 0 10px 0; line-height: 1.55; }
+    .tour-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tour-pill {
+        font-size: 0.75rem; padding: 5px 11px; border-radius: 9999px; font-weight: 600;
+        background: rgba(236, 72, 153, 0.14); color: #f0abfc; border: 1px solid rgba(236, 72, 153, 0.35);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -909,6 +967,11 @@ if "current_subject" not in st.session_state:
     st.session_state.current_subject = None
 if "current_view" not in st.session_state:
     st.session_state.current_view = "Overview"
+# First-run onboarding flags
+if "onboard_welcome_seen" not in st.session_state:
+    st.session_state.onboard_welcome_seen = False
+if "onboard_tour_dismissed" not in st.session_state:
+    st.session_state.onboard_tour_dismissed = False
 
 # --- SIDEBAR: APP NAVIGATION (Linear / Notion Style) ---
 with st.sidebar:
@@ -918,7 +981,7 @@ with st.sidebar:
         <div>
             <div class="sidebar-brand-title">StudyLens</div>
             <div class="sidebar-brand-sub">AI Study Workspace</div>
-            <div style="height: 2px; width: 100%; margin-top: 6px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.7), rgba(192, 132, 252, 0.7), transparent);"></div>
+            <div style="height: 2px; width: 100%; margin-top: 6px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.7), rgba(236, 72, 153, 0.7), transparent);"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1086,6 +1149,36 @@ with st.sidebar:
                     st.session_state["confirm_reset_subject"] = None
                     st.rerun()
 
+    # ── Onboarding progress tracker (sidebar footer) ──
+    if st.session_state.current_subject and subject_names:
+        _sub_now = st.session_state.subjects.get(st.session_state.current_subject, {})
+        _mk = lambda done, txt: f'<span class="onboard-milestone {"done" if done else ""}">{"✅" if done else "○"} {txt}</span>'
+        st.markdown("""
+        <style>
+            .pipeline-mini { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+            .pipeline-mini .onboard-milestone { padding: 3px 7px; font-size: 0.62rem; gap: 3px; border-radius: 8px; }
+        </style>
+        """, unsafe_allow_html=True)
+        _m1 = bool(_sub_now.get("raw_slides"))
+        _m2 = bool(_sub_now.get("master_notes_md"))
+        _m3 = bool(_sub_now.get("quiz_score", {}).get("total", 0))
+        st.markdown(
+            '<div class="nav-section-label">Your Progress</div>'
+            + '<div class="pipeline-mini">'
+            + _mk(True, "Created")
+            + _mk(_m1, "Uploaded")
+            + _mk(_m2, "Noted")
+            + _mk(_m3, "Quizzed")
+            + "</div>",
+            unsafe_allow_html=True
+        )
+        if not _m1:
+            st.caption("Hint: open 📄 Materials to add your first slides.")
+        elif not _m2:
+            st.caption("Hint: upload slides to generate your notes.")
+        elif not _m3:
+            st.caption("Hint: try a 🎯 Quiz to test yourself.")
+
     api_key_input = GEMINI_API_KEY
 
 
@@ -1093,15 +1186,66 @@ with st.sidebar:
 # VIEW: CLEAN EMPTY / LANDING STATE (When no subject is active)
 # ==============================================================================
 if not st.session_state.subjects or not st.session_state.current_subject:
+    # ── First-run welcome card ──
+    if not st.session_state.onboard_welcome_seen:
+        c_w, c_d = st.columns([5, 1])
+        with c_w:
+            st.markdown("""
+            <div class="onboard-card">
+                <div class="onboard-badge">👋 Welcome to StudyLens</div>
+                <h3 style="color: #ffffff; margin: 0 0 0.3rem 0; font-size: 1.35rem; letter-spacing: -0.01em;">
+                    Your study workspace is ready — here's how it works.
+                </h3>
+                <p style="color: #a5f3fc; font-size: 0.92rem; line-height: 1.6; margin: 0 0 0.4rem 0; max-width: 620px;">
+                    StudyLens turns messy lecture slide photos, screenshots, and PDFs into organized, searchable
+                    revision notes and quizzes — automatically. You're 4 quick steps from studying smarter.
+                </p>
+                <div class="onboard-steps">
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">1</div>
+                        <div class="onboard-step-title">Create a Subject</div>
+                        <div class="onboard-step-desc">Name a course or exam below — this becomes your study workspace.</div>
+                    </div>
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">2</div>
+                        <div class="onboard-step-title">Upload Slides</div>
+                        <div class="onboard-step-desc">Drop in lecture photos, screenshots or PDFs on the Materials page.</div>
+                    </div>
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">3</div>
+                        <div class="onboard-step-title">Get Notes & Quizzes</div>
+                        <div class="onboard-step-desc">AI cleans, dedupes and summarizes into topic-grouped notes.</div>
+                    </div>
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">4</div>
+                        <div class="onboard-step-title">Quiz & Chat</div>
+                        <div class="onboard-step-desc">Test yourself and ask questions grounded in your own notes.</div>
+                    </div>
+                </div>
+                <div class="onboard-demo-flow">
+                    <span class="onboard-milestone">📤 Upload</span><span class="onboard-arrow">→</span>
+                    <span class="onboard-milestone">🧹 Clean</span><span class="onboard-arrow">→</span>
+                    <span class="onboard-milestone">🧠 Summarize</span><span class="onboard-arrow">→</span>
+                    <span class="onboard-milestone">🎯 Quiz</span><span class="onboard-arrow">→</span>
+                    <span class="onboard-milestone">💬 Chat</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_d:
+            st.write("")
+            if st.button("✕", key="btn_dismiss_welcome", help="Dismiss this welcome card"):
+                st.session_state.onboard_welcome_seen = True
+                st.rerun()
+
     st.markdown("""
     <div style="text-align: center; max-width: 720px; margin: 2.5rem auto 1rem auto;">
-        <div style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(192, 132, 252, 0.18)); color: #c7d2fe; border: 1px solid rgba(129, 140, 248, 0.35); padding: 5px 14px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.4rem; box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(236, 72, 153, 0.18)); color: #a5f3fc; border: 1px solid rgba(34, 211, 238, 0.35); padding: 5px 14px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.4rem; box-shadow: 0 2px 12px rgba(236, 72, 153, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
             ⚡ Powered by Gemini AI & OpenCV
         </div>
-        <h1 style="font-size: 2.8rem; font-weight: 800; color: #ffffff; line-height: 1.18; margin-bottom: 1rem; text-shadow: 0 2px 24px rgba(79, 70, 229, 0.25);">
+        <h1 style="font-size: 2.8rem; font-weight: 800; color: #ffffff; line-height: 1.18; margin-bottom: 1rem; text-shadow: 0 2px 24px rgba(37, 99, 235, 0.25);">
             Turn messy lecture slides into <span class="gradient-headline">structured revision notes.</span>
         </h1>
-        <p style="font-size: 1.05rem; color: #a5b4fc; line-height: 1.6; margin-bottom: 2rem;">
+        <p style="font-size: 1.05rem; color: #e879f9; line-height: 1.6; margin-bottom: 2rem;">
             StudyLens cleans whiteboard photos, removes duplicate slides, and synthesizes crisp, topic-grouped revision notes and quizzes.
         </p>
         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem;">
@@ -1180,6 +1324,44 @@ if not st.session_state.subjects or not st.session_state.current_subject:
                     st.session_state.current_view = "Overview"
                     save_subjects(st.session_state.subjects)
                     st.rerun()
+
+    # ── Interactive "How it works" guide ──
+    with st.expander("📚 Not sure where to start? — Open the guided walkthrough", expanded=False):
+        st.markdown(
+            "<p style='color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.6rem;'>"
+            "Your notes pipeline happens automatically. Here's what each step does and where it lives in the app.</p>",
+            unsafe_allow_html=True)
+        s1, s2 = st.columns(2)
+        with s1:
+            st.markdown("""
+            <div class="feature-card" style="margin-bottom: 8px;">
+                <div class="feature-card-icon">📥</div>
+                <div class="feature-card-title">1 · Create a Subject</div>
+                <div class="feature-card-desc">Type a name in the box above (or tap <b>Try Sample Demo</b> to explore instantly). This creates your dedicated workspace.</div>
+            </div>
+            <div class="feature-card" style="margin-bottom: 8px;">
+                <div class="feature-card-icon">📤</div>
+                <div class="feature-card-title">2 · Upload Slides</div>
+                <div class="feature-card-desc">From the <b>📄 Materials</b> page, upload lecture photo slides, screenshots, or PDFs. Drag-and-drop up to 20 files.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with s2:
+            st.markdown("""
+            <div class="feature-card" style="margin-bottom: 8px;">
+                <div class="feature-card-icon">🧠</div>
+                <div class="feature-card-title">3 · Get AI Notes</div>
+                <div class="feature-card-desc">StudyLens cleans the images, removes duplicates, and summarizes everything into topic-grouped notes on the <b>📝 Revision Notes</b> page.</div>
+            </div>
+            <div class="feature-card" style="margin-bottom: 8px;">
+                <div class="feature-card-icon">🎯</div>
+                <div class="feature-card-title">4 · Quiz & Chat</div>
+                <div class="feature-card-desc">Test yourself on <b>🎯 Quizzes</b> and ask questions on <b>💬 Chat with Notes</b> — answers come only from your own material.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown(
+            "<p style='color: #22d3ee; font-size: 0.82rem; margin-top: 0.6rem;'>"
+            "💡 Tip: Tap <b>✨ Try Sample Demo</b> above — it loads a pre-made lecture with notes & quiz so you can explore every feature without uploading anything.</p>",
+            unsafe_allow_html=True)
 
     st.markdown("""
     <hr class="gradient-divider" style="margin-top: 2.5rem;">
@@ -1309,6 +1491,62 @@ if st.session_state.current_view == "Overview":
     quiz_total = sub.get("quiz_score", {}).get("total", 0)
     quiz_str = f"{quiz_correct}/{quiz_total}" if quiz_total > 0 else "Ready"
     streak_days = sub.get("study_streak_days", 3)
+
+    # ── First-run workspace tour callout ──
+    if not st.session_state.onboard_tour_dismissed:
+        tc1, tc2 = st.columns([5, 1])
+        with tc1:
+            st.markdown("""
+            <div class="tour-callout">
+                <h4>🎓 Welcome to your workspace!</h4>
+                <p>The sidebar on the left is your command center. Green means ready, so start with <b>📄 Materials</b>
+                to upload your lecture slides, then watch StudyLens clean, dedupe, and summarize them for you.</p>
+                <div class="tour-pills">
+                    <span class="tour-pill">📄 Materials — add slides</span>
+                    <span class="tour-pill">📝 Revision Notes — your AI notes</span>
+                    <span class="tour-pill">🎯 Quizzes — self-test</span>
+                    <span class="tour-pill">💬 Chat — ask notes questions</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        with tc2:
+            st.write("")
+            if st.button("✕ Got it", key="btn_dismiss_tour", help="Dismiss this tour guide"):
+                st.session_state.onboard_tour_dismissed = True
+                st.rerun()
+
+    # ── Empty-workspace quick-start guide ──
+    if total_materials == 0:
+        es1, es2 = st.columns([3, 1])
+        with es1:
+            st.markdown("""
+            <div class="onboard-card" style="margin-bottom: 1rem;">
+                <div class="onboard-badge">🚀 Let's get you started</div>
+                <h3 style="color: #ffffff; margin: 0 0 0.4rem 0; font-size: 1.15rem;">Your workspace is empty — here's the fastest way to fill it:</h3>
+                <div class="onboard-steps">
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">1</div>
+                        <div class="onboard-step-title">Upload slides</div>
+                        <div class="onboard-step-desc">Photos, screenshots, or PDFs on the Materials page.</div>
+                    </div>
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">2</div>
+                        <div class="onboard-step-title">Watch the pipeline</div>
+                        <div class="onboard-step-desc">Clean → dedupe → summarize runs automatically.</div>
+                    </div>
+                    <div class="onboard-step">
+                        <div class="onboard-step-num">3</div>
+                        <div class="onboard-step-title">Study smarter</div>
+                        <div class="onboard-step-desc">Quiz, chat and review your notes from here.</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        with es2:
+            st.write("")
+            if st.button("📤 Upload Slides", type="primary", key="btn_empty_upload", use_container_width=True, help="Jump to the Materials uploader"):
+                st.session_state.current_view = "Materials"
+                st.rerun()
 
     st.markdown('<div class="nav-section-label">Your Study Overview</div>', unsafe_allow_html=True)
     if sub.get("last_updated"):
