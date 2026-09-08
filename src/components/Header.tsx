@@ -14,13 +14,13 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, hasApiK
   const { theme, setIsThemePickerOpen } = useTheme();
 
   return (
-    <header className={`sticky top-0 z-40 border-b ${theme.borderMain} glass-subtle transition-all duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className={`sticky top-0 z-40 border-b ${theme.borderMain} glass-subtle transition-all duration-300 safe-area-top print:hidden`}>
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex items-center justify-between gap-2 min-h-14 sm:min-h-16">
           {/* Brand Logo & Name */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform duration-300 hover:scale-110 hover:rotate-6 cursor-pointer relative overflow-hidden shadow-lg glyph-ring"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white transition-transform duration-300 hover:scale-110 hover:rotate-6 cursor-pointer relative overflow-hidden shadow-lg glyph-ring shrink-0"
               style={{
                 background: theme.accentGradient,
                 boxShadow: `0 6px 26px ${theme.accentColor}50`,
@@ -33,15 +33,15 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, hasApiK
                     "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.7) 50%, transparent 60%)",
                 }}
               />
-              <Zap className="w-5 h-5 relative z-10 drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
               <span
                 className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-white animate-pulse"
                 style={{ boxShadow: `0 0 10px ${theme.accentColor}` }}
               />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className={`font-bold text-lg tracking-tight ${theme.textPrimary} ${theme.headingFont} title-shimmer`}>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className={`font-bold text-base sm:text-lg tracking-tight ${theme.textPrimary} ${theme.headingFont} title-shimmer truncate`}>
                   StudyLens{" "}
                   <span
                     className="font-extrabold"
@@ -57,46 +57,24 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, hasApiK
                   </span>
                 </h1>
                 <span
-                  className={`text-[10px] font-mono px-2 py-0.5 font-semibold rounded-md border ${theme.accentBgSubtle} ${theme.accentBorder} uppercase tracking-wider animate-float`}
+                  className={`hidden sm:inline text-[10px] font-mono px-2 py-0.5 font-semibold rounded-md border ${theme.accentBgSubtle} ${theme.accentBorder} uppercase tracking-wider animate-float shrink-0`}
                 >
                   v3.7 Flash
                 </span>
               </div>
-              <p className={`text-[11px] ${theme.textMuted} hidden sm:block font-mono`}>
+              <p className={`text-[10px] sm:text-[11px] ${theme.textMuted} hidden sm:block font-mono truncate`}>
                 Noisy OCR Slides → Synthesized Revision Notes
               </p>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <nav className={`flex items-center gap-1 ${theme.bgSurface} p-1 rounded-2xl border ${theme.borderMain} glass-subtle`}>
-            {[
-              { key: "workbench" as const, icon: <Zap className="w-3.5 h-3.5" />, label: "Interactive Pipeline", iconColor: "" },
-              { key: "worked_example" as const, icon: <Sparkles className="w-3.5 h-3.5 text-amber-500" />, label: "Worked Example", iconColor: "" },
-              { key: "prompts" as const, icon: <FileCode className="w-3.5 h-3.5 text-purple-500" />, label: "Prompt Inspector", iconColor: "" },
-              { key: "specs" as const, icon: <Cpu className="w-3.5 h-3.5 text-emerald-500" />, label: "Architecture & Specs", iconColor: "" },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  activeTab === tab.key
-                    ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
-                    : `${theme.textSecondary} hover:text-current hover:${theme.bgCard}`
-                }`}
-              >
-                {tab.icon}
-                <span className="hidden lg:inline">{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-
           {/* Theme Switcher Button & Model Status */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setIsThemePickerOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium ${theme.borderMain} ${theme.bgSurface} ${theme.textPrimary} hover:scale-105 transition-all duration-200 cursor-pointer`}
+              className={`flex items-center gap-1 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-xl border text-xs font-medium ${theme.borderMain} ${theme.bgSurface} ${theme.textPrimary} hover:scale-105 transition-all duration-200 cursor-pointer`}
               title="Change visual theme"
+              aria-label="Change visual theme"
             >
               <Palette className="w-3.5 h-3.5" style={{ color: theme.accentColor }} />
               <span className="hidden sm:inline font-mono">Theme</span>
@@ -117,6 +95,46 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, hasApiK
             </div>
           </div>
         </div>
+
+        {/* Navigation Tabs — Horizontally scrollable on mobile */}
+        <nav
+          role="tablist"
+          aria-label="Primary navigation"
+          className={`mobile-scroll-tabs sm:flex sm:items-center sm:gap-1 ${theme.bgSurface} sm:p-1 sm:rounded-2xl sm:border ${theme.borderMain} glass-subtle mt-1 sm:mt-0`}
+        >
+            {[
+              { key: "workbench" as const, icon: <Zap className="w-3.5 h-3.5" />, label: "Interactive Pipeline", iconColor: "" },
+              { key: "worked_example" as const, icon: <Sparkles className="w-3.5 h-3.5 text-amber-500" />, label: "Worked Example", iconColor: "" },
+              { key: "prompts" as const, icon: <FileCode className="w-3.5 h-3.5 text-purple-500" />, label: "Prompt Inspector", iconColor: "" },
+              { key: "specs" as const, icon: <Cpu className="w-3.5 h-3.5 text-emerald-500" />, label: "Architecture & Specs", iconColor: "" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                role="tab"
+                id={`nav-tab-${tab.key}`}
+                aria-selected={activeTab === tab.key}
+                aria-controls={`tabpanel-${tab.key}`}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  activeTab === tab.key
+                    ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
+                    : `${theme.textSecondary} hover:text-current hover:${theme.bgCard}`
+                }`}
+              >
+                {tab.icon}
+              <span className="hidden lg:inline whitespace-nowrap">{tab.label}</span>
+              <span className="lg:hidden">
+                {tab.key === "workbench"
+                  ? "Pipeline"
+                  : tab.key === "worked_example"
+                    ? "Example"
+                    : tab.key === "prompts"
+                      ? "Prompts"
+                      : "Specs"}
+              </span>
+            </button>
+          ))}
+        </nav>
       </div>
     </header>
   );

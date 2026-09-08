@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SAMPLE_DECKS, DeckPreset } from "../data/sampleLectureDecks";
 import {
   MasterRevisionDoc,
@@ -41,15 +41,56 @@ const STAGE_FLOW = [
   { key: "synthesize", label: "Synthesis", sub: "Stage 3 · Deep Notes", icon: Sparkles, color: "#EC4899" },
 ];
 
+const WORKBENCH_STORAGE_KEY = "studylens.workbench";
+
+interface PersistedWorkbenchState {
+  deckId?: string;
+  config?: Partial<PipelineConfig>;
+}
+
+function loadWorkbenchState(): PersistedWorkbenchState {
+  try {
+    const raw = localStorage.getItem(WORKBENCH_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as PersistedWorkbenchState;
+      if (parsed && typeof parsed === "object") return parsed;
+    }
+  } catch {
+    // Corrupt or blocked storage — start fresh.
+  }
+  return {};
+}
+
 export const PipelineWorkbench: React.FC = () => {
   const { theme } = useTheme();
-  const [selectedDeck, setSelectedDeck] = useState<DeckPreset>(SAMPLE_DECKS[0]);
-  const [customSlides, setCustomSlides] = useState<SlideOCRInput[]>(SAMPLE_DECKS[0].slides);
+  const [selectedDeck, setSelectedDeck] = useState<DeckPreset>(() => {
+    const savedDeckId = loadWorkbenchState().deckId;
+    return SAMPLE_DECKS.find((d) => d.id === savedDeckId) || SAMPLE_DECKS[0];
+  });
+  const [customSlides, setCustomSlides] = useState<SlideOCRInput[]>(() => {
+    const savedDeckId = loadWorkbenchState().deckId;
+    return (SAMPLE_DECKS.find((d) => d.id === savedDeckId) || SAMPLE_DECKS[0]).slides;
+  });
   const [activeTab, setActiveTab] = useState<"slides" | "tagged" | "clusters" | "master_doc">("master_doc");
 
-  const [config, setConfig] = useState<PipelineConfig>(DEFAULT_PIPELINE_CONFIG);
+  const [config, setConfig] = useState<PipelineConfig>(() => ({
+    ...DEFAULT_PIPELINE_CONFIG,
+    ...loadWorkbenchState().config,
+  }));
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState<PipelineProgress | null>(null);
+
+  // Persist deck + config so the workbench restores exactly where the user left it.
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        WORKBENCH_STORAGE_KEY,
+        JSON.stringify({ deckId: selectedDeck.id, config })
+      );
+    } catch {
+      // Ignore storage failures (e.g. private mode).
+    }
+  }, [selectedDeck, config]);
 
   const [pipelineResults, setPipelineResults] = useState<{
     taggedSlides: TaggedSlide[];
@@ -94,7 +135,7 @@ export const PipelineWorkbench: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Controller Panel */}
-      <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
+      <div className={`${theme.bgCard} rounded-2xl p-4 sm:p-6 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
         <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b ${theme.borderSubtle}`}>
           <div>
             <div className="flex items-center gap-2 mb-1.5">
@@ -114,7 +155,7 @@ export const PipelineWorkbench: React.FC = () => {
           </div>
 
           {/* Action Buttons & Batch Stats */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className={`hidden sm:flex items-center gap-3 ${theme.bgSurface} px-3.5 py-2 rounded-xl border ${theme.borderMain} text-[11px] font-mono glass-subtle`}>
               <div className={theme.textMuted}>
                 BATCHES: <span className={`${theme.accentText} font-bold`}>{Math.ceil(customSlides.length / config.taggingBatchSize)}</span>
@@ -261,7 +302,7 @@ export const PipelineWorkbench: React.FC = () => {
       </div>
 
       {/* ── PIPELINE STAGE GRAPHIC & ENGINE STATS ── */}
-      <div className={`${theme.bgCard} rounded-2xl p-5 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
+      <div className={`${theme.bgCard} rounded-2xl p-4 sm:p-5 border ${theme.borderMain} ${theme.bgElevated} pro-card card-spotlight animate-fadeInUp`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
           <h3 className={`text-[10px] font-mono font-bold uppercase tracking-[0.2em] ${theme.textMuted} flex items-center gap-1.5`}>
             <Activity className="w-3.5 h-3.5" style={{ color: theme.accentColor }} />
@@ -272,7 +313,7 @@ export const PipelineWorkbench: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-start gap-2">
+        <div className="flex items-start gap-2 overflow-x-auto hide-scrollbar pb-2 -mx-2 px-2">
           {STAGE_FLOW.map((stage, i) => (
             <React.Fragment key={stage.key}>
               <div className="flex flex-col items-center gap-2 shrink-0">
@@ -300,7 +341,7 @@ export const PipelineWorkbench: React.FC = () => {
               </div>
               {i < STAGE_FLOW.length - 1 && (
                 <div
-                  className="stage-connector"
+                  className="stage-connector hidden lg:block"
                   style={
                     {
                       "--accent-grad": theme.accentGradient,
@@ -310,6 +351,17 @@ export const PipelineWorkbench: React.FC = () => {
                 />
               )}
             </React.Fragment>
+          ))}
+        </div>
+
+        {/* Step connector labels for mobile horizontal flow */}
+        <div className="flex lg:hidden items-center gap-1 mt-1 overflow-x-auto hide-scrollbar -mx-2 px-2">
+          {STAGE_FLOW.slice(0, -1).map((stage, i) => (
+            <span key={stage.key} className={`text-[9px] font-mono font-bold uppercase tracking-wider ${theme.textMuted} shrink-0 flex items-center gap-1`}>
+              <span style={{ color: stage.color }}>■</span>
+              <span>→</span>
+              <span style={{ color: STAGE_FLOW[i + 1].color }}>{STAGE_FLOW[i + 1].label}</span>
+            </span>
           ))}
         </div>
 
@@ -348,7 +400,11 @@ export const PipelineWorkbench: React.FC = () => {
       {/* Results View & Sub-Tabs */}
       <div className="space-y-4">
         {/* Navigation Tabs */}
-        <div className={`flex items-center gap-2 border-b ${theme.borderMain} pb-3 overflow-x-auto`}>
+        <div
+          role="tablist"
+          aria-label="Pipeline results"
+          className={`mobile-scroll-tabs flex items-center gap-2 border-b ${theme.borderMain} pb-3 overflow-x-auto hide-scrollbar`}
+        >
           {[
             { key: "slides" as const, label: `Raw Slide OCR (${customSlides.length})`, disabled: false },
             { key: "tagged" as const, label: `Stage 1: Tagged (${pipelineResults?.taggedSlides.length || 0})`, disabled: !pipelineResults },
@@ -357,6 +413,10 @@ export const PipelineWorkbench: React.FC = () => {
           ].map((tab) => (
             <button
               key={tab.key}
+              role="tab"
+              id={`workbench-tab-${tab.key}`}
+              aria-selected={activeTab === tab.key}
+              aria-controls={`workbench-panel-${tab.key}`}
               onClick={() => !tab.disabled && setActiveTab(tab.key)}
               disabled={tab.disabled}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all duration-200 shrink-0 cursor-pointer ${
@@ -374,7 +434,12 @@ export const PipelineWorkbench: React.FC = () => {
 
         {/* TAB 1: RAW SLIDES INSPECTOR */}
         {activeTab === "slides" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children">
+          <div
+            role="tabpanel"
+            id="workbench-panel-slides"
+            aria-labelledby="workbench-tab-slides"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children"
+          >
             {customSlides.map((slide, idx) => (
               <div
                 key={slide.id}
@@ -400,7 +465,12 @@ export const PipelineWorkbench: React.FC = () => {
 
         {/* TAB 2: TAGGED SLIDES */}
         {activeTab === "tagged" && pipelineResults && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            role="tabpanel"
+            id="workbench-panel-tagged"
+            aria-labelledby="workbench-tab-tagged"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
             {pipelineResults.taggedSlides.map((tagged) => (
               <div
                 key={tagged.slideId}
@@ -439,21 +509,26 @@ export const PipelineWorkbench: React.FC = () => {
 
         {/* TAB 3: TOPIC CLUSTERS */}
         {activeTab === "clusters" && pipelineResults && (
-          <div className="space-y-4">
+          <div
+            role="tabpanel"
+            id="workbench-panel-clusters"
+            aria-labelledby="workbench-tab-clusters"
+            className="space-y-4"
+          >
             {pipelineResults.clusters.map((cluster, cIdx) => (
               <div
                 key={cluster.id}
                 className={`${theme.bgCard} rounded-xl border ${theme.borderMain} p-5 shadow-sm space-y-3`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className="w-6 h-6 rounded-full text-white flex items-center justify-center text-xs font-mono font-bold"
+                      className="w-6 h-6 rounded-full text-white flex items-center justify-center text-xs font-mono font-bold shrink-0"
                       style={{ backgroundColor: theme.accentColor }}
                     >
                       {cIdx + 1}
                     </span>
-                    <h3 className={`font-bold ${theme.textPrimary} text-base ${theme.headingFont}`}>
+                    <h3 className={`font-bold ${theme.textPrimary} text-base ${theme.headingFont} truncate`}>
                       {cluster.topicName}
                     </h3>
                   </div>
@@ -480,7 +555,7 @@ export const PipelineWorkbench: React.FC = () => {
 
         {/* TAB 4: MASTER REVISION BOOKLET */}
         {activeTab === "master_doc" && (
-          <div>
+          <div role="tabpanel" id="workbench-panel-master_doc" aria-labelledby="workbench-tab-master_doc">
             {pipelineResults?.masterDoc ? (
               <div className="space-y-6">
                 {/* Table of Contents Pill Bar */}
@@ -516,7 +591,7 @@ export const PipelineWorkbench: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className={`${theme.bgCard} rounded-2xl p-12 text-center border ${theme.borderMain} shadow-sm space-y-4`}>
+              <div className={`${theme.bgCard} rounded-2xl p-6 sm:p-12 text-center border ${theme.borderMain} shadow-sm space-y-4`}>
                 <div
                   className={`w-12 h-12 rounded-2xl ${theme.accentBgSubtle} border ${theme.accentBorder} flex items-center justify-center mx-auto`}
                 >

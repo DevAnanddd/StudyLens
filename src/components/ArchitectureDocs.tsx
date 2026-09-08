@@ -32,60 +32,85 @@ export const ArchitectureDocs: React.FC = () => {
         </p>
 
         {/* Section Navigation */}
-        <div className={`flex flex-wrap gap-2 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children`}>
+        <div
+          role="tablist"
+          aria-label="Architecture specification sections"
+          className={`mobile-scroll-tabs flex-wrap sm:flex-wrap gap-2 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children overflow-x-auto hide-scrollbar`}
+        >
           <button
+            role="tab"
+            id="arch-tab-pipeline"
+            aria-selected={activeSection === "pipeline"}
+            aria-controls="arch-panel-pipeline"
             onClick={() => setActiveSection("pipeline")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
               activeSection === "pipeline"
                 ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
                 : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>1. Batching Pipeline (50–200 Slides)</span>
+            <span className="whitespace-nowrap">1. Batching Pipeline (50–200 Slides)</span>
           </button>
 
           <button
+            role="tab"
+            id="arch-tab-grouping"
+            aria-selected={activeSection === "grouping"}
+            aria-controls="arch-panel-grouping"
             onClick={() => setActiveSection("grouping")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
               activeSection === "grouping"
                 ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
                 : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <GitMerge className="w-4 h-4" />
-            <span>2. Topic Grouping & Merge Logic</span>
+            <span className="whitespace-nowrap">2. Topic Grouping & Merge Logic</span>
           </button>
 
           <button
+            role="tab"
+            id="arch-tab-batching"
+            aria-selected={activeSection === "batching"}
+            aria-controls="arch-panel-batching"
             onClick={() => setActiveSection("batching")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
               activeSection === "batching"
                 ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
                 : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <Sliders className="w-4 h-4" />
-            <span>3. Batch Sizes, Configs & Rate Limits</span>
+            <span className="whitespace-nowrap">3. Batch Sizes, Configs & Rate Limits</span>
           </button>
 
           <button
+            role="tab"
+            id="arch-tab-attribution"
+            aria-selected={activeSection === "attribution"}
+            aria-controls="arch-panel-attribution"
             onClick={() => setActiveSection("attribution")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
               activeSection === "attribution"
                 ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
                 : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
             }`}
           >
             <FileCheck2 className="w-4 h-4" />
-            <span>4. End-to-End Source Attribution</span>
+            <span className="whitespace-nowrap">4. End-to-End Source Attribution</span>
           </button>
         </div>
       </div>
 
       {/* SECTION 1: BATCHING PIPELINE */}
       {activeSection === "pipeline" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="arch-panel-pipeline"
+          aria-labelledby="arch-tab-pipeline"
+          className="space-y-6"
+        >
           <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}>
             <div>
               <h3 className={`text-xl font-bold ${theme.textPrimary} ${theme.headingFont}`}>
@@ -210,7 +235,12 @@ export const ArchitectureDocs: React.FC = () => {
 
       {/* SECTION 2: GROUPING LOGIC */}
       {activeSection === "grouping" && (
-        <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}>
+        <div
+          role="tabpanel"
+          id="arch-panel-grouping"
+          aria-labelledby="arch-tab-grouping"
+          className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}
+        >
           <h3 className={`text-xl font-bold ${theme.textPrimary} ${theme.headingFont}`}>
             Clustering & Merge Logic Specification
           </h3>
@@ -285,7 +315,12 @@ export const ArchitectureDocs: React.FC = () => {
 
       {/* SECTION 3: BATCH SIZES & RATE LIMITS */}
       {activeSection === "batching" && (
-        <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}>
+        <div
+          role="tabpanel"
+          id="arch-panel-batching"
+          aria-labelledby="arch-tab-batching"
+          className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}
+        >
           <h3 className={`text-xl font-bold ${theme.textPrimary} ${theme.headingFont}`}>
             Batch Size, Hyperparameters & Rate Limit Resilience
           </h3>
@@ -336,7 +371,12 @@ export const ArchitectureDocs: React.FC = () => {
 
       {/* SECTION 4: SOURCE ATTRIBUTION */}
       {activeSection === "attribution" && (
-        <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}>
+        <div
+          role="tabpanel"
+          id="arch-panel-attribution"
+          aria-labelledby="arch-tab-attribution"
+          className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-6`}
+        >
           <h3 className={`text-xl font-bold ${theme.textPrimary} ${theme.headingFont}`}>
             How Source Attribution Survives Every Pipeline Stage
           </h3>

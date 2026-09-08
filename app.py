@@ -7,6 +7,7 @@ import os
 import io
 import json
 import time
+import uuid
 from datetime import datetime
 from pathlib import Path
 from PIL import Image
@@ -48,6 +49,59 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- Per-visitor data isolation -------------------------------------------------
+# Each visitor gets a stable id (browser cookie + ?uid= URL token). All subjects
+# and notes are persisted under data/users/<id>/ so no two visitors ever share a
+# file, while the same visitor keeps their data across refreshes and sessions.
+# NOTE: this is per-visitor scoping/obfuscation, NOT authentication.
+def resolve_user_id() -> str:
+    """Return a stable, per-visitor storage key (cookie first, URL second)."""
+    existing = st.session_state.get("_studylens_uid")
+    if existing:
+        return existing
+
+    # 1) Reuse an id already planted in the visitor's browser cookie (the
+    #    browser sends it on every request; readable server-side via
+    #    st.context headers, Streamlit >= 1.31).
+    try:
+        cookie_header = ""
+        for key, value in (st.context.headers or {}).items():
+            if str(key).lower() == "cookie":
+                cookie_header = value or ""
+                break
+        for part in cookie_header.split(";"):
+            name, _, value = part.strip().partition("=")
+            if name == "studylens_uid" and value:
+                st.session_state["_studylens_uid"] = value
+                return value
+    except Exception:
+        pass
+
+    # 2) Fallback: the id carried in the page URL (?uid=...).
+    try:
+        from_url = st.query_params.get("uid")
+        if from_url:
+            st.session_state["_studylens_uid"] = str(from_url)
+            return str(from_url)
+    except Exception:
+        pass
+
+    # 3) Brand-new visitor: mint an id, keep it for this session, plant it as
+    #    a cookie AND mirror it into the URL so it survives refreshes/sessions.
+    uid = uuid.uuid4().hex
+    st.session_state["_studylens_uid"] = uid
+    st.markdown(
+        f"<script>document.cookie='studylens_uid={uid}; max-age=31536000; path=/';</script>",
+        unsafe_allow_html=True,
+    )
+    try:
+        st.query_params["uid"] = uid
+    except Exception:
+        pass
+    return uid
+
+
+_USER_ID = resolve_user_id()
 # Custom Styling - Linear / Notion inspired Dark Premium SaaS Theme
 st.markdown("""
 <style>
@@ -962,7 +1016,7 @@ def create_sample_lecture_demo():
 
 # Initialize Session State
 if "subjects" not in st.session_state:
-    st.session_state.subjects = load_subjects()
+    st.session_state.subjects = load_subjects(user_key=_USER_ID)
 if "current_subject" not in st.session_state:
     st.session_state.current_subject = None
 if "current_view" not in st.session_state:
@@ -1037,7 +1091,7 @@ with st.sidebar:
             else:
                 st.session_state.subjects[s_name] = new_subject_state()
                 st.session_state.current_subject = s_name
-                save_subjects(st.session_state.subjects)
+                save_subjects(st.session_state.subjects, user_key=_USER_ID)
                 st.rerun()
 
     if subject_names:
@@ -1069,7 +1123,7 @@ with st.sidebar:
                         st.session_state.subjects[new_name] = st.session_state.subjects.pop(manage_target)
                         if st.session_state.current_subject == manage_target:
                             st.session_state.current_subject = new_name
-                        save_subjects(st.session_state.subjects)
+                        save_subjects(st.session_state.subjects, user_key=_USER_ID)
                         st.rerun()
             else:
                 st.warning(f"Delete **{manage_target}**? This cannot be undone.")
@@ -1077,7 +1131,7 @@ with st.sidebar:
                     del st.session_state.subjects[manage_target]
                     remaining = list(st.session_state.subjects.keys())
                     st.session_state.current_subject = remaining[0] if remaining else None
-                    save_subjects(st.session_state.subjects)
+                    save_subjects(st.session_state.subjects, user_key=_USER_ID)
                     st.rerun()
 
     st.markdown("---")
@@ -1108,7 +1162,7 @@ with st.sidebar:
         st.session_state.subjects["Deep Learning Demo"] = create_sample_lecture_demo()
         st.session_state.current_subject = "Deep Learning Demo"
         st.session_state.current_view = "Overview"
-        save_subjects(st.session_state.subjects)
+        save_subjects(st.session_state.subjects, user_key=_USER_ID)
         st.rerun()
 
     with st.expander("⚙️ Advanced Pipeline Settings", expanded=False):
@@ -1141,7 +1195,7 @@ with st.sidebar:
             with c_confirm:
                 if st.button("Yes, reset it", use_container_width=True, type="primary", key="confirm_reset_yes"):
                     st.session_state.subjects[st.session_state.current_subject] = new_subject_state()
-                    save_subjects(st.session_state.subjects)
+                    save_subjects(st.session_state.subjects, user_key=_USER_ID)
                     st.session_state["confirm_reset_subject"] = None
                     st.rerun()
             with c_cancel:
@@ -1315,14 +1369,14 @@ if not st.session_state.subjects or not st.session_state.current_subject:
                         st.session_state.subjects[name] = new_subject_state()
                         st.session_state.current_subject = name
                         st.session_state.current_view = "Overview"
-                        save_subjects(st.session_state.subjects)
+                        save_subjects(st.session_state.subjects, user_key=_USER_ID)
                         st.rerun()
             with col_b2:
                 if st.button("✨ Try Sample Demo", use_container_width=True, key="btn_hero_demo"):
                     st.session_state.subjects["Deep Learning Demo"] = create_sample_lecture_demo()
                     st.session_state.current_subject = "Deep Learning Demo"
                     st.session_state.current_view = "Overview"
-                    save_subjects(st.session_state.subjects)
+                    save_subjects(st.session_state.subjects, user_key=_USER_ID)
                     st.rerun()
 
     # ── Interactive "How it works" guide ──
@@ -1716,8 +1770,8 @@ elif st.session_state.current_view == "Materials":
                 sub["search_engine"] = RevisionSearchEngine(summaries, final_unique)
                 sub["pipeline_stage"] = "completed"
                 # Persist to disk and save a notes history snapshot
-                save_subjects(st.session_state.subjects)
-                save_notes_snapshot(st.session_state.current_subject, sub["master_notes_md"], summaries)
+                save_subjects(st.session_state.subjects, user_key=_USER_ID)
+                save_notes_snapshot(st.session_state.current_subject, sub["master_notes_md"], summaries, user_key=_USER_ID)
                 status.update(label="Revision workspace ready!", state="complete")
 
             time.sleep(0.4)
@@ -1788,7 +1842,7 @@ elif st.session_state.current_view == "Revision Notes":
                             sub["master_notes_md"] = generate_master_notes(sub["topic_summaries"], stats)
                             sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
                             sub["search_engine"] = None  # Rebuild on next search
-                            save_subjects(st.session_state.subjects)
+                            save_subjects(st.session_state.subjects, user_key=_USER_ID)
                             st.rerun()
                         else:
                             st.error("Couldn't find the original slides for this topic to retry — try re-uploading them instead.")
@@ -1827,7 +1881,7 @@ elif st.session_state.current_view == "Notes History":
     st.markdown('<span class="view-title">📜 Notes History — <span style="color:#ffffff;-webkit-text-fill-color:#ffffff;">{}</span></span>'.format(st.session_state.current_subject), unsafe_allow_html=True)
     st.markdown('<div class="view-subtitle">Browse past versions of your generated revision notes.</div>', unsafe_allow_html=True)
 
-    history = load_notes_history(st.session_state.current_subject, max_items=20)
+    history = load_notes_history(st.session_state.current_subject, max_items=20, user_key=_USER_ID)
     if not history:
         st.info("No notes history yet. Generate revision notes in the Materials tab — each generation creates a snapshot saved here.")
     else:
@@ -1883,12 +1937,12 @@ elif st.session_state.current_view == "Chat":
                     st.markdown(answer)
 
             sub["chat_history"].append({"role": "assistant", "content": answer})
-            save_subjects(st.session_state.subjects)
+            save_subjects(st.session_state.subjects, user_key=_USER_ID)
 
         if sub["chat_history"]:
             if st.button("🗑️ Clear Chat History", key=f"clear_chat_{st.session_state.current_subject}"):
                 sub["chat_history"] = []
-                save_subjects(st.session_state.subjects)
+                save_subjects(st.session_state.subjects, user_key=_USER_ID)
                 st.rerun()
 
 
@@ -1945,7 +1999,7 @@ elif st.session_state.current_view == "Quizzes":
                             parsed_quiz = json.loads(raw_q)
                             if isinstance(parsed_quiz, list) and len(parsed_quiz) > 0:
                                 st.session_state[quiz_key] = parsed_quiz
-                                save_subjects(st.session_state.subjects)
+                                save_subjects(st.session_state.subjects, user_key=_USER_ID)
                             else:
                                 st.warning("⚠️ AI returned an unexpected quiz format. Please try again.")
                         else:
@@ -1975,7 +2029,7 @@ elif st.session_state.current_view == "Quizzes":
                             st.error(f"❌ Incorrect. Correct answer: **{q['correct_answer']}**\n\n_{q.get('explanation', '')}_")
 
             sub["quiz_score"] = {"correct": correct_count or len(quiz_items), "total": len(quiz_items)}
-            save_subjects(st.session_state.subjects)
+            save_subjects(st.session_state.subjects, user_key=_USER_ID)
 
 
 # ==============================================================================

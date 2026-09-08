@@ -43,22 +43,22 @@ export const MarkdownNoteRenderer: React.FC<MarkdownNoteRendererProps> = ({
   return (
     <div className={`rounded-2xl border ${theme.borderMain} ${theme.bgCard} shadow-md overflow-hidden card-hover ${className}`}>
       {/* Header bar */}
-      <div className={`flex items-center justify-between px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface} glass-subtle`}>
-        <div className="flex items-center gap-3">
-          <div className={`w-7 h-7 rounded-lg border ${theme.accentBgSubtle} ${theme.accentBorder} flex items-center justify-center animate-pulseGlowGreen`}>
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface} glass-subtle`}>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`w-7 h-7 rounded-lg border ${theme.accentBgSubtle} ${theme.accentBorder} flex items-center justify-center animate-pulseGlowGreen shrink-0`}>
             <BookOpen className="w-3.5 h-3.5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${theme.textMuted} font-bold block`}>
               Synthesized Revision Folio
             </span>
-            <span className={`text-sm font-semibold ${theme.textPrimary}`}>
+            <span className={`text-sm font-semibold ${theme.textPrimary} block truncate`}>
               {title || "Revision Notes"}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleCopy}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border ${theme.borderMain} ${theme.bgCard} hover:scale-105 ${theme.textSecondary} transition-all duration-200 cursor-pointer`}

@@ -1,18 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Header, NavTab } from "./components/Header";
-import { PipelineWorkbench } from "./components/PipelineWorkbench";
-import { WorkedExampleView } from "./components/WorkedExampleView";
-import { PromptInspector } from "./components/PromptInspector";
-import { ArchitectureDocs } from "./components/ArchitectureDocs";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { QuickThemeBar, ThemeSelectorModal } from "./components/ThemeSelectorModal";
 import { AmbientBackground } from "./components/AmbientBackground";
 import { Zap, Library, Timer, Target } from "lucide-react";
 
+// ── Code-split each tab so only the active module is fetched initially ──
+const PipelineWorkbench = lazy(() =>
+  import("./components/PipelineWorkbench").then((m) => ({ default: m.PipelineWorkbench }))
+);
+const WorkedExampleView = lazy(() =>
+  import("./components/WorkedExampleView").then((m) => ({ default: m.WorkedExampleView }))
+);
+const PromptInspector = lazy(() =>
+  import("./components/PromptInspector").then((m) => ({ default: m.PromptInspector }))
+);
+const ArchitectureDocs = lazy(() =>
+  import("./components/ArchitectureDocs").then((m) => ({ default: m.ArchitectureDocs }))
+);
+
+const NAV_TABS: NavTab[] = ["workbench", "specs", "worked_example", "prompts"];
+
 function MainApp() {
-  const [activeTab, setActiveTab] = useState<NavTab>("workbench");
+  const [activeTab, setActiveTab] = useState<NavTab>(() => {
+    try {
+      // Support PWA shortcut deep links (?tab=workbench etc.).
+      const fromUrl = new URLSearchParams(window.location.search).get("tab");
+      if (fromUrl && (NAV_TABS as string[]).includes(fromUrl)) {
+        return fromUrl as NavTab;
+      }
+      const saved = localStorage.getItem("studylens_active_tab");
+      if (saved && (NAV_TABS as string[]).includes(saved)) {
+        return saved as NavTab;
+      }
+    } catch {
+      // localStorage unavailable → fall back to the default tab.
+    }
+    return "workbench";
+  });
   const [hasApiKey, setHasApiKey] = useState<boolean>(false);
   const { theme } = useTheme();
+
+  // Persist the active tab so a page refresh restores the same screen.
+  useEffect(() => {
+    try {
+      localStorage.setItem("studylens_active_tab", activeTab);
+    } catch {
+      // Ignore storage failures (e.g. private mode).
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetch("/api/health")
@@ -43,12 +79,12 @@ function MainApp() {
       <div className="relative z-10 flex flex-col min-h-screen">
 
       {/* Quick Theme Selector Bar */}
-      <div className="animate-fadeInDown">
+      <div className="animate-fadeInDown print:hidden">
         <QuickThemeBar />
       </div>
 
       {/* Top Navigation */}
-      <div className="animate-fadeInDown" style={{ animationDelay: '0.1s' }}>
+      <div className="animate-fadeInDown print:hidden" style={{ animationDelay: '0.1s' }}>
         <Header
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -57,7 +93,7 @@ function MainApp() {
       </div>
 
       {/* Professional Hero / Stats Strip */}
-      <div className="animate-fadeInUp" style={{ animationDelay: '0.12s' }}>
+      <div className="animate-fadeInUp print:hidden" style={{ animationDelay: '0.12s' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
           <div className={`${theme.bgCard} rounded-2xl border ${theme.borderMain} shadow-md bg-clip-padding pro-card`}>
             <div className="grid grid-cols-2 md:grid-cols-4">
@@ -97,10 +133,25 @@ function MainApp() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="animate-fadeInUp" style={{ animationDelay: '0.15s' }}>
-          {activeTab === "specs" && <ArchitectureDocs />}
-          {activeTab === "workbench" && <PipelineWorkbench />}
-          {activeTab === "worked_example" && <WorkedExampleView />}
-          {activeTab === "prompts" && <PromptInspector />}
+          <Suspense
+            fallback={
+              <div
+                role="status"
+                aria-live="polite"
+                className={`${theme.bgCard} rounded-2xl border ${theme.borderMain} p-10 flex flex-col items-center justify-center gap-3 text-sm ${theme.textMuted}`}
+              >
+                <div className="w-8 h-8 rounded-full border-2 border-indigo-400/30 border-t-indigo-500 animate-spin"></div>
+                Loading module…
+              </div>
+            }
+          >
+            <div role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`nav-tab-${activeTab}`}>
+              {activeTab === "specs" && <ArchitectureDocs />}
+              {activeTab === "workbench" && <PipelineWorkbench />}
+              {activeTab === "worked_example" && <WorkedExampleView />}
+              {activeTab === "prompts" && <PromptInspector />}
+            </div>
+          </Suspense>
         </div>
       </main>
 
@@ -108,7 +159,7 @@ function MainApp() {
       <ThemeSelectorModal />
 
       {/* Enhanced Footer */}
-      <footer className={`border-t ${theme.borderMain} ${theme.bgSurface} py-5 text-xs font-mono ${theme.textMuted} animate-fadeIn`}>
+      <footer className={`border-t ${theme.borderMain} ${theme.bgSurface} py-5 text-xs font-mono ${theme.textMuted} animate-fadeIn safe-area-bottom print:hidden`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <span className={`flex items-center gap-2 ${theme.textPrimary} font-semibold`}>

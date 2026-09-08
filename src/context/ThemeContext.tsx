@@ -409,6 +409,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.style.setProperty("--grid-color", theme.gridColor);
     root.style.setProperty("--accent-grad", theme.accentGradient);
     root.style.setProperty("--accent-color", theme.accentColor);
+
+    // Sync <meta name="theme-color"> so mobile browser chrome matches the theme.
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", theme.bgPreview);
+    }
   }, [theme]);
 
   return (

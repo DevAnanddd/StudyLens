@@ -80,6 +80,107 @@
 ::selection { background-color: rgba(99, 102, 241, 0.25); color: inherit; }
 
 /* ═══════════════════════════════════════════════════════════════
+   📱 Safe-Area Insets (notch / Dynamic Island / home indicator)
+   ═══════════════════════════════════════════════════════════════ */
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ♿ Accessibility: Focus-visible ring for keyboard navigation
+   ═══════════════════════════════════════════════════════════════ */
+
+:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.8);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.8);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   🖨️ Print / PDF Stylesheet
+   ═══════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* Hide non-essential chrome */
+  header, footer, nav, .data-flow-track,
+  .mesh-bg, .orb, .bg-noise, .bg-grid, .scanlines, .bg-circuit,
+  .neural-network, .particle, .cursor-glow,
+  .quick-theme-bar, .pro-card.card-spotlight,
+  .card-hover, .gradient-divider,
+  button[onclick], .btn-ripple {
+    display: none !important;
+  }
+
+  /* Reset body for print */
+  html, body {
+    background: #fff !important;
+    color: #1a1a1a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Main content area */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove shadows, borders, rounded corners for cleaner print */
+  .pro-card, .rounded-2xl, .rounded-xl, .rounded-lg {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Ensure code blocks and tables don't overflow */
+  pre, code, table {
+    overflow: visible !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* Markdown content readability */
+  h1, h2, h3, h4 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  table, figure, pre, blockquote {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Ensure text is dark for print */
+  * {
+    color: #1a1a1a !important;
+  }
+  code, pre, .font-mono {
+    color: #1a1a1a !important;
+    background: #f1f5f9 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    ✨ COOL UPGRADE — Ambient Backdrop, Graphics & Effects
    ═══════════════════════════════════════════════════════════════ */
 
@@ -485,4 +586,101 @@
 @keyframes dotPulse {
   0%, 100% { transform: scale(1); opacity: 0.9; }
   50% { transform: scale(1.35); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   📱 MOBILE RESPONSIVENESS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Touch-friendly tap targets ── */
+@media (pointer: coarse) {
+  button, a, [role="button"], select, input {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .stat-chip { padding: 12px 16px; }
+}
+
+/* ── Hide scrollbar utility for scrollable containers on mobile ── */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Prevent horizontal overflow on body ── */
+@media (max-width: 640px) {
+  html, body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── Reduce ambient effects on mobile for performance ── */
+@media (max-width: 768px) {
+  .mesh-bg::before {
+    animation-duration: 40s;
+  }
+  .orb {
+    opacity: 0.35;
+    filter: blur(60px);
+  }
+  .bg-noise { opacity: 0.02; }
+  .scanlines { display: none; }
+  .particle { animation-play-state: paused; }
+  .cursor-glow { display: none !important; }
+  .neural-network { opacity: 0.25; }
+
+  /* Disable heavy hover transforms on touch */
+  .pro-card:hover { transform: none; box-shadow: none; }
+  .card-hover:hover { transform: none; }
+
+  /* Reduce animation complexity */
+  .animate-pulseGlow { animation: none; }
+  .animate-pulseGlowGreen { animation: none; }
+  .animate-float { animation: none; }
+  .animate-borderGlow { animation: none; }
+  .glyph-ring::before { animation: none; }
+}
+
+/* ── Mobile-optimized scrollable tab containers ── */
+@media (max-width: 640px) {
+  .mobile-scroll-tabs {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+  .mobile-scroll-tabs > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Responsive text truncation ── */
+@media (max-width: 480px) {
+  .truncate-mobile {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ── Flow connector: vertical on mobile ── */
+@media (max-width: 1023px) {
+  .flow-connector-h {
+    display: none;
+  }
+}
+
+/* ── Keyboard spacing for mobile keyboards ── */
+@supports (height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
 }

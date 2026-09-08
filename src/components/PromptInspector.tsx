@@ -62,59 +62,84 @@ export const PromptInspector: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className={`flex flex-wrap gap-2 border-b ${theme.borderMain} pb-3 stagger-children`}>
+      <div
+        role="tablist"
+        aria-label="Prompt documentation sections"
+        className={`mobile-scroll-tabs flex-wrap sm:flex-wrap gap-2 border-b ${theme.borderMain} pb-3 stagger-children overflow-x-auto hide-scrollbar`}
+      >
         <button
+          role="tab"
+          id="prompt-tab-summarizer_system"
+          aria-selected={activeSubTab === "summarizer_system"}
+          aria-controls="prompt-panel-summarizer_system"
           onClick={() => setActiveSubTab("summarizer_system")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
             activeSubTab === "summarizer_system"
               ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
               : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <span>Topic Summarization System Prompt</span>
+          <span className="whitespace-nowrap">Topic Summarization System Prompt</span>
         </button>
 
         <button
+          role="tab"
+          id="prompt-tab-tagger_system"
+          aria-selected={activeSubTab === "tagger_system"}
+          aria-controls="prompt-panel-tagger_system"
           onClick={() => setActiveSubTab("tagger_system")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
             activeSubTab === "tagger_system"
               ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
               : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Cpu className="w-4 h-4 text-cyan-500" />
-          <span>Lightweight Tagging System & Schema</span>
+          <span className="whitespace-nowrap">Lightweight Tagging System & Schema</span>
         </button>
 
         <button
+          role="tab"
+          id="prompt-tab-user_templates"
+          aria-selected={activeSubTab === "user_templates"}
+          aria-controls="prompt-panel-user_templates"
           onClick={() => setActiveSubTab("user_templates")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
             activeSubTab === "user_templates"
               ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
               : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Terminal className="w-4 h-4 text-purple-500" />
-          <span>User Message Formats</span>
+          <span className="whitespace-nowrap">User Message Formats</span>
         </button>
 
         <button
+          role="tab"
+          id="prompt-tab-configs"
+          aria-selected={activeSubTab === "configs"}
+          aria-controls="prompt-panel-configs"
           onClick={() => setActiveSubTab("configs")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
             activeSubTab === "configs"
               ? `${theme.accentBg} ${theme.accentShadow} scale-[1.02]`
               : `${theme.bgSurface} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover} border ${theme.borderMain}`
           }`}
         >
           <Sliders className="w-4 h-4 text-emerald-500" />
-          <span>Model Configs & Hyperparameters</span>
+          <span className="whitespace-nowrap">Model Configs & Hyperparameters</span>
         </button>
       </div>
 
       {/* TAB CONTENT: Summarizer System Prompt */}
       {activeSubTab === "summarizer_system" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="prompt-panel-summarizer_system"
+          aria-labelledby="prompt-tab-summarizer_system"
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Code Box */}
             <div className={`lg:col-span-2 ${theme.bgCard} rounded-2xl p-5 border ${theme.borderMain} shadow-sm`}>
@@ -186,7 +211,12 @@ export const PromptInspector: React.FC = () => {
 
       {/* TAB CONTENT: Tagging System Prompt */}
       {activeSubTab === "tagger_system" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="prompt-panel-tagger_system"
+          aria-labelledby="prompt-tab-tagger_system"
+          className="space-y-6"
+        >
           <div className={`${theme.bgCard} rounded-2xl p-5 border ${theme.borderMain} shadow-sm`}>
             <div className={`flex items-center justify-between pb-3 mb-4 border-b ${theme.borderSubtle}`}>
               <div className="flex items-center gap-2">
@@ -221,7 +251,12 @@ export const PromptInspector: React.FC = () => {
 
       {/* TAB CONTENT: User Templates */}
       {activeSubTab === "user_templates" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="prompt-panel-user_templates"
+          aria-labelledby="prompt-tab-user_templates"
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className={`${theme.bgCard} rounded-2xl p-5 border ${theme.borderMain} shadow-sm space-y-3`}>
               <div className={`flex items-center justify-between pb-2 border-b ${theme.borderSubtle}`}>
@@ -250,7 +285,12 @@ export const PromptInspector: React.FC = () => {
 
       {/* TAB CONTENT: Model Configs */}
       {activeSubTab === "configs" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          role="tabpanel"
+          id="prompt-panel-configs"
+          aria-labelledby="prompt-tab-configs"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div className={`${theme.bgCard} rounded-2xl p-6 border ${theme.borderMain} shadow-sm space-y-4`}>
             <h3 className={`text-base font-bold ${theme.textPrimary} ${theme.headingFont}`}>
               Stage 1 (Lightweight Tagging) Parameters

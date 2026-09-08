@@ -53,57 +53,78 @@ export const WorkedExampleView: React.FC = () => {
         </div>
 
         {/* Step Progress Pills */}
-        <div className={`grid grid-cols-3 gap-3 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children`}>
+        <div
+          role="tablist"
+          aria-label="Worked example pipeline steps"
+          className={`mobile-scroll-tabs grid min-[640px]:grid-cols-3 gap-3 mt-6 pt-6 border-t ${theme.borderSubtle} stagger-children`}
+        >
           <button
+            role="tab"
+            id="step-tab-input"
+            aria-selected={activeStep === "input"}
+            aria-controls="step-panel-input"
             onClick={() => setActiveStep("input")}
-            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer shrink-0 ${
               activeStep === "input"
                 ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
                 : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-500">Stage 1: Input</span>
               <span className={`text-[10px] ${theme.textMuted} font-mono`}>Raw OCR</span>
             </div>
-            <div className={`text-xs font-bold ${theme.textPrimary} mt-1`}>Noisy Raw Text</div>
+            <div className={`text-xs font-bold ${theme.textPrimary} mt-1 whitespace-nowrap`}>Noisy Raw Text</div>
           </button>
 
           <button
+            role="tab"
+            id="step-tab-tagged"
+            aria-selected={activeStep === "tagged"}
+            aria-controls="step-panel-tagged"
             onClick={() => setActiveStep("tagged")}
-            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer shrink-0 ${
               activeStep === "tagged"
                 ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
                 : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-500">Stage 2: Tagged</span>
               <span className={`text-[10px] ${theme.textMuted} font-mono`}>JSON Schema</span>
             </div>
-            <div className={`text-xs font-bold ${theme.textPrimary} mt-1`}>Structured Metadata</div>
+            <div className={`text-xs font-bold ${theme.textPrimary} mt-1 whitespace-nowrap`}>Structured Metadata</div>
           </button>
 
           <button
+            role="tab"
+            id="step-tab-final"
+            aria-selected={activeStep === "final"}
+            aria-controls="step-panel-final"
             onClick={() => setActiveStep("final")}
-            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer ${
+            className={`p-3 rounded-xl text-left border transition-all duration-200 cursor-pointer shrink-0 ${
               activeStep === "final"
                 ? `${theme.accentBgSubtle} ${theme.accentBorder} ${theme.accentText} font-semibold shadow-xs animate-scaleIn`
                 : `${theme.bgSurface} ${theme.borderMain} ${theme.textSecondary} hover:text-current hover:${theme.bgCardHover}`
             }`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-500">Stage 3 & 4: Final</span>
               <span className={`text-[10px] ${theme.textMuted} font-mono`}>Study Note</span>
             </div>
-            <div className={`text-xs font-bold ${theme.textPrimary} mt-1`}>Exam Revision Folio ✨</div>
+            <div className={`text-xs font-bold ${theme.textPrimary} mt-1 whitespace-nowrap`}>Exam Revision Folio ✨</div>
           </button>
         </div>
       </div>
 
       {/* STEP 1: RAW INPUT INSPECTOR */}
       {activeStep === "input" && (
-        <div className="space-y-4">
+        <div
+          role="tabpanel"
+          id="step-panel-input"
+          aria-labelledby="step-tab-input"
+          className="space-y-4"
+        >
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
             <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <div className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed font-mono">
@@ -137,7 +158,12 @@ export const WorkedExampleView: React.FC = () => {
 
       {/* STEP 2: TAGGED JSON */}
       {activeStep === "tagged" && (
-        <div className="space-y-4">
+        <div
+          role="tabpanel"
+          id="step-panel-tagged"
+          aria-labelledby="step-tab-tagged"
+          className="space-y-4"
+        >
           <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-start gap-3">
             <CheckCircle2 className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
             <div className="text-xs text-purple-800 dark:text-purple-300 leading-relaxed font-mono">
@@ -163,7 +189,12 @@ export const WorkedExampleView: React.FC = () => {
 
       {/* STEP 3 & 4: FINAL REVISION NOTE */}
       {activeStep === "final" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="step-panel-final"
+          aria-labelledby="step-tab-final"
+          className="space-y-6"
+        >
           <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
             <Sparkles className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
             <div className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed font-mono">

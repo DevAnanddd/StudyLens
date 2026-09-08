@@ -12,21 +12,27 @@ export const AmbientBackground: React.FC = () => {
   const [ready, setReady] = useState(false);
 
   // Deterministic particle field (client-only render, no SSR concern).
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 28 }).map((_, i) => ({
-        id: i,
-        left: (i * 37 + 11) % 100,
-        top: (i * 53 + 7) % 100,
-        delay: ((i * 1.7) % 6).toFixed(2),
-        dur: (4 + ((i * 911) % 5)).toFixed(2),
-        size: 2 + ((i * 7) % 3),
-      })),
-    []
-  );
+  // Fewer particles on mobile/touch devices to keep scrolling smooth.
+  const particles = useMemo(() => {
+    const isMobile =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+    const count = isMobile ? 10 : 28;
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: (i * 37 + 11) % 100,
+      top: (i * 53 + 7) % 100,
+      delay: ((i * 1.7) % 6).toFixed(2),
+      dur: (4 + ((i * 911) % 5)).toFixed(2),
+      size: 2 + ((i * 7) % 3),
+    }));
+  }, []);
 
   // Cursor-following glow + card spotlight position tracking.
+  // Only attached for fine-pointer (mouse) devices — touch screens skip it.
   useEffect(() => {
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouch) return;
     const el = glowRef.current;
     if (!el) return;
     const onMove = (e: PointerEvent) => {

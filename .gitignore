@@ -13,3 +13,7 @@ __pycache__/
 .temp/
 output/
 .streamlit/secrets.toml
+# Test artifacts
+test-results/
+playwright-report/
+.blob-report/

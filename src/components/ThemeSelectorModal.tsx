@@ -4,13 +4,70 @@ import { Palette, Check, Sparkles, X, Sun, Moon } from "lucide-react";
 
 export const ThemeSelectorModal: React.FC = () => {
   const { themeKey, setThemeKey, isThemePickerOpen, setIsThemePickerOpen, theme } = useTheme();
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const restoreFocusRef = React.useRef<HTMLElement | null>(null);
+
+  // Focus trap + Escape-to-close while the modal is open.
+  React.useEffect(() => {
+    if (!isThemePickerOpen) return;
+
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    if (panel) {
+      // Defer so the element is fully mounted before stealing focus.
+      window.setTimeout(() => panel.focus(), 0);
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsThemePickerOpen(false);
+        restoreFocusRef.current?.focus?.();
+        restoreFocusRef.current = null;
+        return;
+      }
+      if (e.key !== "Tab" || !panel) return;
+
+      const focusables = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute("disabled"));
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isThemePickerOpen, setIsThemePickerOpen]);
+
+  const handleClose = () => {
+    setIsThemePickerOpen(false);
+    restoreFocusRef.current?.focus?.();
+    restoreFocusRef.current = null;
+  };
 
   if (!isThemePickerOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Select Application Theme"
+    >
       <div
-        className={`w-full max-w-2xl rounded-2xl border ${theme.borderMain} ${theme.bgCard} ${theme.textPrimary} shadow-2xl overflow-hidden animate-scaleIn`}
+        ref={panelRef}
+        tabIndex={-1}
+        className={`w-full max-w-2xl rounded-2xl border ${theme.borderMain} ${theme.bgCard} ${theme.textPrimary} shadow-2xl overflow-hidden animate-scaleIn outline-none`}
       >
         {/* Modal Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${theme.borderMain} ${theme.bgSurface}`}>
@@ -29,7 +86,8 @@ export const ThemeSelectorModal: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setIsThemePickerOpen(false)}
+            onClick={handleClose}
+            aria-label="Close theme picker"
             className={`p-1.5 rounded-lg ${theme.textMuted} hover:${theme.textPrimary} hover:${theme.bgSurface} transition-colors cursor-pointer`}
           >
             <X className="w-5 h-5" />
@@ -45,6 +103,8 @@ export const ThemeSelectorModal: React.FC = () => {
             return (
               <button
                 key={key}
+                aria-pressed={isSelected}
+                aria-label={`Apply ${preset.name} theme`}
                 onClick={() => {
                   setThemeKey(key);
                   setIsThemePickerOpen(false);
@@ -129,7 +189,7 @@ export const ThemeSelectorModal: React.FC = () => {
         <div className={`px-6 py-3 border-t ${theme.borderMain} ${theme.bgSurface} flex items-center justify-between text-xs`}>
           <span className={theme.textMuted}>Selection is saved automatically</span>
           <button
-            onClick={() => setIsThemePickerOpen(false)}
+            onClick={handleClose}
             className={`px-4 py-1.5 rounded-lg text-xs font-semibold ${theme.accentBg} cursor-pointer`}
           >
             Apply & Close
@@ -145,7 +205,7 @@ export const QuickThemeBar: React.FC = () => {
 
   return (
     <div className={`border-b ${theme.borderSubtle} ${theme.bgSurface} py-1.5 px-4 text-xs glass-subtle`}>
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto hide-scrollbar">
         <div className="flex items-center gap-2 shrink-0">
           <Palette className={`w-3.5 h-3.5 ${theme.accentText}`} />
           <span className={`text-[11px] font-semibold font-mono uppercase tracking-wider ${theme.textMuted}`}>
@@ -154,7 +214,7 @@ export const QuickThemeBar: React.FC = () => {
         </div>
 
         {/* Theme Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-0.5 flex-1 min-w-0 justify-end">
           {(Object.keys(THEME_PRESETS) as ThemeKey[]).map((key) => {
             const preset = THEME_PRESETS[key];
             const isSelected = themeKey === key;
@@ -162,6 +222,8 @@ export const QuickThemeBar: React.FC = () => {
               <button
                 key={key}
                 onClick={() => setThemeKey(key)}
+                aria-pressed={isSelected}
+                aria-label={`Switch to ${preset.name} theme`}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 shrink-0 cursor-pointer ${
                   isSelected
                     ? `${theme.accentBg} font-bold shadow-xs scale-105`
