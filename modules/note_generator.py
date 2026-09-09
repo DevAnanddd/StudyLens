@@ -5,6 +5,20 @@ def generate_master_notes(
     topic_summaries: List[Dict[str, Any]],
     stats: Dict[str, Any]
 ) -> str:
+    # Sort topics by number of source subheadings / content length so the most
+    # substantial topics appear first — keeps the output predictable regardless
+    # of the arbitrary dict ordering from group_slides_by_topic.
+    sorted_summaries = sorted(
+        topic_summaries,
+        key=lambda t: (
+            # Primary: number of subheadings (proxy for slide count)
+            len(t.get("subheadings", [])),
+            # Secondary: length of summary markdown
+            len(t.get("summary_markdown", "")),
+        ),
+        reverse=True,
+    )
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     md_lines = [
         f"# 📚 StudyLens Revision Notes",
@@ -13,7 +27,7 @@ def generate_master_notes(
         "---",
         "## 📑 Table of Contents"
     ]
-    for idx, item in enumerate(topic_summaries, 1):
+    for idx, item in enumerate(sorted_summaries, 1):
         topic_title = item.get("topic", f"Topic {idx}")
         anchor = topic_title.lower().replace(" ", "-").replace("/", "").replace(":", "")
         md_lines.append(f"{idx}. [{topic_title}](#{anchor})")
@@ -25,7 +39,7 @@ def generate_master_notes(
                     md_lines.append(f"   - [{sub_title}](#{sub_anchor})")
     md_lines.append("")
     md_lines.append("---")
-    for idx, item in enumerate(topic_summaries, 1):
+    for idx, item in enumerate(sorted_summaries, 1):
         topic_title = item.get("topic", f"Topic {idx}")
         md_lines.append(f"\n## {idx}. {topic_title}\n")
         if "summary_markdown" in item and item["summary_markdown"]:

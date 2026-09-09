@@ -144,18 +144,33 @@ def detect_topics_batch(
             slide["concepts"] = []
         return slides
 
+    # Track topic names seen so far across batches so Gemini stays consistent
+    seen_topics: List[str] = []
+
     for i in range(0, len(slides), TOPIC_DETECTION_BATCH_SIZE):
         batch = slides[i : i + TOPIC_DETECTION_BATCH_SIZE]
         batch_prompt_items = [
             {"slide_id": s["id"], "source": f"{s['source_file']} (Slide {s['slide_index']})", "content": s.get("text", "")[:1000]}
             for s in batch
         ]
+        # Build seen-topics context for consistency across batches
+        seen_topics_str = ""
+        if seen_topics:
+            unique_seen = list(dict.fromkeys(seen_topics))  # deduplicate, preserve order
+            seen_topics_str = (
+                f"\n\nIMPORTANT — topics already assigned in previous batches (reuse EXACTLY when a slide matches):\n"
+                f"{json.dumps(unique_seen)}"
+                "\nWhen a slide belongs to one of the above topics, use the EXACT same topic name. "
+                "Only invent a new topic name when no existing topic fits."
+            )
+
         prompt = f"""You are an academic organizer. Group slide items into meaningful academic topics.
 
 Rules for the 'topic' field:
 - Use a clear, descriptive subject name (e.g. "Shallow Copy vs Deep Copy", "Character Arrays vs Strings") that reflects the actual concept being taught.
 - NEVER use a table header, column label, row number, or short fragment (e.g. "S.No.", "SNo", "Sr No", "Table 1") as a topic name, even if it appears first in the slide text.
 - If a slide is a data table, name the topic after what the table is actually comparing or explaining, not its column headers.
+- If a slide covers the same concept as one already listed above, use the EXACT same topic name — do not invent a near-synonym.{seen_topics_str}
 
 Return ONLY JSON array with 'slide_id', 'topic', 'concepts'. Data: {json.dumps(batch_prompt_items)}"""
         try:
@@ -184,18 +199,161 @@ Return ONLY JSON array with 'slide_id', 'topic', 'concepts'. Data: {json.dumps(b
                 first_line = s.get("text", "").split("\n")[0] if s.get("text") else "General Slide"
                 s["topic"] = first_line[:40].strip() or "General Topic"
                 s["concepts"] = []
+        # Record this batch's topics so the next batch can stay consistent
+        seen_topics.extend(s.get("topic", "") for s in batch if s.get("topic"))
         time.sleep(0.5)
     return slides
 
 
-def group_slides_by_topic(slides: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+def _canonicalize_topic(raw: str) -> str:
+    """Normalize a topic string into a canonical lowercase key for fuzzy matching."""
+    import re
+    if not raw:
+        return "general"
+    s = raw.lower().strip()
+    # Remove common filler words that don't affect grouping
+    s = re.sub(r"\b(intro|introduction|basics|overview|part\s*\d+|lecture\s*\d+|chapter\s*\d+)\b", "", s)
+    # Remove punctuation except hyphens inside words
+    s = re.sub(r"[^\w\s-]", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s or "general"
+
+
+def _string_similarity(a: str, b: str) -> float:
+    """Combined topic similarity: bigram Dice + token containment + acronym match.
+
+    - Dice bigram handles near-identical names ("Virtual Memory & Paging" vs
+      "Virtual Memory - Paging").
+    - Token containment handles "Convolutional Neural Networks (CNN)" vs
+      "Convolutional Neural Networks".
+    - Acronym matching handles "TLB" vs "Translation Lookaside Buffer" and
+      "CNNs" vs "Convolutional Neural Networks" — only for genuine
+      all-caps acronym tokens, with exact initials equality (no substring
+      matching, which caused false positives like "page"~"Paging Architecture").
+    """
+    ca, cb = _canonicalize_topic(a), _canonicalize_topic(b)
+    if ca == cb:
+        return 1.0
+    if len(ca) < 2 or len(cb) < 2:
+        return 0.0
+
+    # 1) Dice bigram
+    bg_a = {ca[i:i+2] for i in range(len(ca) - 1)}
+    bg_b = {cb[i:i+2] for i in range(len(cb) - 1)}
+    dice = (2.0 * len(bg_a & bg_b)) / (len(bg_a) + len(bg_b))
+
+    # 2) Token-level containment / Jaccard on content words (order preserved)
+    _STOP = {"a", "an", "the", "and", "for", "with", "of", "on", "in", "to", "vs", "v", "part"}
+    ta = [w for w in ca.split() if w and w not in _STOP]
+    tb = [w for w in cb.split() if w and w not in _STOP]
+    token_score = 0.0
+    if ta and tb:
+        set_a, set_b = set(ta), set(tb)
+        inter = set_a & set_b
+        jac = len(inter) / len(set_a | set_b)
+        # If all tokens of the smaller side appear in the larger, strong signal
+        if inter:
+            if inter == set_a or inter == set_b:
+                token_score = min(len(set_a), len(set_b)) / max(len(set_a), len(set_b))
+            else:
+                token_score = jac
+
+    # 3) Acronym match — only for genuine all-caps acronym tokens (e.g. "TLB",
+    #    "CNN", "CNNs", "OS") compared against the exact initials of the other topic.
+    def _acronym_tokens(raw: str) -> list:
+        import re
+        # Matches ALL-CAPS tokens, optionally with a trailing lowercase "s" (CNNs)
+        return re.findall(r"\b[A-Z]{2,}[a-z]?\b", raw)
+
+    def _initials_of(tokens: list) -> str:
+        return "".join(w[0] for w in tokens if w)
+
+    def _normalize_acronym(tok: str) -> str:
+        t = tok.lower().rstrip("s")  # "CNNs" -> "cnn"
+        return t
+
+    acronym_score = 0.0
+    toks_a, toks_b = _acronym_tokens(a), _acronym_tokens(b)
+    # A) Both sides have acronyms -> compare directly
+    if toks_a and toks_b:
+        na, nb = _normalize_acronym(toks_a[0]), _normalize_acronym(toks_b[0])
+        if na and nb and na == nb:
+            acronym_score = 0.9
+    # B) One side has an acronym, other is a phrase -> compare to its initials
+    if not acronym_score:
+        if toks_a and tb:
+            if _normalize_acronym(toks_a[0]) == _initials_of(tb).lower():
+                acronym_score = 0.9
+        elif toks_b and ta:
+            if _normalize_acronym(toks_b[0]) == _initials_of(ta).lower():
+                acronym_score = 0.9
+
+    return max(dice, token_score, acronym_score)
+
+
+def group_slides_by_topic(slides: List[Dict[str, Any]], fuzzy_threshold: float = 0.58) -> Dict[str, List[Dict[str, Any]]]:
+    """Group slides by detected topic with fuzzy name merging.
+
+    Stage 1: exact-name grouping.
+    Stage 2: agglomerative average-linkage merge — two topic groups are only
+    merged when their *average pairwise* name similarity is >= fuzzy_threshold.
+    Average-linkage (rather than single-linkage / union-find) prevents
+    transitive chaining, e.g. "Virtual Memory" ~ "Virtual Memory & Paging" ~
+    "Paging Architecture" — the bridge term "paging" alone can't chain three
+    distinct topics into one.
+    """
+    # Stage 1 – exact grouping
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     for slide in slides:
         topic = slide.get("topic", "General Overview").strip()
         if topic not in grouped:
             grouped[topic] = []
         grouped[topic].append(slide)
-    return grouped
+
+    if len(grouped) <= 1:
+        return grouped
+
+    # Stage 2 – agglomerative average-linkage clustering on topic names
+    names = list(grouped.keys())
+
+    def _avg_sim(cluster_a: List[str], cluster_b: List[str]) -> float:
+        if not cluster_a or not cluster_b:
+            return 0.0
+        total = 0.0
+        for x in cluster_a:
+            for y in cluster_b:
+                total += _string_similarity(x, y)
+        return total / (len(cluster_a) * len(cluster_b))
+
+    clusters: List[List[str]] = [[n] for n in names]
+    # Repeatedly merge the closest pair until nothing reaches the threshold
+    while True:
+        best_i, best_j, best_sim = -1, -1, 0.0
+        for i in range(len(clusters)):
+            for j in range(i + 1, len(clusters)):
+                sim = _avg_sim(clusters[i], clusters[j])
+                if sim > best_sim:
+                    best_sim, best_i, best_j = sim, i, j
+        if best_i < 0 or best_sim < fuzzy_threshold:
+            break
+        # Merge (keep the cluster with the longest, most descriptive name first)
+        merged = clusters[best_i] + clusters[best_j]
+        merged.sort(key=len, reverse=True)
+        clusters.pop(best_j)
+        clusters.pop(best_i)
+        clusters.append(merged)
+
+    # Stage 3 – rebuild grouped dict using the merged clusters
+    result: Dict[str, List[Dict[str, Any]]] = {}
+    for cluster in clusters:
+        # Representative title = longest member name (most descriptive)
+        display = max(cluster, key=len)
+        if display not in result:
+            result[display] = []
+        for name in cluster:
+            result[display].extend(grouped[name])
+
+    return result
 
 
 def summarize_topic_group(

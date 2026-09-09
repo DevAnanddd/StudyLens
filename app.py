@@ -1688,7 +1688,7 @@ if st.session_state.current_view == "Overview":
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Materials":
     st.markdown('<span class="view-title">📄 Course Materials &amp; Lecture Slides</span>', unsafe_allow_html=True)
-    st.markdown('<div class="view-subtitle">Upload lecture slides (PNG, JPG, WEBP) or multi-page PDFs. OpenCV will enhance clarity and filter duplicates.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="view-subtitle">Upload lecture slides (PNG, JPG, WEBP) or multi-page PDFs. OpenCV enhances clarity, filters duplicates, and AI automatically groups slides into topic-based notes.</div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         uploaded_files = st.file_uploader(
@@ -1783,6 +1783,10 @@ elif st.session_state.current_view == "Materials":
                 summaries = []
                 ai_fail_count = 0
                 for topic, topic_slides in grouped_topics.items():
+                    # Stash the exact slide IDs that belong to this (possibly
+                    # fuzzy-merged) topic so the UI can map slides back even
+                    # when individual slides carry a slightly different label.
+                    topic_slide_ids = [s["id"] for s in topic_slides]
                     try:
                         summary_obj = summarize_topic_group(topic, topic_slides, api_key=api_key_input)
                     except GeminiAPIError as api_err:
@@ -1796,6 +1800,7 @@ elif st.session_state.current_view == "Materials":
                         }
                         if api_err.error_type in ("rate_limited", "permission_denied", "model_not_found"):
                             status.warning(f"⚠️ AI summarization failed for topic '{topic}' ({api_err.error_type}): {api_err.message}")
+                    summary_obj["slide_ids"] = topic_slide_ids
                     summaries.append(summary_obj)
                 if ai_fail_count > 0:
                     status.warning(f"⚠️ {ai_fail_count}/{len(grouped_topics)} topics failed AI summarization — raw text was used instead. Check the error details above.")
@@ -1815,6 +1820,40 @@ elif st.session_state.current_view == "Materials":
             time.sleep(0.4)
             st.session_state.current_view = "Revision Notes"
             st.rerun()
+
+    # ── Topic Map: visual overview of how slides were grouped ──
+    if sub["topic_summaries"] and sub["pipeline_stage"] == "completed":
+        st.markdown("---")
+        st.markdown("##### 🗺️ Topic Organization Map")
+        st.caption(f"Your {len(sub['unique_slides'])} slides were automatically grouped into {len(sub['topic_summaries'])} topics:")
+        slide_by_id = {s["id"]: s for s in sub["unique_slides"]}
+        for t_idx, topic_item in enumerate(sub["topic_summaries"], 1):
+            topic_name = topic_item.get("topic", f"Topic {t_idx}")
+            # Use the slide_ids recorded at pipeline time (theme fuzzy merging may
+            # merge slides whose individual labels differ from the group title).
+            topic_ids = topic_item.get("slide_ids", [])
+            topic_slides = [slide_by_id[sid] for sid in topic_ids if sid in slide_by_id]
+            slide_count = len(topic_slides)
+            concepts_count = len(topic_item.get("definitions", []))
+            subheadings_count = len(topic_item.get("subheadings", []))
+            with st.expander(
+                f"**{t_idx}. {topic_name}** — {slide_count} slide{'s' if slide_count != 1 else ''} · "
+                f"{subheadings_count} section{'s' if subheadings_count != 1 else ''} · "
+                f"{concepts_count} concept{'s' if concepts_count != 1 else ''}",
+                expanded=False,
+            ):
+                if topic_slides:
+                    cols = st.columns(min(len(topic_slides), 4))
+                    for s_idx, ts in enumerate(topic_slides):
+                        with cols[s_idx % 4]:
+                            st.image(ts["image"], use_container_width=True, caption=ts["source_file"])
+                else:
+                    st.info("No individual slide images mapped to this topic.")
+                if topic_item.get("summary_markdown"):
+                    st.markdown("---")
+                    st.markdown(topic_item["summary_markdown"])
+
+        st.markdown("---")
 
     if sub["unique_slides"]:
         st.markdown("##### 📁 Processed Slide Archive")
@@ -1866,7 +1905,10 @@ elif st.session_state.current_view == "Revision Notes":
                 if item.get("ai_summary_failed"):
                     st.warning("⚠️ AI summarization couldn't run for this topic — showing raw extracted text below instead of a proper summary.")
                     if st.button("🔄 Retry AI Summary for This Topic", key=f"retry_topic_{idx}_{st.session_state.current_subject}"):
-                        matching_slides = [s for s in sub["unique_slides"] if s.get("topic") == topic_title]
+                        retry_ids = item.get("slide_ids", [])
+                        matching_slides = [s for s in sub["unique_slides"] if s["id"] in retry_ids]
+                        if not matching_slides:
+                            matching_slides = [s for s in sub["unique_slides"] if s.get("topic") == topic_title]
                         if matching_slides:
                             with st.spinner("Retrying AI summarization..."):
                                 try:
@@ -1907,6 +1949,20 @@ elif st.session_state.current_view == "Revision Notes":
                     st.markdown("#### 💡 Key Concepts & Definitions")
                     for d in definitions:
                         st.info(f"**{d.get('term', '')}**: {d.get('definition', '')}")
+
+                # Show which source slides contributed to this topic
+                topic_ids = item.get("slide_ids", [])
+                topic_slides = [s for s in sub["unique_slides"] if s["id"] in topic_ids]
+                if not topic_slides:
+                    # Fallback: topic merging may have closed over exact-label slides
+                    topic_slides = [s for s in sub["unique_slides"] if s.get("topic") == topic_title]
+                if topic_slides:
+                    st.markdown(f"#### 📎 Source Slides ({len(topic_slides)} images)")
+                    img_cols = st.columns(min(len(topic_slides), 4))
+                    for s_idx, ts in enumerate(topic_slides):
+                        with img_cols[s_idx % 4]:
+                            st.image(ts["image"], use_container_width=True, caption=f"{ts['source_file']}")
+
 
         st.markdown("---")
         col_footer1, col_footer2 = st.columns(2)
