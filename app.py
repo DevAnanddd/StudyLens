@@ -36,7 +36,7 @@ from modules.file_processor import process_uploaded_files
 from modules.image_preprocessor import preprocess_slide_image
 from modules.duplicate_detector import cluster_duplicates
 from modules.ocr_engine import extract_text_from_slide
-from modules.ai_summarizer import detect_topics_batch, group_slides_by_topic, summarize_topic_group, call_gemini_rest
+from modules.ai_summarizer import detect_topics_batch, group_slides_by_topic, summarize_topic_group, call_gemini_rest, GeminiAPIError
 from modules.note_generator import generate_master_notes, generate_notes_pdf
 from modules.search_engine import RevisionSearchEngine
 from utils.data_store import save_subjects, load_subjects, save_notes_snapshot, load_notes_history
@@ -77,27 +77,14 @@ def resolve_user_id() -> str:
     except Exception:
         pass
 
-    # 2) Fallback: the id carried in the page URL (?uid=...).
-    try:
-        from_url = st.query_params.get("uid")
-        if from_url:
-            st.session_state["_studylens_uid"] = str(from_url)
-            return str(from_url)
-    except Exception:
-        pass
-
-    # 3) Brand-new visitor: mint an id, keep it for this session, plant it as
-    #    a cookie AND mirror it into the URL so it survives refreshes/sessions.
+    # 2) Brand-new visitor: mint an id, keep it for this session, plant it as
+    #    a cookie so it survives refreshes/sessions.
     uid = uuid.uuid4().hex
     st.session_state["_studylens_uid"] = uid
     st.markdown(
         f"<script>document.cookie='studylens_uid={uid}; max-age=31536000; path=/';</script>",
         unsafe_allow_html=True,
     )
-    try:
-        st.query_params["uid"] = uid
-    except Exception:
-        pass
     return uid
 
 
@@ -1027,6 +1014,11 @@ if "onboard_welcome_seen" not in st.session_state:
 if "onboard_tour_dismissed" not in st.session_state:
     st.session_state.onboard_tour_dismissed = False
 
+# Sentinel meaning "no subject is open — show the Home / landing screen".
+# Kept as a distinct string so it can never collide with a real subject name.
+HOME_SCREEN = "__home_screen__"
+
+
 # --- SIDEBAR: APP NAVIGATION (Linear / Notion Style) ---
 with st.sidebar:
     st.markdown("""
@@ -1044,35 +1036,55 @@ with st.sidebar:
     subject_names = list(st.session_state.subjects.keys())
 
     if subject_names:
-        if st.session_state.current_subject not in subject_names:
+        # Auto-open the first subject only on a brand-new session. Never hijack
+        # the Home screen (HOME_SCREEN) and never silently resurrect a deleted subject.
+        if st.session_state.current_subject is None:
+            st.session_state.current_subject = subject_names[0]
+        elif (
+            st.session_state.current_subject != HOME_SCREEN
+            and st.session_state.current_subject not in subject_names
+        ):
             st.session_state.current_subject = subject_names[0]
 
-        subject_icons = {"Deep Learning Demo": "🧠", "Data Structures": "💻", "Physics": "⚛"}
-        subject_options_labels = [f"{subject_icons.get(name, '📚')} {name}" for name in subject_names]
+        if st.session_state.current_subject != HOME_SCREEN:
+            subject_icons = {"Deep Learning Demo": "🧠", "Data Structures": "💻", "Physics": "⚛"}
+            subject_options_labels = [f"{subject_icons.get(name, '📚')} {name}" for name in subject_names]
 
-        current_idx = subject_names.index(st.session_state.current_subject)
-        chosen_subject_label = st.selectbox(
-            "Active Subject",
-            options=subject_options_labels,
-            index=current_idx,
-            label_visibility="collapsed"
-        )
-        chosen_subject = subject_names[subject_options_labels.index(chosen_subject_label)]
-        if chosen_subject != st.session_state.current_subject:
-            st.session_state.current_subject = chosen_subject
-            st.rerun()
+            current_idx = subject_names.index(st.session_state.current_subject)
+            chosen_subject_label = st.selectbox(
+                "Active Subject",
+                options=subject_options_labels,
+                index=current_idx,
+                label_visibility="collapsed"
+            )
+            chosen_subject = subject_names[subject_options_labels.index(chosen_subject_label)]
+            if chosen_subject != st.session_state.current_subject:
+                st.session_state.current_subject = chosen_subject
+                st.rerun()
 
-        _active_sub = st.session_state.subjects.get(st.session_state.current_subject, {})
-        _has_notes = bool(_active_sub.get("master_notes_md"))
-        st.markdown(f"""
-        <div class="subject-avatar">
-            <div class="avatar-letter">{st.session_state.current_subject[:1].upper()}</div>
-            <div class="avatar-text">
-                <div class="avatar-name">{st.session_state.current_subject}</div>
-                <div class="avatar-status">{"✅ Notes ready" if _has_notes else "⏳ Pending setup"}</div>
+            _active_sub = st.session_state.subjects.get(st.session_state.current_subject, {})
+            _has_notes = bool(_active_sub.get("master_notes_md"))
+            st.markdown(f"""
+            <div class="subject-avatar">
+                <div class="avatar-letter">{st.session_state.current_subject[:1].upper()}</div>
+                <div class="avatar-text">
+                    <div class="avatar-name">{st.session_state.current_subject}</div>
+                    <div class="avatar-status">{"✅ Notes ready" if _has_notes else "⏳ Pending setup"}</div>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+        else:
+            # On the Home screen show a home indicator instead of an active-subject card.
+            st.markdown(
+                """<div class="subject-avatar">
+                <div class="avatar-letter">⌂</div>
+                <div class="avatar-text">
+                    <div class="avatar-name">Home</div>
+                    <div class="avatar-status">Pick a subject to start</div>
+                </div>
+            </div>""",
+                unsafe_allow_html=True,
+            )
     else:
         st.caption("No subjects yet. Create one below.")
 
@@ -1134,27 +1146,29 @@ with st.sidebar:
                     save_subjects(st.session_state.subjects, user_key=_USER_ID)
                     st.rerun()
 
-    st.markdown("---")
+    # Workspace views only make sense while a real subject is open.
+    if st.session_state.current_subject is not None and st.session_state.current_subject != HOME_SCREEN:
+        st.markdown("---")
 
-    st.markdown('<div class="nav-section-label">Workspace</div>', unsafe_allow_html=True)
+        st.markdown('<div class="nav-section-label">Workspace</div>', unsafe_allow_html=True)
 
-    views = [
-        ("⌂ Overview", "Overview"),
-        ("📄 Materials", "Materials"),
-        ("📝 Revision Notes", "Revision Notes"),
-        ("📜 Notes History", "Notes History"),
-        ("💬 Chat with Notes", "Chat"),
-        ("🎯 Quizzes", "Quizzes")
-    ]
+        views = [
+            ("⌂ Overview", "Overview"),
+            ("📄 Materials", "Materials"),
+            ("📝 Revision Notes", "Revision Notes"),
+            ("📜 Notes History", "Notes History"),
+            ("💬 Chat with Notes", "Chat"),
+            ("🎯 Quizzes", "Quizzes")
+        ]
 
-    for label, view_key in views:
-        is_active = (st.session_state.current_view == view_key)
-        btn_type = "primary" if is_active else "secondary"
-        if st.button(label, use_container_width=True, key=f"nav_{view_key}", type=btn_type):
-            st.session_state.current_view = view_key
-            st.rerun()
+        for label, view_key in views:
+            is_active = (st.session_state.current_view == view_key)
+            btn_type = "primary" if is_active else "secondary"
+            if st.button(label, use_container_width=True, key=f"nav_{view_key}", type=btn_type):
+                st.session_state.current_view = view_key
+                st.rerun()
 
-    st.markdown("---")
+        st.markdown("---")
 
     st.markdown('<div class="nav-section-label">Settings</div>', unsafe_allow_html=True)
 
@@ -1181,9 +1195,9 @@ with st.sidebar:
         )
         apply_enhancements = st.checkbox("OpenCV CLAHE & Denoise", value=True)
 
-    if subject_names and st.session_state.current_subject:
+    if subject_names and st.session_state.current_subject is not None and st.session_state.current_subject != HOME_SCREEN:
         if st.button("🏠 Home / Change Subject", use_container_width=True, key="sb_home_btn"):
-            st.session_state.current_subject = None
+            st.session_state.current_subject = HOME_SCREEN
             st.session_state.current_view = "Overview"
             st.rerun()
         if st.button("🔄 Reset Active Subject", use_container_width=True):
@@ -1204,7 +1218,7 @@ with st.sidebar:
                     st.rerun()
 
     # ── Onboarding progress tracker (sidebar footer) ──
-    if st.session_state.current_subject and subject_names:
+    if subject_names and st.session_state.current_subject is not None and st.session_state.current_subject != HOME_SCREEN:
         _sub_now = st.session_state.subjects.get(st.session_state.current_subject, {})
         _mk = lambda done, txt: f'<span class="onboard-milestone {"done" if done else ""}">{"✅" if done else "○"} {txt}</span>'
         st.markdown("""
@@ -1239,7 +1253,11 @@ with st.sidebar:
 # ==============================================================================
 # VIEW: CLEAN EMPTY / LANDING STATE (When no subject is active)
 # ==============================================================================
-if not st.session_state.subjects or not st.session_state.current_subject:
+if (
+    not st.session_state.subjects
+    or st.session_state.current_subject is None
+    or st.session_state.current_subject == HOME_SCREEN
+):
     # ── First-run welcome card ──
     if not st.session_state.onboard_welcome_seen:
         c_w, c_d = st.columns([5, 1])
@@ -1438,7 +1456,7 @@ sub = st.session_state.subjects[st.session_state.current_subject]
 top_nav_col1, top_nav_col2 = st.columns([1.5, 3.5])
 with top_nav_col1:
     if st.button("← Home", key="btn_top_back_home", use_container_width=True, help="Return to subjects overview & landing page"):
-        st.session_state.current_subject = None
+        st.session_state.current_subject = HOME_SCREEN
         st.session_state.current_view = "Overview"
         st.rerun()
 with top_nav_col2:
@@ -1754,13 +1772,31 @@ elif st.session_state.current_view == "Materials":
 
                 sub["ocr_done"] = True
                 status.write("🤖 Grouping topics and summarizing with Gemini AI...")
-                final_unique = detect_topics_batch(final_unique, api_key=api_key_input)
+                try:
+                    final_unique = detect_topics_batch(final_unique, api_key=api_key_input)
+                except GeminiAPIError as api_err:
+                    status.warning(f"⚠️ Topic detection API error ({api_err.error_type}): {api_err.message}")
                 grouped_topics = group_slides_by_topic(final_unique)
 
                 summaries = []
+                ai_fail_count = 0
                 for topic, topic_slides in grouped_topics.items():
-                    summary_obj = summarize_topic_group(topic, topic_slides, api_key=api_key_input)
+                    try:
+                        summary_obj = summarize_topic_group(topic, topic_slides, api_key=api_key_input)
+                    except GeminiAPIError as api_err:
+                        ai_fail_count += 1
+                        summary_obj = {
+                            "topic": topic,
+                            "subheadings": [{"title": "Extracted Content", "content": "\n\n".join([s.get("text", "") for s in topic_slides]), "key_points": [], "sources": []}],
+                            "definitions": [],
+                            "summary_markdown": f"### {topic}\n\n" + "\n\n".join([s.get("text", "") for s in topic_slides]),
+                            "ai_summary_failed": True
+                        }
+                        if api_err.error_type in ("rate_limited", "permission_denied", "model_not_found"):
+                            status.warning(f"⚠️ AI summarization failed for topic '{topic}' ({api_err.error_type}): {api_err.message}")
                     summaries.append(summary_obj)
+                if ai_fail_count > 0:
+                    status.warning(f"⚠️ {ai_fail_count}/{len(grouped_topics)} topics failed AI summarization — raw text was used instead. Check the error details above.")
 
                 sub["topic_summaries"] = summaries
                 total_words = sum(s.get("word_count", 0) for s in final_unique)
@@ -1826,24 +1862,32 @@ elif st.session_state.current_view == "Revision Notes":
             topic_title = item.get("topic", f"Topic {idx}")
             with st.expander(f"📚 {idx}. {topic_title}", expanded=(idx == 1)):
                 if item.get("ai_summary_failed"):
-                    st.warning("⚠️ AI summarization couldn't run for this topic (often a temporary rate limit or connection issue) — showing raw extracted text below instead of a proper summary.")
+                    st.warning("⚠️ AI summarization couldn't run for this topic — showing raw extracted text below instead of a proper summary.")
                     if st.button("🔄 Retry AI Summary for This Topic", key=f"retry_topic_{idx}_{st.session_state.current_subject}"):
                         matching_slides = [s for s in sub["unique_slides"] if s.get("topic") == topic_title]
                         if matching_slides:
                             with st.spinner("Retrying AI summarization..."):
-                                new_summary = summarize_topic_group(topic_title, matching_slides, api_key=api_key_input)
-                            sub["topic_summaries"][idx - 1] = new_summary
-                            total_words = sum(s.get("word_count", 0) for s in sub["unique_slides"])
-                            stats = {
-                                "unique_slides": len(sub["unique_slides"]),
-                                "total_words": total_words,
-                                "topics_count": len(sub["topic_summaries"])
-                            }
-                            sub["master_notes_md"] = generate_master_notes(sub["topic_summaries"], stats)
-                            sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
-                            sub["search_engine"] = None  # Rebuild on next search
-                            save_subjects(st.session_state.subjects, user_key=_USER_ID)
-                            st.rerun()
+                                try:
+                                    new_summary = summarize_topic_group(topic_title, matching_slides, api_key=api_key_input)
+                                    sub["topic_summaries"][idx - 1] = new_summary
+                                except GeminiAPIError as api_err:
+                                    st.error(f"⚠️ Retry failed ({api_err.error_type}): {api_err.message}")
+                                    new_summary = None
+                                except Exception as e:
+                                    st.error(f"⚠️ Retry failed: {e}")
+                                    new_summary = None
+                            if new_summary:
+                                total_words = sum(s.get("word_count", 0) for s in sub["unique_slides"])
+                                stats = {
+                                    "unique_slides": len(sub["unique_slides"]),
+                                    "total_words": total_words,
+                                    "topics_count": len(sub["topic_summaries"])
+                                }
+                                sub["master_notes_md"] = generate_master_notes(sub["topic_summaries"], stats)
+                                sub["last_updated"] = datetime.now().strftime("%b %d, %Y at %I:%M %p")
+                                sub["search_engine"] = None  # Rebuild on next search
+                                save_subjects(st.session_state.subjects, user_key=_USER_ID)
+                                st.rerun()
                         else:
                             st.error("Couldn't find the original slides for this topic to retry — try re-uploading them instead.")
                 if "summary_markdown" in item and item["summary_markdown"]:
@@ -1931,9 +1975,20 @@ elif st.session_state.current_view == "Chat":
                         )
                         answer = call_gemini_rest(chat_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=False)
                         if not answer:
-                            answer = "Sorry, I couldn't get an answer right now — this is often a temporary rate limit. Try again in a minute."
+                            answer = "⚠️ Sorry, I couldn't get an answer right now. The API returned no response — please try again in a minute."
+                    except GeminiAPIError as api_err:
+                        if api_err.error_type == "rate_limited":
+                            answer = f"⚠️ **Rate limit / quota exceeded.** {api_err.message}\n\n💡 *Tip: The Gemini free tier has daily and monthly usage caps. Check your usage at [Google AI Studio](https://aistudio.google.com/apikey).*"
+                        elif api_err.error_type == "server_busy":
+                            answer = f"⚠️ **Gemini is temporarily overloaded.** {api_err.message}\n\n💡 *This is Google's server congestion, not your API key. The app automatically retries with fallback models — just try again in a minute.*"
+                        elif api_err.error_type == "model_not_found":
+                            answer = f"⚠️ **AI model not available.** {api_err.message}\n\n💡 *This usually means the model name is outdated. The developer needs to update the model name in the code.*"
+                        elif api_err.error_type == "permission_denied":
+                            answer = f"⚠️ **API key issue.** {api_err.message}\n\n💡 *Your API key may have been revoked or expired. Generate a new key at [Google AI Studio](https://aistudio.google.com/apikey).*"
+                        else:
+                            answer = f"⚠️ **API error ({api_err.error_type}).** {api_err.message}"
                     except Exception as e:
-                        answer = f"Sorry, I couldn't get an answer right now. ({e})"
+                        answer = f"⚠️ Sorry, I couldn't get an answer right now. ({e})"
                     st.markdown(answer)
 
             sub["chat_history"].append({"role": "assistant", "content": answer})
@@ -2003,7 +2058,9 @@ elif st.session_state.current_view == "Quizzes":
                             else:
                                 st.warning("⚠️ AI returned an unexpected quiz format. Please try again.")
                         else:
-                            st.error("⚠️ Could not generate quiz — API may be temporarily rate-limited. Try again in a minute.")
+                            st.error("⚠️ Could not generate quiz — the API returned no response. Try again in a minute.")
+                    except GeminiAPIError as api_err:
+                        st.error(f"⚠️ **Quiz generation failed ({api_err.error_type}).** {api_err.message}")
                     except json.JSONDecodeError:
                         st.error("⚠️ AI returned invalid quiz data. Please try again.")
                     except Exception as e:

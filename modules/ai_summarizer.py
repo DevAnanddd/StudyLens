@@ -7,14 +7,81 @@ from typing import List, Dict, Any, Optional
 from utils.config import TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
 
 # The model name that used to live in utils.config (DEFAULT_GEMINI_MODEL) has been
-# retired by Google. Hardcoding a currently-supported model here instead.
+# retired by Google. Models here are ordered by preference; when the first model
+# is busy/overloaded (HTTP 503 / 429), the code automatically falls back to the next.
+# NOTE: gemini-1.5-flash / gemini-2.0-flash / gemini-2.5-flash have been retired (404).
 CURRENT_GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL_CHAIN = [
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+    "gemini-3.7-flash",
+    "gemini-flash-lite-latest",
+    "gemini-flash-latest",
+]
+API_TIMEOUT_SECONDS = 120
+API_RETRY_ATTEMPTS = 3
+API_RETRY_BACKOFF_BASE = 2.0  # wait 2s, 4s, 8s between transient-error retries
+
+
+class GeminiAPIError(Exception):
+    """Raised when the Gemini REST API returns an error response."""
+    def __init__(self, status_code: int, message: str, error_type: str = "unknown"):
+        self.status_code = status_code
+        self.message = message
+        self.error_type = error_type
+        super().__init__(message)
+
+
+def classify_gemini_error(status_code: int, error_body: str) -> tuple[str, str]:
+    """Return (user_friendly_type, user_friendly_message) for a Gemini API error."""
+    try:
+        parsed = json.loads(error_body)
+        detail = parsed.get("error", {}).get("message", error_body)
+    except Exception:
+        detail = error_body
+
+    if status_code == 429 or "RESOURCE_EXHAUSTED" in error_body or "rate" in error_body.lower():
+        return ("rate_limited", f"API rate limit / quota exceeded. {detail}")
+    elif status_code == 403 or "PERMISSION_DENIED" in error_body:
+        return ("permission_denied", f"API key is invalid or revoked. {detail}")
+    elif status_code == 404 or "NOT_FOUND" in error_body or "models/" in detail:
+        return ("model_not_found", f"Model '{CURRENT_GEMINI_MODEL}' not found or no longer available. {detail}")
+    elif status_code == 400 or "INVALID_ARGUMENT" in error_body:
+        return ("invalid_request", f"Bad request sent to API. {detail}")
+    elif status_code == 401:
+        return ("auth_error", f"Authentication failed — check your API key. {detail}")
+    elif status_code == 503 or status_code == 500 or "UNAVAILABLE" in error_body or "high demand" in detail:
+        return ("server_busy", f"The Gemini API is temporarily overloaded. {detail}")
+    else:
+        return ("server_error", f"Unexpected API error ({status_code}). {detail}")
+
+
+def _http_post_json(url: str, payload: dict, timeout: int, api_key: str) -> str:
+    """Perform a single HTTP POST to the Gemini API and return the response text."""
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
 def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODEL, json_response: bool = True) -> Optional[str]:
+    """Call the Gemini API with automatic model fallback and retries.
+
+    - Tries each model in GEMINI_MODEL_CHAIN until one responds.
+    - Retries transient errors (429 / 503 / timeout) with exponential backoff.
+    - Raises GeminiAPIError only if every model fails on every attempt.
+    """
     if not api_key:
         return None
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+
+    # Prefer the explicitly requested model first, then the rest of the chain.
+    model_chain = [model] if model and model in GEMINI_MODEL_CHAIN else []
+    model_chain += [m for m in GEMINI_MODEL_CHAIN if m != model]
+
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -24,20 +91,43 @@ def call_gemini_rest(prompt: str, api_key: str, model: str = CURRENT_GEMINI_MODE
     if json_response:
         payload["generationConfig"]["responseMimeType"] = "application/json"
 
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
+    last_error: Optional[GeminiAPIError] = None
+    for attempt in range(1, API_RETRY_ATTEMPTS + 1):
+        for m in model_chain:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+            try:
+                return _http_post_json(url, payload, API_TIMEOUT_SECONDS, api_key)
+            except urllib.error.HTTPError as e:
+                error_body = ""
+                try:
+                    error_body = e.read().decode("utf-8")
+                except Exception:
+                    error_body = str(e)
+                error_type, error_msg = classify_gemini_error(e.code, error_body)
+                last_error = GeminiAPIError(e.code, error_msg, error_type)
+                print(f"[attempt {attempt}] Gemini API Error [{error_type}] (HTTP {e.code}) on model '{m}': {error_msg}")
+                # Transient errors: try the next model, then retry with backoff.
+                if error_type in ("rate_limited", "server_busy", "server_error", "model_not_found"):
+                    continue
+                # Permanent errors (bad key, auth) can't be fixed by retrying.
+                raise last_error
+            except urllib.error.URLError as e:
+                last_error = GeminiAPIError(0, f"Network error: {e.reason}", "network_error")
+                print(f"[attempt {attempt}] Gemini API Network Error on model '{m}': {e}")
+                continue
+            except Exception as e:
+                last_error = GeminiAPIError(0, f"Unexpected request failure: {e}", "unknown")
+                print(f"[attempt {attempt}] Gemini API Request Error on model '{m}': {e}")
+                continue
 
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            text = data["candidates"][0]["content"]["parts"][0]["text"]
-            return text
-    except Exception as e:
-        print(f"Gemini API Request Error: {e}")
-        return None
+        if attempt < API_RETRY_ATTEMPTS:
+            wait = API_RETRY_BACKOFF_BASE * (2 ** (attempt - 1))
+            print(f"Retrying in {wait:.0f}s (attempt {attempt}/{API_RETRY_ATTEMPTS})...")
+            time.sleep(wait)
+
+    if last_error:
+        raise last_error
+    return None
 
 
 def detect_topics_batch(
@@ -68,7 +158,13 @@ Rules for the 'topic' field:
 - If a slide is a data table, name the topic after what the table is actually comparing or explaining, not its column headers.
 
 Return ONLY JSON array with 'slide_id', 'topic', 'concepts'. Data: {json.dumps(batch_prompt_items)}"""
-        resp_text = call_gemini_rest(prompt, key, model=model_name, json_response=True)
+        try:
+            resp_text = call_gemini_rest(prompt, key, model=model_name, json_response=True)
+        except GeminiAPIError:
+            raise  # Let caller handle API errors (rate limit, model not found, etc.)
+        except Exception as e:
+            print(f"Topic detection request error: {e}")
+            resp_text = None
         if resp_text:
             try:
                 parsed = json.loads(resp_text.strip())

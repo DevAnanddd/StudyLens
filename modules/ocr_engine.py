@@ -93,25 +93,34 @@ def run_ocr_gemini_vision(image: Image.Image, api_key: str, model: str = "gemini
         }],
         "generationConfig": {"temperature": 0.1}
     }
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=45) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except Exception as e:
-        raise RuntimeError(f"Gemini Vision OCR error: {e}")
 
-    return {
-        "text": text,
-        "confidence": 0.95,
-        "word_count": len(text.split()),
-        "engine": "Gemini Vision"
-    }
+    # Model fallback chain for vision OCR -- some models may be overloaded (503).
+    from modules.ai_summarizer import GEMINI_MODEL_CHAIN
+    model_chain = [model] + [m for m in GEMINI_MODEL_CHAIN if m != model]
+    last_error = ""
+    for m in model_chain:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if text:
+                    return {
+                        "text": text,
+                        "confidence": 0.95,
+                        "word_count": len(text.split()),
+                        "engine": f"Gemini Vision ({m})"
+                    }
+        except Exception as e:
+            last_error = f"{last_error} {m}: {e}."
+            continue
+
+    raise RuntimeError(f"Gemini Vision OCR error:{last_error}")
 
 
 def extract_text_from_slide(slide: Dict[str, Any], preferred_engine: str = "Tesseract", api_key: Optional[str] = None) -> Dict[str, Any]:
