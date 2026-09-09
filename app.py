@@ -1018,6 +1018,10 @@ if "onboard_tour_dismissed" not in st.session_state:
 # Kept as a distinct string so it can never collide with a real subject name.
 HOME_SCREEN = "__home_screen__"
 
+# Gemini API key for AI-powered features (search, quiz, chat).
+# Defined at module level so it's always available regardless of sidebar state.
+api_key_input = GEMINI_API_KEY
+
 
 # --- SIDEBAR: APP NAVIGATION (Linear / Notion Style) ---
 with st.sidebar:
@@ -1246,8 +1250,6 @@ with st.sidebar:
             st.caption("Hint: upload slides to generate your notes.")
         elif not _m3:
             st.caption("Hint: try a 🎯 Quiz to test yourself.")
-
-    api_key_input = GEMINI_API_KEY
 
 
 # ==============================================================================
@@ -1526,7 +1528,7 @@ if global_search and sub["master_notes_md"]:
                     "Return ONLY a JSON array with: breadcrumb, subheading, snippet, sources array.\n\n"
                     f"NOTES:\n{sub['master_notes_md']}\n\nQUERY: {global_search}"
                 )
-                raw_s = call_gemini_rest(search_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=True)
+                raw_s = call_gemini_rest(search_prompt, api_key=api_key_input, model="gemini-3.7-flash", json_response=True)
                 if raw_s:
                     s_results = json.loads(raw_s)
                     if s_results:

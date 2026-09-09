@@ -67,7 +67,7 @@ def run_ocr_easyocr(image: Image.Image) -> Dict[str, Any]:
     }
 
 
-def run_ocr_gemini_vision(image: Image.Image, api_key: str, model: str = "gemini-3.6-flash") -> Dict[str, Any]:
+def run_ocr_gemini_vision(image: Image.Image, api_key: str, model: str = "gemini-3.7-flash") -> Dict[str, Any]:
     """Uses Gemini's multimodal vision to transcribe an image -- much stronger than
     classic OCR (Tesseract/EasyOCR) on handwriting, cursive, and math notation."""
     if not api_key:

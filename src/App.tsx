@@ -170,18 +170,16 @@ function MainApp() {
               <span>STUDYLENS AI ENGINE</span>
             </span>
             <span className="hidden md:inline opacity-20">|</span>
-            <span className={`${theme.textMuted} hidden md:inline`}>LATENCY: ~480ms</span>
-            <span className="hidden md:inline opacity-20">|</span>
-            <span className={`${theme.textMuted} hidden md:inline`}>CONCURRENCY: 3-4 WORKERS</span>
+            <span className={`${theme.textMuted} hidden md:inline`}>CLIENT-SIDE PIPELINE</span>
           </div>
 
           <div className="flex items-center gap-3 text-[11px]">
             <span
               className={`font-semibold px-2.5 py-0.5 rounded border ${theme.accentBgSubtle} ${theme.accentBorder} animate-borderGlow`}
             >
-              MODEL: gemini-3.7-flash
+              POWERED BY GEMINI
             </span>
-            <span className={`${theme.textMuted} opacity-60 hidden sm:inline`}>ACTIVE THEME: {theme.name}</span>
+            <span className={`${theme.textMuted} opacity-60 hidden sm:inline`}>THEME: {theme.name}</span>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 mt-3">

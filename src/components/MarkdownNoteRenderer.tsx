@@ -31,13 +31,16 @@ export const MarkdownNoteRenderer: React.FC<MarkdownNoteRendererProps> = ({
   const handleDownload = () => {
     const element = document.createElement("a");
     const file = new Blob([markdown], { type: "text/markdown" });
-    element.href = URL.createObjectURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    element.href = objectUrl;
     element.download = `${(title || "StudyLens_Revision_Notes")
       .toLowerCase()
       .replace(/[^\w]+/g, "_")}.md`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    // Clean up the blob URL to prevent memory leaks
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
   };
 
   return (

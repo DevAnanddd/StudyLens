@@ -10,11 +10,11 @@ from utils.config import TOPIC_DETECTION_BATCH_SIZE, SUMMARIZATION_BATCH_SIZE
 # retired by Google. Models here are ordered by preference; when the first model
 # is busy/overloaded (HTTP 503 / 429), the code automatically falls back to the next.
 # NOTE: gemini-1.5-flash / gemini-2.0-flash / gemini-2.5-flash have been retired (404).
-CURRENT_GEMINI_MODEL = "gemini-3.6-flash"
+CURRENT_GEMINI_MODEL = "gemini-3.7-flash"
 GEMINI_MODEL_CHAIN = [
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
     "gemini-3.5-flash",
-    "gemini-3.7-flash",
     "gemini-flash-lite-latest",
     "gemini-flash-latest",
 ]
