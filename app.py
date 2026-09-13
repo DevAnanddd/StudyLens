@@ -1429,7 +1429,7 @@ if (
             <div class="feature-card" style="margin-bottom: 8px;">
                 <div class="feature-card-icon">🎯</div>
                 <div class="feature-card-title">4 · Quiz & Chat</div>
-                <div class="feature-card-desc">Test yourself on <b>🎯 Quizzes</b> and ask questions on <b>💬 Chat with Notes</b> — answers come only from your own material.</div>
+                <div class="feature-card-desc">Test yourself on <b>🎯 Quizzes</b>, chat on <b>💬 Chat with Notes</b> for notes-based answers, or use <b>🌐 Ask Anything</b> to ask any question to Gemini AI.</div>
             </div>
             """, unsafe_allow_html=True)
         st.markdown(
@@ -1679,7 +1679,7 @@ if st.session_state.current_view == "Overview":
             st.session_state.current_view = "Quizzes"
             st.rerun()
     with qa_col4:
-        if st.button("💬 Chat", use_container_width=True, type="primary", help="Ask AI about your notes"):
+        if st.button("💬 Chat", use_container_width=True, type="primary", help="Ask AI about your notes or any question"):
             st.session_state.current_view = "Chat"
             st.rerun()
                                 
@@ -2001,28 +2001,58 @@ elif st.session_state.current_view == "Notes History":
 
 
 # ------------------------------------------------------------------------------
-# 4. CHAT VIEW (Ask AI Questions Grounded in Your Notes)
+# 4. CHAT VIEW (Ask AI Questions — Grounded in Notes or General Knowledge)
 # ------------------------------------------------------------------------------
 elif st.session_state.current_view == "Chat":
     st.markdown('<span class="view-title">💬 Chat with Your Revision Notes</span>', unsafe_allow_html=True)
-    st.markdown('<div class="view-subtitle">Ask a question and the AI answers using only the content from your generated notes for this subject.</div>', unsafe_allow_html=True)
 
-    if not sub["master_notes_md"]:
-        st.info("No revision notes generated yet. Upload slides in the Materials tab or load the Sample Demo before chatting.")
+    # --- Chat mode selector ---
+    has_notes = bool(sub.get("master_notes_md"))
+    if has_notes:
+        chat_mode = st.radio(
+            "Chat mode",
+            ["📚 Chat with Notes", "🌐 Ask Anything"],
+            horizontal=True,
+            key=f"chat_mode_{st.session_state.current_subject}",
+            help="Switch between notes-based answers and general AI knowledge."
+        )
+        is_notes_mode = chat_mode == "📚 Chat with Notes"
     else:
-        for msg in sub["chat_history"]:
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
+        is_notes_mode = False
+        st.markdown(
+            '<div class="view-subtitle">💡 No revision notes yet — <b>Ask Anything</b> mode is active. '
+            'You can ask any question and Gemini AI will answer using its general knowledge. '
+            'Generate notes in the Materials tab to unlock <b>📚 Chat with Notes</b> mode!</div>',
+            unsafe_allow_html=True
+        )
 
-        user_question = st.chat_input("Ask something about your notes...", key=f"chat_input_{st.session_state.current_subject}")
-        if user_question:
-            sub["chat_history"].append({"role": "user", "content": user_question})
-            with st.chat_message("user"):
-                st.markdown(user_question)
+    if is_notes_mode:
+        st.markdown(
+            '<div class="view-subtitle">Ask a question and the AI answers using only the content from your generated notes for this subject.</div>',
+            unsafe_allow_html=True
+        )
+    elif has_notes:
+        st.markdown(
+            '<div class="view-subtitle">Ask any question — the AI will answer using its general knowledge (not limited to your notes).</div>',
+            unsafe_allow_html=True
+        )
 
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    try:
+    for msg in sub["chat_history"]:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    _chat_placeholder = "Ask something about your notes..." if is_notes_mode else "Ask me anything..."
+    user_question = st.chat_input(_chat_placeholder, key=f"chat_input_{st.session_state.current_subject}")
+    if user_question:
+        sub["chat_history"].append({"role": "user", "content": user_question})
+        with st.chat_message("user"):
+            st.markdown(user_question)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    if is_notes_mode and sub.get("master_notes_md"):
+                        # Mode 1: Answer grounded in revision notes only
                         chat_prompt = (
                             "You are a helpful study assistant. Answer the student's question "
                             "using ONLY the information contained in the revision notes below. "
@@ -2031,26 +2061,36 @@ elif st.session_state.current_view == "Chat":
                             f"REVISION NOTES:\n{sub['master_notes_md']}\n\n"
                             f"STUDENT QUESTION: {user_question}"
                         )
-                        answer = call_gemini_rest(chat_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=False)
-                        if not answer:
-                            answer = "⚠️ Sorry, I couldn't get an answer right now. The API returned no response — please try again in a minute."
-                    except GeminiAPIError as api_err:
-                        if api_err.error_type == "rate_limited":
-                            answer = f"⚠️ **Rate limit / quota exceeded.** {api_err.message}\n\n💡 *Tip: The Gemini free tier has daily and monthly usage caps. Check your usage at [Google AI Studio](https://aistudio.google.com/apikey).*"
-                        elif api_err.error_type == "server_busy":
-                            answer = f"⚠️ **Gemini is temporarily overloaded.** {api_err.message}\n\n💡 *This is Google's server congestion, not your API key. The app automatically retries with fallback models — just try again in a minute.*"
-                        elif api_err.error_type == "model_not_found":
-                            answer = f"⚠️ **AI model not available.** {api_err.message}\n\n💡 *This usually means the model name is outdated. The developer needs to update the model name in the code.*"
-                        elif api_err.error_type == "permission_denied":
-                            answer = f"⚠️ **API key issue.** {api_err.message}\n\n💡 *Your API key may have been revoked or expired. Generate a new key at [Google AI Studio](https://aistudio.google.com/apikey).*"
-                        else:
-                            answer = f"⚠️ **API error ({api_err.error_type}).** {api_err.message}"
-                    except Exception as e:
-                        answer = f"⚠️ Sorry, I couldn't get an answer right now. ({e})"
-                    st.markdown(answer)
+                    else:
+                        # Mode 2: General knowledge — answer any question freely
+                        chat_prompt = (
+                            "You are a knowledgeable and friendly study assistant called StudyLens AI. "
+                            "Answer the student's question thoroughly and clearly using your general knowledge. "
+                            "Provide explanations, examples, and helpful context. "
+                            "Format your response in clean Markdown for readability. "
+                            "If the question is ambiguous, give your best interpretation and answer.\n\n"
+                            f"STUDENT QUESTION: {user_question}"
+                        )
+                    answer = call_gemini_rest(chat_prompt, api_key=api_key_input, model="gemini-3.6-flash", json_response=False)
+                    if not answer:
+                        answer = "⚠️ Sorry, I couldn't get an answer right now. The API returned no response — please try again in a minute."
+                except GeminiAPIError as api_err:
+                    if api_err.error_type == "rate_limited":
+                        answer = f"⚠️ **Rate limit / quota exceeded.** {api_err.message}\n\n💡 *Tip: The Gemini free tier has daily and monthly usage caps. Check your usage at [Google AI Studio](https://aistudio.google.com/apikey).*"
+                    elif api_err.error_type == "server_busy":
+                        answer = f"⚠️ **Gemini is temporarily overloaded.** {api_err.message}\n\n💡 *This is Google's server congestion, not your API key. The app automatically retries with fallback models — just try again in a minute.*"
+                    elif api_err.error_type == "model_not_found":
+                        answer = f"⚠️ **AI model not available.** {api_err.message}\n\n💡 *This usually means the model name is outdated. The developer needs to update the model name in the code.*"
+                    elif api_err.error_type == "permission_denied":
+                        answer = f"⚠️ **API key issue.** {api_err.message}\n\n💡 *Your API key may have been revoked or expired. Generate a new key at [Google AI Studio](https://aistudio.google.com/apikey).*"
+                    else:
+                        answer = f"⚠️ **API error ({api_err.error_type}).** {api_err.message}"
+                except Exception as e:
+                    answer = f"⚠️ Sorry, I couldn't get an answer right now. ({e})"
 
-            sub["chat_history"].append({"role": "assistant", "content": answer})
-            save_subjects(st.session_state.subjects, user_key=_USER_ID)
+                st.markdown(answer)
+                sub["chat_history"].append({"role": "assistant", "content": answer})
+                save_subjects(st.session_state.subjects, user_key=_USER_ID)
 
         if sub["chat_history"]:
             if st.button("🗑️ Clear Chat History", key=f"clear_chat_{st.session_state.current_subject}"):
