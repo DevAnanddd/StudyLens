@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Compile check (syntax errors)
-        run: python -m compileall -q . --exclude venv --exclude __pycache__
+        run: python -m compileall -q -x "venv|__pycache__" .
       - name: Check import resolution
         run: python -c "from modules import ai_summarizer, duplicate_detector, file_processor, image_preprocessor, note_generator, ocr_engine, search_engine; from utils import config, data_store, helpers; print('All imports OK')"
 
